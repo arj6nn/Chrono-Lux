@@ -1,0 +1,177 @@
+<%- include('../partials/admin/sidebar') %>
+
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+<link rel="stylesheet" href="/styles/admin/brand-management.css">
+
+<div class="main">
+    <p class="page-title">Brands</p>
+    <p class="page-sub">Manage your product brands</p>
+
+    <div class="top-bar">
+        <button class="add-brand-btn" onclick="openAddBrandModal()">
+            <i class="ri-add-line"></i> Add Brand
+        </button>
+    </div>
+
+    <!-- TABLE -->
+    <table class="brand-table">
+        <thead>
+            <tr>
+                <th>Logo</th>
+                <th>Brand Name</th>
+                <th>Products</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <% brands.forEach(brand => { %>
+                <tr>
+                    <td class="brand-logo">
+                        <img src="<%= brand.brandImage[0] %>" alt="Brand Logo">
+                    </td>
+
+                    <td><%= brand.brandName %></td>
+                    <td>0 products</td>
+
+                    <td class="actions">
+
+                        <!-- EDIT -->
+                        <i class="ri-edit-2-line edit"
+                           onclick="openEditModal('<%= brand._id %>', '<%= brand.brandName %>', '<%= brand.brandImage[0] %>')">
+                        </i>
+
+                        <!-- DELETE opens modal -->
+                        <button type="button"
+                                style="background:none;border:none;padding:0;margin:0;"
+                                onclick="openDeleteModal('<%= brand._id %>', '<%= brand.brandName %>')">
+                            <i class="ri-delete-bin-6-line delete"></i>
+                        </button>
+
+                    </td>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
+</div>
+
+
+<!-- ADD BRAND MODAL -->
+<div id="addBrandModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2>Add New Brand</h2>
+            <span class="modal-close" onclick="closeAddBrandModal()">×</span>
+        </div>
+
+        <form id="addBrandForm" method="POST" action="/admin/brands/add">
+            <label>Brand Name</label>
+            <input type="text" name="name" required placeholder="Enter brand name">
+
+            <label>Logo URL</label>
+            <input type="text" name="logo" required placeholder="Enter logo image URL">
+
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn" onclick="closeAddBrandModal()">Cancel</button>
+                <button type="submit" class="submit-btn">Add Brand</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- EDIT BRAND MODAL -->
+<div id="editBrandModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2>Edit Brand</h2>
+            <span class="modal-close" onclick="closeEditBrandModal()">×</span>
+        </div>
+
+        <form id="editBrandForm" method="POST">
+            <label>Brand Name</label>
+            <input type="text" id="editName" name="name" required>
+
+            <label>Logo URL</label>
+            <input type="text" id="editLogo" name="logo" required>
+
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn" onclick="closeEditBrandModal()">Cancel</button>
+                <button type="submit" class="submit-btn">Update Brand</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- DELETE BRAND MODAL -->
+<div id="deleteBrandModal" class="modal-overlay">
+    <div class="modal-box" style="max-width:480px;">
+        <div class="modal-header">
+            <h2>Delete Brand</h2>
+            <span class="modal-close" onclick="closeDeleteModal()">×</span>
+        </div>
+
+        <div style="padding: 8px 0 18px; color:#444;">
+            <p>Are you sure you want to delete the brand <strong id="deleteBrandName"></strong>?</p>
+            <p style="font-size:13px;color:#777;margin-top:6px;">
+                This action cannot be undone.
+            </p>
+        </div>
+
+        <form id="deleteBrandForm" method="POST">
+            <div class="modal-actions" style="justify-content:space-between;">
+                <button type="button" class="cancel-btn" onclick="closeDeleteModal()">Cancel</button>
+                <button type="submit" class="submit-btn" style="background:#d9534f;">Delete</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- CSS -->
+<style>
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(2px);
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+</style>
+
+
+<!-- JS -->
+<script>
+    function openAddBrandModal() {
+        document.getElementById("addBrandModal").style.display = "flex";
+    }
+    function closeAddBrandModal() {
+        document.getElementById("addBrandModal").style.display = "none";
+    }
+
+    function openEditModal(id, name, logo) {
+        document.getElementById("editBrandModal").style.display = "flex";
+        document.getElementById("editName").value = name;
+        document.getElementById("editLogo").value = logo;
+        document.getElementById("editBrandForm").action = `/admin/brands/edit/${id}`;
+    }
+    function closeEditBrandModal() {
+        document.getElementById("editBrandModal").style.display = "none";
+    }
+
+    function openDeleteModal(id, name) {
+        document.getElementById("deleteBrandModal").style.display = "flex";
+        document.getElementById("deleteBrandName").textContent = name;
+        document.getElementById("deleteBrandForm").action = `/admin/brands/delete/${id}`;
+    }
+    function closeDeleteModal() {
+        document.getElementById("deleteBrandModal").style.display = "none";
+    }
+</script>

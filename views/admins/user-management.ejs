@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chrono Lux - User Management</title>
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="/styles/admin/user-management.css">
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <%- include('../partials/admin/sidebar') %>
+
+        <div class="main-content">
+
+            <h2>Users</h2>
+            <p>Manage your users and their permissions</p>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search users by name or email...">
+            </div>
+
+
+            <div class="table-container">
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Join Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <% if (users && users.length> 0) { %>
+
+                            <% users.forEach(user=> { %>
+
+                                <tr data-user-id="<%= user._id %>">
+
+                                    <td>
+                                        <div class="user-info">
+                                            <span class="user-name">
+                                                <%= user.name %>
+                                            </span>
+                                            <span class="user-email">
+                                                <%= user.email %>
+                                            </span>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <%= user.isAdmin ? "Admin" : "Customer" %>
+                                    </td>
+
+                                    <td>
+                                        <% if (user.isBlocked) { %>
+                                            <span class="status-badge status-blocked">Blocked</span>
+                                            <% } else { %>
+                                                <span class="status-badge status-active">active</span>
+                                                <% } %>
+                                    </td>
+
+                                    <td>
+                                        <% const joinDate=user.createdAt || user.createdOn; %>
+                                            <%= joinDate ? joinDate.toLocaleDateString("en-US") : "—" %>
+                                    </td>
+
+                                    <td>
+                                        <div class="actions">
+
+                                            <!-- Block / Unblock Button -->
+                                            <button
+                                                class="action-btn <%= user.isBlocked ? 'btn-unblock' : 'btn-block' %>"
+                                                onclick="toggleBlock('<%= user._id %>', <%= user.isBlocked ? 1 : 0 %>)">
+
+                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                                                </svg>
+                                            </button>
+
+                                            <!-- Delete Button (optional) -->
+
+                                        </div>
+                                    </td>
+
+                                </tr>
+
+                                <% }) %>
+
+                                    <% } else { %>
+
+                                        <tr>
+                                            <td colspan="5" style="text-align:center;padding:20px;">
+                                                No users found.
+                                            </td>
+                                        </tr>
+
+                                        <% } %>
+
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+        <!-- SweetAlert Script -->
+        <script>
+            async function toggleBlock(userId, isBlocked) {
+                let action = isBlocked ? "Unblock" : "Block";
+
+                const confirm = await Swal.fire({
+                    title: `${action} this user?`,
+                    text: `Are you sure you want to ${action.toLowerCase()} this user?`,
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: action,
+                    cancelButtonText: "Cancel",
+                    confirmButtonColor: isBlocked ? "#27ae60" : "#c0392b"
+                });
+
+                if (!confirm.isConfirmed) return;
+
+                let url = `/admin/toggle-block/${userId}`;
+
+                try {
+                    const response = await fetch(url, { method: "PATCH" });
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        // Handle error response from controller
+                        Swal.fire("Error", data.message || "Something went wrong!", "error");
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: "Success!",
+                        text: `User ${action.toLowerCase()}ed successfully.`,
+                        icon: "success",
+                        timer: 1200,
+                        showConfirmButton: false
+                    }).then(() => location.reload());
+
+                } catch (error) {
+                    // Handle network or parsing errors
+                    Swal.fire("Error", "A network error occurred.", "error");
+                }
+            }
+
+            async function deleteUser(id) {
+                const result = await Swal.fire({
+                    title: "Delete User?",
+                    text: "This action cannot be undone!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#e74c3c",
+                    confirmButtonText: "Delete"
+                });
+
+                if (result.isConfirmed) {
+                    const url = `/admin/delete-user/${id}`;
+
+                    try {
+                        const response = await fetch(url, { method: "DELETE" });
+                        const data = await response.json();
+
+                        if (data.success) {
+                            Swal.fire({
+                                title: "Deleted!",
+                                text: "User has been deleted successfully.",
+                                icon: "success",
+                                timer: 1200,
+                                showConfirmButton: false
+                            }).then(() => location.reload());
+                        } else {
+                            Swal.fire("Error", data.message || "Failed to delete user.", "error");
+                        }
+                    } catch (error) {
+                        Swal.fire("Error", "A network error occurred while deleting the user.", "error");
+                    }
+                }
+            }
+            // LIVE USER SEARCH
+            document.getElementById("searchInput").addEventListener("keyup", function () {
+            const value = this.value.toLowerCase().trim();
+            const rows = document.querySelectorAll("tbody tr");
+
+            rows.forEach(row => {
+            const name = row.querySelector(".user-name")?.textContent.toLowerCase();
+            const email = row.querySelector(".user-email")?.textContent.toLowerCase();
+
+            if (name.includes(value) || email.includes(value)) {
+            row.style.display = "";
+            } else {
+            row.style.display = "none";
+            }
+    });
+});
+
+        </script>
+
+</body>
+
+</html>

@@ -1,0 +1,1090 @@
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-green: #2E4235;
+            --text-dark: #111111;
+            --text-light: #666666;
+            --border-light: #E5E5E5;
+            --white: #ffffff;
+        }
+
+        html,
+        body {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100%;
+            height: 100%;
+        }
+
+        body {
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .signup-container {
+            margin: 0 auto !important;
+        }
+
+
+        /* Center layout */
+        body {
+            background: #ffffff;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Card container */
+        .signup-container {
+            width: 100%;
+            max-width: 420px;
+            background: #fff;
+            padding: 32px 28px;
+            border-radius: 12px;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.10);
+            text-align: center;
+        }
+
+        /* Titles */
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            color: #555;
+            font-size: 14px;
+            margin-bottom: 26px;
+        }
+
+        /* Form layout */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Two-column alignment */
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* Input styling */
+        .form-group label {
+            display: block;
+            text-align: left;
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fff;
+            font-size: 14px;
+            transition: .2s;
+        }
+
+        input:focus {
+            border-color: var(--primary-green);
+            box-shadow: 0 0 4px rgba(46, 66, 53, 0.3);
+        }
+
+        /* Password icon */
+        .password-container {
+            position: relative;
+        }
+
+        .password-container input {
+            padding-right: 42px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: #777;
+            cursor: pointer;
+        }
+
+        /* Error messages */
+        .error-message {
+            color: #e53935;
+            font-size: 12px;
+            margin-top: 4px;
+            text-align: left;
+            display: none;
+        }
+
+        /* Button */
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary-green);
+            color: white;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .btn-primary:hover {
+            background: #1f3229;
+        }
+
+        /* Divider */
+        .divider {
+            margin: 18px 0 14px;
+            font-size: 14px;
+            color: #777;
+        }
+
+        /* Google button */
+        .btn-google {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .btn-google:hover {
+            background: #f8f8f8;
+        }
+
+        .google-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Footer link */
+        .footer-link {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .footer-link a {
+            color: var(--primary-green);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .footer-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Mobile layout */
+        @media (max-width: 500px) {
+            .form-row {
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="signup-container">
+        <h1>Create your account</h1>
+        <p class="subtitle">Enter your details to get started</p>
+
+        <form id="signform" method="post" action="/signup">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input type="text" name="name" id="name" required>
+                    <div id="error1" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" name="lName" id="lName" required>
+                    <div id="error2" class="error-message"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Email address</label>
+                <input type="email" name="email" id="email" required>
+                <div id="error3" class="error-message"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Phone</label>
+                <input type="text" name="phone" id="phone" required>
+                <div id="error4" class="error-message"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <div class="password-container">
+                    <input type="password" name="password" id="password" required>
+                    <i class="fa-solid fa-eye toggle-password" onclick="togglePassword('password', this)"></i>
+                    <div id="error5" class="error-message"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Confirm Password</label>
+                <div class="password-container">
+                    <input type="password" name="cPassword" id="cPassword" required>
+                    <i class="fa-solid fa-eye toggle-password" onclick="togglePassword('cPassword', this)"></i>
+                    <div id="error6" class="error-message"></div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary">Create Account</button>
+
+        </form>
+
+        <div class="divider">Or</div>
+
+        <a href="/auth/google" class="btn-google">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo" class="google-icon">
+            Sign up with Google
+        </a>
+
+        <p class="footer-link">
+            Already have an account? <a href="#">Sign in</a>
+        </p>
+    </div>
+
+    <script>
+        function togglePassword(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.replace("fa-eye", "fa-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.replace("fa-eye-slash", "fa-eye");
+            }
+        }
+
+        const nameid = document.getElementById("name");
+        const lnameid = document.getElementById("lName");
+        const emailid = document.getElementById("email");
+        const phoneid = document.getElementById("phone");
+        const passid = document.getElementById("password");
+        const cpassid = document.getElementById("cPassword");
+
+        const error1 = document.getElementById("error1");
+        const error2 = document.getElementById("error2");
+        const error3 = document.getElementById("error3");
+        const error4 = document.getElementById("error4");
+        const error5 = document.getElementById("error5");
+        const error6 = document.getElementById("error6");
+
+        function nameValidateChecking() {
+            const nameval = nameid.value.trim();
+            const pattern = /^[A-Za-z\s]+$/;
+
+            if (!nameval) {
+                error1.innerHTML = "Please enter a valid first name";
+                error1.style.display = "block";
+            } else if (!pattern.test(nameval)) {
+                error1.innerHTML = "Only letters allowed";
+                error1.style.display = "block";
+            } else {
+                error1.style.display = "none";
+            }
+        }
+
+        function lnameValidateChecking() {
+            const lnameval = lnameid.value.trim();
+            const pattern = /^[A-Za-z\s]+$/;
+
+            if (!lnameval) {
+                error2.innerHTML = "Please enter a valid last name";
+                error2.style.display = "block";
+            } else if (!pattern.test(lnameval)) {
+                error2.innerHTML = "Only letters allowed";
+                error2.style.display = "block";
+            } else {
+                error2.style.display = "none";
+            }
+        }
+
+        function emailValidateChecking() {
+            const emailval = emailid.value.trim();
+            const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!pattern.test(emailval)) {
+                error3.innerHTML = "Invalid email format";
+                error3.style.display = "block";
+            } else {
+                error3.style.display = "none";
+            }
+        }
+
+        function phoneValidateChecking() {
+            const phoneval = phoneid.value.trim();
+
+            if (phoneval.length !== 10 || isNaN(phoneval)) {
+                error4.innerHTML = "Enter 10 digit phone number";
+                error4.style.display = "block";
+            } else {
+                error4.style.display = "none";
+            }
+        }
+
+        function passValidateChecking() {
+            const pass = passid.value;
+            const cpass = cpassid.value;
+            const alpha = /[a-zA-Z]/;
+            const digit = /\d/;
+
+            if (pass.length < 8) {
+                error5.innerHTML = "Must contain at least 8 characters";
+                error5.style.display = "block";
+            } else if (!alpha.test(pass) || !digit.test(pass)) {
+                error5.innerHTML = "Must contain letters and digits";
+                error5.style.display = "block";
+            } else {
+                error5.style.display = "none";
+            }
+
+            if (pass !== cpass) {
+                error6.innerHTML = "Passwords do not match";
+                error6.style.display = "block";
+            } else {
+                error6.style.display = "none";
+            }
+        }
+
+        document.getElementById("signform").addEventListener("submit", function (e) {
+            nameValidateChecking();
+            lnameValidateChecking();
+            emailValidateChecking();
+            phoneValidateChecking();
+            passValidateChecking();
+
+            if (
+                error1.innerHTML ||
+                error2.innerHTML ||
+                error3.innerHTML ||
+                error4.innerHTML ||
+                error5.innerHTML ||
+                error6.innerHTML
+            ) {
+                e.preventDefault();
+            }
+        });
+    </script>
+
+</body>
+
+</html> -->
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- Reset & Variables --- */
+        :root {
+            --primary-green: #2E4235;
+            --text-dark: #111111;
+            --text-light: #666666;
+            --border-light: #E5E5E5;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--white);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding-top: 60px;
+        }
+
+        /* --- Container --- */
+        .signup-container {
+            width: 100%;
+            max-width: 480px;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: var(--text-light);
+            font-size: 1rem;
+            margin-bottom: 40px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        label {
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: var(--text-dark);
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 14px 16px;
+            background-color: white;
+            border: 1px solid #EEEEEE;
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.2s;
+            color: var(--text-dark);
+        }
+
+        input::placeholder {
+            color: #C0C0C0;
+            font-weight: 400;
+        }
+
+        input:focus {
+            border-color: var(--primary-green);
+        }
+
+        /* --- 2. NEW CSS FOR PASSWORD TOGGLE --- */
+        .password-container {
+            position: relative; /* Allows absolute positioning of the icon */
+            width: 100%;
+        }
+
+        .password-container input {
+            padding-right: 40px; /* Make space for the icon so text doesn't overlap */
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%); /* Centers vertically */
+            cursor: pointer;
+            color: #888;
+        }
+
+        .toggle-password:hover {
+            color: var(--primary-green);
+        }
+        /* ------------------------------------- */
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-green);
+            cursor: pointer;
+            border: 1px solid var(--border-light);
+        }
+
+        .checkbox-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .link-text {
+            color: var(--primary-green);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .link-text:hover { text-decoration: underline; }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background-color: var(--primary-green);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: #1f2e24;
+        }
+
+        .divider {
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin: 24px 0;
+            position: relative;
+        }
+
+        .btn-google {
+            width: 100%;
+            padding: 14px;
+            background-color: white;
+            border: 1px solid #E0E0E0;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+        }
+
+        .btn-google:hover {
+            background-color: #F9F9F9;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .google-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .footer-link {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.95rem;
+            color: var(--text-light);
+        }
+
+        .footer-link a {
+            color: var(--primary-green);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .error-message{
+            color : red;
+            font-size: 0.75rem;
+            display: none;
+        }
+
+        @media (max-width: 500px) {
+            .form-row {
+                flex-direction: column;
+                gap: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="signup-container">
+        <h1>Create your account</h1>
+        <p class="subtitle">Enter your details to get started</p>
+
+        <form id="signform" method="post" action="/signup">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input type="text" name="name" id="name" required>
+                    <div id="error1" class="error-message"></div>
+                </div>
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" name="lName" id="lName" required>
+                    <div id="error2" class="error-message"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Email address</label>
+                <input type="email" name="email" id="email" required>
+                <div id="error3" class="error-message"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Phone</label>
+                <input type="text" name="phone" id="phone" required>
+                <div id="error4" class="error-message"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <div class="password-container">
+                    <input type="password" name="password" id="password" required>
+                    <i class="fa-solid fa-eye toggle-password" onclick="togglePassword('password', this)"></i>
+                    <div id="error5" class="error-message"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Confirm Password</label>
+                <div class="password-container">
+                    <input type="password" name="cPassword" id="cPassword" required>
+                    <i class="fa-solid fa-eye toggle-password" onclick="togglePassword('cPassword', this)"></i>
+                    <div id="error6" class="error-message"></div>
+                </div>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="terms">
+                <label for="terms" class="checkbox-label">
+                    I agree to the <a href="#" class="link-text">Terms of Service</a> and <a href="#" class="link-text">Privacy Policy</a>
+                </label>
+            </div>
+
+            <button type="submit" class="btn-primary">Create Account</button>
+        </form>
+
+        <div class="divider">Or</div>
+
+        <button class="btn-google">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo" class="google-icon">
+            Sign up with Google
+        </button>
+
+        <p class="footer-link">
+            Already have an account? <a href="#">Sign in</a>
+        </p>
+    </div>
+
+    <script>
+        function togglePassword(inputId, icon) {
+            const input = document.getElementById(inputId);
+            
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash"); // Change icon to crossed eye
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye"); // Change icon back to open eye
+            }
+        }
+        const nameid = document.getElementById("name")
+        const lnameid = document.getElementById("lName")
+        const emailid = document.getElementById("email")
+        const phoneid = document.getElementById("phone")
+        const passid = document.getElementById("password")
+        const cpassid = document.getElementById("cPassword")
+
+        const error1 = document.getElementById("error1")
+        const error2= document.getElementById("error2")
+        const error3 = document.getElementById("error3")
+        const error4 = document.getElementById("error4")
+        const error5 = document.getElementById("error5")
+        const error6 = document.getElementById("error6")
+
+        const signform = document.getElementById("signform")
+
+        function nameValidateChecking(e){
+            const nameval = nameid.value
+            const namepattern = /^[A-Za-z\s]+$/
+
+            if(nameval.trim() === ""){
+                error1.style.display = "block"
+                error1.innerHTML = "Please enter a valid name"
+            }else if(!namepattern.test(nameval)){
+                error1.style.display = "block"
+                error1.innerHTML = "Name can only contains alphabets and spaces"
+            }else{
+                error1.style.display = "none"
+                error1.innerHTML = ""
+            }
+        }
+
+        function emailValidateChecking(e){
+            const emailval = emailid.value;
+            const emailpattern = /^[a-zA-Z0-9_.±]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$/
+
+            if(!emailpattern.test(emailval)){
+                error3.style.display = "block"
+                error3.innerHTML = "Invalid format"
+            }else{
+                error3.style.display = "none"
+                error3.innerHTML = ""
+            }
+        }
+
+        function phoneValidateChecking(e){
+            const phoneval = phoneid.value
+
+            if(phoneval.trim() === ""){
+                error4.style.display = "block"
+                error4.innerHTML = "Enter a valid phone number"
+            }else if(phoneval.length < 10 || phoneval.length > 10){
+                error4.style.display = "block"
+                error4.innerHTML = "Enter 10 digit"
+            }else{
+                error4.style.display = "none"
+                error4.innerHTML = ""
+            }
+
+        }
+
+        function passValidateChecking(e){
+            const passval = passid.value
+            const cpassval = cpassid.value
+            const alpha = /[a-zA-Z]/
+            const digit = /\d/
+
+            if(passval.length < 8){
+                error5.style.display = "block"
+                error5.innerHTML = "should contains atleast 8 characters"
+            }else if(!alpha.test(passval) || !digit.test(passval)){
+                error5.style.display = "block"
+                error5.innerHTML = "should contains alphabets and digits"
+            }else{
+                 error5.style.display = "none"
+                 error5.innerHTML = ""
+            }
+
+            if(passval != cpassval){
+                error6.style.display = "block"
+                error6.innerHTML = "Password do not match"
+            }else{
+                error6.style.display = "none"
+                error6.innerHTML = ""
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function(){
+            signform.addEventListener("submit",function(e){
+
+                nameValidateChecking()
+                emailValidateChecking()
+                phoneValidateChecking()
+                passValidateChecking()
+
+                if(
+                    !nameid ||
+                    !lnameid ||
+                    !emailid ||
+                    !phoneid ||
+                    !passid ||
+                    !error1 ||
+                    !error2 ||
+                    !error3 ||
+                    !error4 ||
+                    !error5 ||
+                    !error6 ||
+                    !signform
+                ){
+                    console.error("One or more elements not found")
+                }
+
+                if(
+                    error1.innerHTML ||
+                    error2.innerHTML ||
+                    error3.innerHTML ||
+                    error4.innerHTML ||
+                    error5.innerHTML ||
+                    error6.innerHTML
+                ){
+                    e.preventDefault()
+                }
+            })
+        })
+    </script>
+
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles/user/signup.css">
+
+</head>
+
+<body>
+
+    <div class="card-wrapper">
+        <h1>Create your account</h1>
+        <p class="subtitle">Enter your details to get started</p>
+
+        <form id="signform" method="post" action="/signup">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input type="text" name="name" id="name" required>
+                    <div id="error1" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" name="lName" id="lName" required>
+                    <div id="error2" class="error-message"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Email address</label>
+                <input type="email" name="email" id="email" required>
+                <div id="error3" class="error-message"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Phone</label>
+                <input type="text" name="phone" id="phone" required>
+                <div id="error4" class="error-message"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <div class="password-container">
+                    <input type="password" name="password" id="password" required>
+                    <i class="fa-solid fa-eye toggle-password" onclick="togglePassword('password', this)"></i>
+                    <div id="error5" class="error-message"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Confirm Password</label>
+                <div class="password-container">
+                    <input type="password" name="cPassword" id="cPassword" required>
+                    <i class="fa-solid fa-eye toggle-password" onclick="togglePassword('cPassword', this)"></i>
+                    <div id="error6" class="error-message"></div>
+                </div>
+            </div>
+
+            <% if (message) { %>
+                <div class="alert alert-danger text-center">
+                    <%= message %>
+                </div>
+                <% } %>
+
+
+                    <button type="submit" class="btn-primary">Create Account</button>
+
+        </form>
+
+        <div class="divider">Or</div>
+
+        <a href="/auth/google" class="btn-google">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo" class="google-icon">
+            Sign up with Google
+        </a>
+
+        <p class="footer-link">
+            Already have an account? <a href="/login">Sign in</a>
+        </p>
+    </div>
+
+    <script>
+        function togglePassword(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.replace("fa-eye", "fa-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.replace("fa-eye-slash", "fa-eye");
+            }
+        }
+
+        const nameid = document.getElementById("name");
+        const lnameid = document.getElementById("lName");
+        const emailid = document.getElementById("email");
+        const phoneid = document.getElementById("phone");
+        const passid = document.getElementById("password");
+        const cpassid = document.getElementById("cPassword");
+
+        const error1 = document.getElementById("error1");
+        const error2 = document.getElementById("error2");
+        const error3 = document.getElementById("error3");
+        const error4 = document.getElementById("error4");
+        const error5 = document.getElementById("error5");
+        const error6 = document.getElementById("error6");
+
+        function nameValidateChecking() {
+            const nameval = nameid.value.trim();
+            const pattern = /^[A-Za-z\s]+$/;
+
+            if (!nameval) {
+                error1.innerHTML = "Please enter a valid first name";
+                error1.style.display = "block";
+            } else if (!pattern.test(nameval)) {
+                error1.innerHTML = "Only letters allowed";
+                error1.style.display = "block";
+            } else {
+                error1.style.display = "none";
+            }
+        }
+
+        function lnameValidateChecking() {
+            const lnameval = lnameid.value.trim();
+            const pattern = /^[A-Za-z\s]+$/;
+
+            if (!lnameval) {
+                error2.innerHTML = "Please enter a valid last name";
+                error2.style.display = "block";
+            } else if (!pattern.test(lnameval)) {
+                error2.innerHTML = "Only letters allowed";
+                error2.style.display = "block";
+            } else {
+                error2.style.display = "none";
+            }
+        }
+
+        function emailValidateChecking() {
+            const emailval = emailid.value.trim();
+            const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!pattern.test(emailval)) {
+                error3.innerHTML = "Invalid email format";
+                error3.style.display = "block";
+            } else {
+                error3.style.display = "none";
+            }
+        }
+
+        function phoneValidateChecking() {
+            const phoneval = phoneid.value.trim();
+
+            if (phoneval.length !== 10 || isNaN(phoneval)) {
+                error4.innerHTML = "Enter 10 digit phone number";
+                error4.style.display = "block";
+            } else {
+                error4.style.display = "none";
+            }
+        }
+
+        function passValidateChecking() {
+            const pass = passid.value;
+            const cpass = cpassid.value;
+            const alpha = /[a-zA-Z]/;
+            const digit = /\d/;
+
+            if (pass.length < 8) {
+                error5.innerHTML = "Must contain at least 8 characters";
+                error5.style.display = "block";
+            } else if (!alpha.test(pass) || !digit.test(pass)) {
+                error5.innerHTML = "Must contain letters and digits";
+                error5.style.display = "block";
+            } else {
+                error5.style.display = "none";
+            }
+
+            if (pass !== cpass) {
+                error6.innerHTML = "Passwords do not match";
+                error6.style.display = "block";
+            } else {
+                error6.style.display = "none";
+            }
+        }
+
+        document.getElementById("signform").addEventListener("submit", function (e) {
+            nameValidateChecking();
+            lnameValidateChecking();
+            emailValidateChecking();
+            phoneValidateChecking();
+            passValidateChecking();
+
+            if (
+                error1.innerHTML ||
+                error2.innerHTML ||
+                error3.innerHTML ||
+                error4.innerHTML ||
+                error5.innerHTML ||
+                error6.innerHTML
+            ) {
+                e.preventDefault();
+            }
+        });
+    </script>
+
+</body>
+
+</html>

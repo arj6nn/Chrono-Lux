@@ -1,0 +1,517 @@
+<!-- views/admins/product-management.ejs -->
+<%- include('../partials/admin/sidebar') %>
+
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+  <link rel="stylesheet" href="/styles/admin/product-management.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <div class="page-wrapper">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Product Management</h1>
+        <div class="page-sub">Total Products: <span id="totalCount">
+            <%= products ? products.length : 0 %>
+          </span></div>
+      </div>
+
+      <div class="page-actions">
+        <button class="btn btn-add" onclick="openAddProductModal()">
+          <i class="ri-add-line"></i> Add Product
+        </button>
+      </div>
+    </div>
+
+    <!-- Filters/Search -->
+    <div class="controls">
+      <input id="searchInput" class="search" type="search" placeholder="Search watches..."
+        value="<%= typeof query !== 'undefined' ? query.search || '' : '' %>">
+
+      <div class="selects">
+        <select id="categoryFilter">
+          <option value="">All Categories</option>
+          <% categories.forEach(cat=> { %>
+            <option value="<%= cat._id %>" <%=(typeof query!=='undefined' && query.category==cat._id) ? 'selected' : ''
+              %>><%= cat.name %>
+            </option>
+            <% }) %>
+        </select>
+
+        <select id="brandFilter">
+          <option value="">All Brands</option>
+          <% brands.forEach(b=> { %>
+            <option value="<%= b._id %>" <%=(query && query.brand==b._id) ? 'selected' : '' %>>
+              <%= b.brandName %>
+            </option>
+            <% }) %>
+        </select>
+
+
+        <button class="btn btn-filter" onclick="applyFilters()">Apply</button>
+      </div>
+    </div>
+
+    <!-- Product Table -->
+    <div class="table-card">
+      <table class="product-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Brand</th>
+            <th>Gender</th>
+            <th>Type</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Status</th>
+            <th class="actions-col">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% if (products && products.length>0) { %>
+            <% products.forEach(product=> { %>
+              <% if (!product.isDeleted) { %>
+                <tr data-id="<%= product._id %>">
+                  <td class="product-cell">
+                    <img class="prod-thumb"
+                      src="<%= (product.images && product.images.length) ? product.images[0] : '/images/placeholder.png' %>"
+                      alt="thumb">
+                    <div class="prod-meta">
+                      <div class="prod-title">
+                        <%= product.name %>
+                      </div>
+                      <div class="prod-desc">
+                        <%= product.description ? product.description.slice(0,80) : '' %>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <%= product.category ? product.category.name : '—' %>
+                  </td>
+                  <td>
+                    <%= product.brand ? product.brand.brandName : '—' %>
+                  </td>
+                  <td>
+                    <%= product.gender %>
+                  </td>
+                  <td>
+                    <%= product.type %>
+                  </td>
+                  <td>
+                    <% if (product.offerPrice) { %>
+                      <div class="price-offer"><span class="price-off">$<%= product.offerPrice.toLocaleString() %>
+                        </span> <span class="price-old">$<%= product.price.toLocaleString() %></span></div>
+                      <% } else { %>
+                        $<%= product.price.toLocaleString() %>
+                          <% } %>
+                  </td>
+                  <td>
+                    <%= product.stock %>
+                  </td>
+                  <td>
+                    <% if (product.stock===0) { %>
+                      <span class="badge red">Out of Stock</span>
+                      <% } else if (product.stock <=5) { %>
+                        <span class="badge yellow">Low Stock</span>
+                        <% } else { %>
+                          <span class="badge green">Available</span>
+                          <% } %>
+                  </td>
+
+                  <td class="actions-col">
+                    <button class="icon-btn" title="Edit" onclick="openEditProductModal('<%= product._id %>')">
+                      <i class="ri-edit-2-line"></i>
+                    </button>
+
+                    <form method="POST" action="/admin/products/delete/<%= product._id %>" style="display:inline;"
+                      onsubmit="return confirmDelete(event, '<%= product._id %>')">
+                      <button type="submit" class="icon-btn delete" title="Delete">
+                        <i class="ri-delete-bin-6-line"></i>
+                      </button>
+                    </form>
+
+                    <button class="icon-btn tag" title="<%= product.isBlocked ? 'Unblock' : 'Block' %>"
+                      onclick="toggleBlock('<%= product._id %>')">
+                      <i class="ri-price-tag-3-line"></i>
+                    </button>
+                  </td>
+                </tr>
+                <% } %>
+                  <% }) %>
+                    <% } else { %>
+                      <tr>
+                        <td colspan="9" style="text-align:center;padding:28px;color:#666">No products found</td>
+                      </tr>
+                      <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ADD PRODUCT MODAL -->
+  <div id="addProductModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>Add Product</h3>
+        <button class="close" onclick="closeAddProductModal()">×</button>
+      </div>
+
+      <form id="addProductForm" method="POST" action="/admin/products/add" enctype="multipart/form-data"
+        onsubmit="return validateAddForm(event)">
+        <div class="form-grid">
+          <label>
+            Name
+            <input name="name" type="text" required>
+          </label>
+
+          <label>
+            Category
+            <select name="category" required>
+              <option value="">Select category</option>
+              <% categories.forEach(c=> { %>
+                <option value="<%= c._id %>">
+                  <%= c.name %>
+                </option>
+                <% }) %>
+            </select>
+          </label>
+
+          <label>
+            Brand
+            <select name="brand" required>
+              <option value="">Select brand</option>
+              <% brands.forEach(b=> { %>
+                <option value="<%= b._id %>">
+                  <%= b.brandName %>
+                </option>
+                <% }) %>
+            </select>
+          </label>
+
+
+          <label>
+            Gender
+            <select name="gender" required>
+              <option value="Men">Men</option>
+              <option value="Women">Women</option>
+              <option value="Unisex">Unisex</option>
+            </select>
+          </label>
+
+          <label>
+            Type
+            <select name="type" required>
+              <option value="Automatic">Automatic</option>
+              <option value="Quartz">Quartz</option>
+              <option value="Mechanical">Mechanical</option>
+              <option value="Chronograph">Chronograph</option>
+            </select>
+          </label>
+
+          <label>
+            Price (USD)
+            <input name="price" type="number" min="0" step="0.01" required>
+          </label>
+
+          <label>
+            Offer Price (optional)
+            <input name="offerPrice" type="number" min="0" step="0.01">
+          </label>
+
+          <label>
+            Stock
+            <input name="stock" type="number" min="0" required>
+          </label>
+
+          <label class="full">
+            Description
+            <textarea name="description" rows="3" required></textarea>
+          </label>
+
+          <label class="full">
+            Images (min 3) — choose multiple
+            <input id="addImages" name="images" type="file" accept="image/*" multiple>
+            <div id="addPreview" class="preview-grid"></div>
+          </label>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-cancel" onclick="closeAddProductModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- EDIT PRODUCT MODAL -->
+  <div id="editProductModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>Edit Product</h3>
+        <button class="close" onclick="closeEditProductModal()">×</button>
+      </div>
+
+      <form id="editProductForm" method="POST" enctype="multipart/form-data" onsubmit="return validateEditForm(event)">
+        <input id="editId" name="id" type="hidden">
+        <div class="form-grid">
+          <label>
+            Name
+            <input id="editName" name="name" type="text" required>
+          </label>
+
+          <label>
+            Category
+            <select id="editCategory" name="category" required>
+              <option value="">Select category</option>
+              <% categories.forEach(c=> { %>
+                <option value="<%= c._id %>">
+                  <%= c.name %>
+                </option>
+                <% }) %>
+            </select>
+          </label>
+
+          <label>
+            Brand
+            <select id="editBrand" name="brand" required>
+              <option value="">Select brand</option>
+              <% brands.forEach(b=> { %>
+                <option value="<%= b._id %>">
+                  <%= b.brandName %> 
+                </option>
+                <% }) %>
+            </select>
+          </label>
+
+          <label>
+            Gender
+            <select id="editGender" name="gender" required>
+              <option value="Men">Men</option>
+              <option value="Women">Women</option>
+              <option value="Unisex">Unisex</option>
+            </select>
+          </label>
+
+          <label>
+            Type
+            <select id="editType" name="type" required>
+              <option value="Automatic">Automatic</option>
+              <option value="Quartz">Quartz</option>
+              <option value="Mechanical">Mechanical</option>
+              <option value="Chronograph">Chronograph</option>
+            </select>
+          </label>
+
+          <label>
+            Price (USD)
+            <input id="editPrice" name="price" type="number" min="0" step="0.01" required>
+          </label>
+
+          <label>
+            Offer Price (optional)
+            <input id="editOffer" name="offerPrice" type="number" min="0" step="0.01">
+          </label>
+
+          <label>
+            Stock
+            <input id="editStock" name="stock" type="number" min="0" required>
+          </label>
+
+          <label class="full">
+            Description
+            <textarea id="editDesc" name="description" rows="3" required></textarea>
+          </label>
+
+          <label class="full">
+            Replace Images (optional — choose multiple; min 3 if replacing)
+            <input id="editImages" name="images" type="file" accept="image/*" multiple>
+            <div id="editPreview" class="preview-grid"></div>
+            <small class="muted">If you don't upload images here, current images will be kept.</small>
+          </label>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-cancel" onclick="closeEditProductModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script>
+    // utility: show modal
+    function showModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function hideModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    // Add modal open/close
+    function openAddProductModal() { showModal('addProductModal'); }
+    function closeAddProductModal() { hideModal('addProductModal'); clearAddPreview(); document.getElementById('addProductForm').reset(); }
+
+    // Edit modal open/close
+    function openEditProductModal(id) {
+      // find product data from page (we could also fetch from server)
+      const row = document.querySelector(`tr[data-id="${id}"]`);
+      if (!row) return;
+
+      // Read values from the row (we'll pull attributes rendered server-side in a data-* if necessary)
+      // But since server rendered, better to fetch details via AJAX endpoint for product details.
+      // We'll attempt a fetch to /admin/products/json/:id (implement server side), fallback to row reading.
+      fetch(`/admin/products/json/${id}`)
+        .then(r => r.ok ? r.json() : Promise.reject('failed'))
+        .then(product => {
+          populateEditForm(product);
+          showModal('editProductModal');
+        })
+        .catch(_ => {
+          // fallback - attempt to read visible columns
+          const title = row.querySelector('.prod-title') ? row.querySelector('.prod-title').innerText.trim() : '';
+          const desc = row.querySelector('.prod-desc') ? row.querySelector('.prod-desc').innerText.trim() : '';
+          document.getElementById('editId').value = id;
+          document.getElementById('editName').value = title;
+          document.getElementById('editDesc').value = desc;
+          // other selects left blank - user should fetch full product server-side in real integration
+          showModal('editProductModal');
+        });
+    }
+
+    function populateEditForm(product) {
+      document.getElementById('editId').value = product._id;
+      document.getElementById('editName').value = product.name || '';
+      document.getElementById('editDesc').value = product.description || '';
+      document.getElementById('editPrice').value = product.price || '';
+      document.getElementById('editOffer').value = product.offerPrice || '';
+      document.getElementById('editStock').value = product.stock || 0;
+      document.getElementById('editGender').value = product.gender || 'Men';
+      document.getElementById('editType').value = product.type || 'Automatic';
+      if (product.category) document.getElementById('editCategory').value = product.category._id || '';
+      if (product.brand) document.getElementById('editBrand').value = product.brand._id || '';
+
+      // show current images as preview
+      const preview = document.getElementById('editPreview');
+      preview.innerHTML = '';
+      if (product.images && product.images.length) {
+        product.images.forEach(src => {
+          const img = document.createElement('img');
+          img.src = src;
+          preview.appendChild(img);
+        });
+      }
+      // set form action URL
+      document.getElementById('editProductForm').action = `/admin/products/edit/${product._id}`;
+    }
+
+    function closeEditProductModal() { hideModal('editProductModal'); document.getElementById('editProductForm').reset(); document.getElementById('editPreview').innerHTML = ''; }
+
+    // Delete confirm using SweetAlert
+    function confirmDelete(e, id) {
+      e.preventDefault();
+      Swal.fire({
+        title: 'Delete product?',
+        text: 'This will soft-delete the product (recoverable).',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Delete',
+        confirmButtonColor: '#e74c3c'
+      }).then(res => {
+        if (res.isConfirmed) {
+          // submit original form (find by id)
+          // the event target was the form element
+          // find a form with action containing the id
+          const form = e.target;
+          form.submit();
+        }
+      });
+      return false;
+    }
+
+    // Block/unblock
+    function toggleBlock(id) {
+      fetch(`/admin/products/toggle-block/${id}`, { method: 'PATCH' })
+        .then(r => r.json())
+        .then(data => {
+          if (data.success) location.reload();
+          else Swal.fire('Error', data.message || 'Could not toggle block', 'error');
+        }).catch(() => Swal.fire('Error', 'Network error', 'error'));
+    }
+
+    // Filter and search helpers
+    function applyFilters() {
+      const search = document.getElementById('searchInput').value.trim();
+      const category = document.getElementById('categoryFilter').value;
+      const brand = document.getElementById('brandFilter').value;
+      const params = new URLSearchParams();
+      if (search) params.set('search', search);
+      if (category) params.set('category', category);
+      if (brand) params.set('brand', brand);
+      window.location.href = '/admin/products' + (params.toString() ? '?' + params.toString() : '');
+    }
+
+    // Add preview logic
+    const addImagesInput = document.getElementById('addImages');
+    const addPreview = document.getElementById('addPreview');
+
+    if (addImagesInput) {
+      addImagesInput.addEventListener('change', e => {
+        addPreview.innerHTML = '';
+        const files = Array.from(e.target.files);
+        files.forEach(file => {
+          const url = URL.createObjectURL(file);
+          const img = document.createElement('img');
+          img.src = url;
+          addPreview.appendChild(img);
+        });
+      });
+    }
+
+    function clearAddPreview() {
+      if (addPreview) addPreview.innerHTML = '';
+    }
+
+    // Edit preview logic
+    const editImagesInput = document.getElementById('editImages');
+    if (editImagesInput) {
+      editImagesInput.addEventListener('change', e => {
+        const preview = document.getElementById('editPreview');
+        preview.innerHTML = '';
+        const files = Array.from(e.target.files);
+        files.forEach(file => {
+          const url = URL.createObjectURL(file);
+          const img = document.createElement('img');
+          img.src = url;
+          preview.appendChild(img);
+        });
+      });
+    }
+
+    // Validate add form (at least 3 images)
+    function validateAddForm(e) {
+      const input = document.getElementById('addImages');
+      if (!input || (input.files && input.files.length < 3)) {
+        e.preventDefault();
+        Swal.fire('Image error', 'Please upload at least 3 images', 'error');
+        return false;
+      }
+      return true;
+    }
+
+    // Validate edit form: if files chosen ensure at least 3
+    function validateEditForm(e) {
+      const input = document.getElementById('editImages');
+      if (input && input.files && input.files.length > 0 && input.files.length < 3) {
+        e.preventDefault();
+        Swal.fire('Image error', 'If replacing images, upload at least 3 images', 'error');
+        return false;
+      }
+      // form action should already be set to /admin/products/edit/:id by populateEditForm
+      return true;
+    }
+
+    // Open edit modal if you want to pre-populate via server route (optional)
+    // Example endpoint to implement on server: GET /admin/products/json/:id  => returns product JSON with category and brand populated
+
+    // extra: press enter in search triggers apply
+    document.getElementById('searchInput').addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter') { applyFilters(); }
+    });
+  </script>

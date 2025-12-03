@@ -1,0 +1,37 @@
+{
+  "name": "chrono-lux",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arj6nn/Chrono-Lux.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arj6nn/Chrono-Lux/issues"
+  },
+  "homepage": "https://github.com/arj6nn/Chrono-Lux#readme",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cloudinary": "^2.8.0",
+    "dotenv": "^17.2.3",
+    "ejs": "^3.1.10",
+    "env": "^0.0.2",
+    "express": "^5.1.0",
+    "express-session": "^1.18.2",
+    "mongodb": "^7.0.0",
+    "mongoose": "^9.0.0",
+    "multer": "^2.0.2",
+    "nodemailer": "^7.0.10",
+    "nodemon": "^3.1.11",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "streamifier": "^0.1.1"
+  }
+}
