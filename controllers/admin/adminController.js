@@ -109,10 +109,18 @@ const loadBrandManagement = async (req, res) => {
 
 const addBrand = async (req, res) => {
     try {
-        const { name, logo } = req.body;
+        const { name } = req.body;
+
+        let imageUrl = null;
+
+        // Upload to Cloudinary using memory buffer
+        if (req.file) {
+            imageUrl = await uploadBrandToCloudinary(req.file.buffer);
+        }
+
         await Brand.create({
             brandName: name.trim(),
-            brandImage: [logo.trim()]
+            brandImage: [imageUrl]
         });
 
         res.redirect("/admin/brands");
@@ -121,14 +129,24 @@ const addBrand = async (req, res) => {
         res.redirect("/admin/pageerror");
     }
 };
+
+
 
 const editBrand = async (req, res) => {
     try {
-        const { name, logo } = req.body;
-        await Brand.findByIdAndUpdate(req.params.id, {
-            brandName: name,
-            brandImage: [logo]
-        });
+        const { name } = req.body;
+
+        const updates = {
+            brandName: name.trim()
+        };
+
+        // If new logo uploaded → upload to Cloudinary
+        if (req.file) {
+            const imageUrl = await uploadBrandToCloudinary(req.file.buffer);
+            updates.brandImage = [imageUrl];
+        }
+
+        await Brand.findByIdAndUpdate(req.params.id, updates);
 
         res.redirect("/admin/brands");
     } catch (err) {
@@ -136,6 +154,8 @@ const editBrand = async (req, res) => {
         res.redirect("/admin/pageerror");
     }
 };
+
+
 
 const deleteBrand = async (req, res) => {
     try {
@@ -161,6 +181,20 @@ function uploadBufferToCloudinary(buffer, folder = "chrono_lux_products") {
         streamifier.createReadStream(buffer).pipe(upload);
     });
 }
+// Upload brand image to Cloudinary
+function uploadBrandToCloudinary(buffer) {
+    return new Promise((resolve, reject) => {
+        const upload = cloudinary.uploader.upload_stream(
+            { folder: "chrono_lux_brands", resource_type: "image" },
+            (err, result) => {
+                if (err) return reject(err);
+                resolve(result.secure_url);
+            }
+        );
+        streamifier.createReadStream(buffer).pipe(upload);
+    });
+}
+
 
 const loadProductPage = async (req, res) => {
     try {
@@ -304,10 +338,10 @@ const toggleProductBlock = async (req, res) => {
     }
 };
 
-const loadCategories = async (req,res) => {
+const loadCategories = async (req, res) => {
     try {
         const categories = await Category.find({})
-        res.render("admins/category-management", { categories, activePage : 'categories' })
+        res.render("admins/category-management", { categories, activePage: 'categories' })
     } catch (error) {
         console.log(error)
         res.status(500).send("Error loading categories");
