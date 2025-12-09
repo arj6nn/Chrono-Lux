@@ -1,31 +1,89 @@
-const mongoose = require('mongoose');
-const { Schema } = mongoose;
+const mongoose = require("mongoose");
 
-const productSchema = new mongoose.Schema({
-    name: { type: String, required: true },                     // ✔️ Product name
-    description: { type: String, required: true },              // ✔️ Description
+const variantSchema = new mongoose.Schema(
+  {
+    color: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    dialSize: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    price: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    stock: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
 
-    images: { type: [String], required: true },                 // ✔️ Multiple Cloudinary URLs
-                                                                // ✔️ Minimum 3 will be enforced in controller
+    // array of Cloudinary URLs
+    images: {
+      type: [String],
+      required: true,
+      validate: {
+        validator: function (v) {
+          return v.length > 0;  // at least 1 image
+        },
+        message: "Each variant must have at least one image",
+      },
+    },
+  },
+  { _id: false }
+);
 
-    price: { type: Number, required: true },                    // ✔️ Original price
-    offerPrice: { type: Number },                               // ✔️ Optional discount price
+const productSchema = new mongoose.Schema(
+  {
+    productName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
-    category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true }, // ✔️ Category relation
-    brand: { type: mongoose.Schema.Types.ObjectId, ref: 'Brand', required: true },        // ✔️ Brand relation
+    description: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
-    gender: { type: String, enum: ["Men", "Women", "Unisex"], required: true },           // ✔️ Gender filter
-    type: { type: String, enum: ["Automatic", "Quartz", "Mechanical", "Chronograph"], required: true }, // ✔️ Watch type
+    // category ref
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
+    },
 
-    stock: { type: Number, required: true },                        // ✔️ Inventory count
+    // brand ref
+    brand: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Brand",
+      required: true,
+    },
 
-    isBlocked: { type: Boolean, default: false },                   // ✔️ Block product instead of deleting
-    isDeleted: { type: Boolean, default: false },                   // ✔️ Soft delete
+    // array of variant objects
+    variants: {
+      type: [variantSchema],
+      validate: {
+        validator: function (v) {
+          return v.length > 0;
+        },
+        message: "Product must contain at least one variant",
+      },
+    },
 
-    createdAt: { type: Date, default: Date.now }
-});
+    // soft delete / block
+    isBlocked: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { timestamps: true }
+);
 
-
-const Product = mongoose.model("Product", productSchema);
-
-module.exports = Product;
+module.exports = mongoose.model("Product", productSchema);

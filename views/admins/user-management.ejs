@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chrono Lux - User Management</title>
 
-    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="/styles/admin/user-management.css">
 </head>
@@ -20,13 +19,15 @@
 
             <h2>Users</h2>
             <p>Manage your users and their permissions</p>
-            <div class="search-container">
-                <input type="text" id="searchInput" placeholder="Search users by name or email...">
-            </div>
 
+            <!-- SEARCH FORM (backend search) -->
+            <form id="searchForm" action="/admin/users" method="GET" class="search-container">
+                <input type="text" id="searchInput" name="search" value="<%= search || '' %>"
+                    placeholder="Search users by name or email...">
+            </form>
 
+            <!-- TABLE -->
             <div class="table-container">
-
                 <table>
                     <thead>
                         <tr>
@@ -39,13 +40,10 @@
                     </thead>
 
                     <tbody>
-
-                        <% if (users && users.length> 0) { %>
-
+                        <% if (users.length> 0) { %>
                             <% users.forEach(user=> { %>
 
-                                <tr data-user-id="<%= user._id %>">
-
+                                <tr>
                                     <td>
                                         <div class="user-info">
                                             <span class="user-name">
@@ -65,7 +63,7 @@
                                         <% if (user.isBlocked) { %>
                                             <span class="status-badge status-blocked">Blocked</span>
                                             <% } else { %>
-                                                <span class="status-badge status-active">active</span>
+                                                <span class="status-badge status-active">Active</span>
                                                 <% } %>
                                     </td>
 
@@ -75,47 +73,78 @@
                                     </td>
 
                                     <td>
-                                        <div class="actions">
-
-                                            <!-- Block / Unblock Button -->
-                                            <button
-                                                class="action-btn <%= user.isBlocked ? 'btn-unblock' : 'btn-block' %>"
-                                                onclick="toggleBlock('<%= user._id %>', <%= user.isBlocked ? 1 : 0 %>)">
-
-                                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-                                                </svg>
-                                            </button>
-
-                                            <!-- Delete Button (optional) -->
-
-                                        </div>
+                                        <button class="action-btn <%= user.isBlocked ? 'btn-unblock' : 'btn-block' %>"
+                                            onclick="toggleBlock('<%= user._id %>', <%= user.isBlocked ? 1 : 0 %>)">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 
+                                                12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 
+                                                5.636" />
+                                            </svg>
+                                        </button>
                                     </td>
-
                                 </tr>
 
                                 <% }) %>
 
                                     <% } else { %>
-
                                         <tr>
-                                            <td colspan="5" style="text-align:center;padding:20px;">
-                                                No users found.
-                                            </td>
+                                            <td colspan="5" style="text-align:center;padding:20px;">No users found.</td>
                                         </tr>
-
                                         <% } %>
-
                     </tbody>
                 </table>
 
             </div>
+            <!-- PAGINATION -->
+            <div class="pagination-wrapper">
+                <div class="pagination">
+
+                    <% if (page> 1) { %>
+                        <a class="page-btn" href="/admin/users?page=<%= page - 1 %>&search=<%= search || '' %>">‹
+                            Prev</a>
+                        <% } else { %>
+                            <span class="page-btn disabled">‹ Prev</span>
+                            <% } %>
+
+                                <div class="page-numbers">
+                                    <% for (let p=1; p <=totalPages; p++) { %>
+                                        <a href="/admin/users?page=<%= p %>&search=<%= search || '' %>"
+                                            class="page-number <%= p === page ? 'active' : '' %>">
+                                            <%= p %>
+                                        </a>
+                                        <% } %>
+                                </div>
+
+                                <% if (page < totalPages) { %>
+                                    <a class="page-btn"
+                                        href="/admin/users?page=<%= page + 1 %>&search=<%= search || '' %>">Next ›</a>
+                                    <% } else { %>
+                                        <span class="page-btn disabled">Next ›</span>
+                                        <% } %>
+
+                </div>
+            </div>
         </div>
 
-        <!-- SweetAlert Script -->
         <script>
+            let typingTimer;
+            const searchInput = document.getElementById("searchInput");
+
+            searchInput.addEventListener("keyup", function () {
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(() => {
+                    document.getElementById("searchForm").submit();
+                }, 400); // waits 400ms after typing stops
+            });
+
+            searchInput.addEventListener("keydown", function (e) {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    document.getElementById("searchForm").submit();
+                }
+            });
+
+
             async function toggleBlock(userId, isBlocked) {
                 let action = isBlocked ? "Unblock" : "Block";
 
@@ -131,18 +160,10 @@
 
                 if (!confirm.isConfirmed) return;
 
-                let url = `/admin/toggle-block/${userId}`;
+                const response = await fetch(`/admin/toggle-block/${userId}`, { method: "PATCH" });
+                const data = await response.json();
 
-                try {
-                    const response = await fetch(url, { method: "PATCH" });
-                    const data = await response.json();
-
-                    if (!data.success) {
-                        // Handle error response from controller
-                        Swal.fire("Error", data.message || "Something went wrong!", "error");
-                        return;
-                    }
-
+                if (data.success) {
                     Swal.fire({
                         title: "Success!",
                         text: `User ${action.toLowerCase()}ed successfully.`,
@@ -150,63 +171,10 @@
                         timer: 1200,
                         showConfirmButton: false
                     }).then(() => location.reload());
-
-                } catch (error) {
-                    // Handle network or parsing errors
-                    Swal.fire("Error", "A network error occurred.", "error");
+                } else {
+                    Swal.fire("Error", data.message || "Something went wrong!", "error");
                 }
             }
-
-            async function deleteUser(id) {
-                const result = await Swal.fire({
-                    title: "Delete User?",
-                    text: "This action cannot be undone!",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#e74c3c",
-                    confirmButtonText: "Delete"
-                });
-
-                if (result.isConfirmed) {
-                    const url = `/admin/delete-user/${id}`;
-
-                    try {
-                        const response = await fetch(url, { method: "DELETE" });
-                        const data = await response.json();
-
-                        if (data.success) {
-                            Swal.fire({
-                                title: "Deleted!",
-                                text: "User has been deleted successfully.",
-                                icon: "success",
-                                timer: 1200,
-                                showConfirmButton: false
-                            }).then(() => location.reload());
-                        } else {
-                            Swal.fire("Error", data.message || "Failed to delete user.", "error");
-                        }
-                    } catch (error) {
-                        Swal.fire("Error", "A network error occurred while deleting the user.", "error");
-                    }
-                }
-            }
-            // LIVE USER SEARCH
-            document.getElementById("searchInput").addEventListener("keyup", function () {
-            const value = this.value.toLowerCase().trim();
-            const rows = document.querySelectorAll("tbody tr");
-
-            rows.forEach(row => {
-            const name = row.querySelector(".user-name")?.textContent.toLowerCase();
-            const email = row.querySelector(".user-email")?.textContent.toLowerCase();
-
-            if (name.includes(value) || email.includes(value)) {
-            row.style.display = "";
-            } else {
-            row.style.display = "none";
-            }
-    });
-});
-
         </script>
 
 </body>

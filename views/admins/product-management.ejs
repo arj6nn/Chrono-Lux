@@ -1,517 +1,826 @@
-<!-- views/admins/product-management.ejs -->
 <%- include('../partials/admin/sidebar') %>
 
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
-  <link rel="stylesheet" href="/styles/admin/product-management.css">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <div class="page-wrapper">
-    <div class="page-header">
-      <div>
-        <h1 class="page-title">Product Management</h1>
-        <div class="page-sub">Total Products: <span id="totalCount">
-            <%= products ? products.length : 0 %>
-          </span></div>
-      </div>
+  <!-- CropperJS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
-      <div class="page-actions">
-        <button class="btn btn-add" onclick="openAddProductModal()">
-          <i class="ri-add-line"></i> Add Product
-        </button>
-      </div>
+  <link rel="stylesheet" href="/styles/admin/product-management.css">
+
+  <div class="main-content">
+    <p class="page-title">Products</p>
+    <p class="page-sub">Manage your watch products</p>
+
+    <div class="top-bar">
+      <form action="/admin/products" method="GET" class="search-form">
+        <input class="search-box" type="text" name="search" placeholder="Search products..."
+          value="<%= search || '' %>" />
+        <button type="submit" class="search-btn">Search</button>
+        <% if (search && search.trim() !=="" ) { %>
+          <a href="/admin/products" class="cancel-btn">Clear</a>
+          <% } %>
+      </form>
+
+      <button class="add-product-btn" onclick="openAddProductModal()">
+        <i class="ri-add-line"></i> Add Product
+      </button>
     </div>
 
-    <!-- Filters/Search -->
-    <div class="controls">
-      <input id="searchInput" class="search" type="search" placeholder="Search watches..."
-        value="<%= typeof query !== 'undefined' ? query.search || '' : '' %>">
-
-      <div class="selects">
-        <select id="categoryFilter">
-          <option value="">All Categories</option>
-          <% categories.forEach(cat=> { %>
-            <option value="<%= cat._id %>" <%=(typeof query!=='undefined' && query.category==cat._id) ? 'selected' : ''
-              %>><%= cat.name %>
-            </option>
-            <% }) %>
-        </select>
-
-        <select id="brandFilter">
-          <option value="">All Brands</option>
-          <% brands.forEach(b=> { %>
-            <option value="<%= b._id %>" <%=(query && query.brand==b._id) ? 'selected' : '' %>>
-              <%= b.brandName %>
-            </option>
-            <% }) %>
-        </select>
-
-
-        <button class="btn btn-filter" onclick="applyFilters()">Apply</button>
-      </div>
-    </div>
-
-    <!-- Product Table -->
-    <div class="table-card">
-      <table class="product-table">
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Category</th>
-            <th>Brand</th>
-            <th>Gender</th>
-            <th>Type</th>
-            <th>Price</th>
-            <th>Stock</th>
-            <th>Status</th>
-            <th class="actions-col">Actions</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <% if (products && products.length>0) { %>
-            <% products.forEach(product=> { %>
-              <% if (!product.isDeleted) { %>
-                <tr data-id="<%= product._id %>">
-                  <td class="product-cell">
-                    <img class="prod-thumb"
-                      src="<%= (product.images && product.images.length) ? product.images[0] : '/images/placeholder.png' %>"
-                      alt="thumb">
-                    <div class="prod-meta">
-                      <div class="prod-title">
-                        <%= product.name %>
-                      </div>
-                      <div class="prod-desc">
-                        <%= product.description ? product.description.slice(0,80) : '' %>
-                      </div>
+    <!-- PRODUCTS TABLE -->
+    <table class="product-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Category</th>
+          <th>Brand</th>
+          <th>Variants</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (products && products.length> 0) { %>
+          <% products.forEach(product=> { %>
+            <tr>
+              <td>
+                <div class="product-info">
+                  <img
+                    src="<%= product.variants && product.variants[0] && product.variants[0].images && product.variants[0].images[0] ? product.variants[0].images[0] : '/images/placeholder.jpg' %>"
+                    alt="<%= product.productName %>" class="product-img">
+                  <div class="product-details">
+                    <h4>
+                      <%= product.productName %>
+                    </h4>
+                    <p>
+                      <%= product.variants ? product.variants.length : 0 %> variants
+                    </p>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <%= product.category ? product.category.name : 'N/A' %>
+              </td>
+              <td>
+                <%= product.brand ? product.brand.brandName : 'N/A' %>
+              </td>
+              <td>
+                <% if (product.variants && product.variants.length> 0) { %>
+                  <% product.variants.forEach((variant, idx)=> { %>
+                    <div style="font-size: 12px; margin-bottom: 4px;">
+                      <%= variant.color %> - <%= variant.dialSize %> (₹<%= variant.price.toLocaleString() %>, Stock: <%=
+                              variant.stock %>)
                     </div>
-                  </td>
-                  <td>
-                    <%= product.category ? product.category.name : '—' %>
-                  </td>
-                  <td>
-                    <%= product.brand ? product.brand.brandName : '—' %>
-                  </td>
-                  <td>
-                    <%= product.gender %>
-                  </td>
-                  <td>
-                    <%= product.type %>
-                  </td>
-                  <td>
-                    <% if (product.offerPrice) { %>
-                      <div class="price-offer"><span class="price-off">$<%= product.offerPrice.toLocaleString() %>
-                        </span> <span class="price-old">$<%= product.price.toLocaleString() %></span></div>
+                    <% }) %>
                       <% } else { %>
-                        $<%= product.price.toLocaleString() %>
-                          <% } %>
-                  </td>
-                  <td>
-                    <%= product.stock %>
-                  </td>
-                  <td>
-                    <% if (product.stock===0) { %>
-                      <span class="badge red">Out of Stock</span>
-                      <% } else if (product.stock <=5) { %>
-                        <span class="badge yellow">Low Stock</span>
-                        <% } else { %>
-                          <span class="badge green">Available</span>
-                          <% } %>
-                  </td>
-
-                  <td class="actions-col">
-                    <button class="icon-btn" title="Edit" onclick="openEditProductModal('<%= product._id %>')">
-                      <i class="ri-edit-2-line"></i>
-                    </button>
-
-                    <form method="POST" action="/admin/products/delete/<%= product._id %>" style="display:inline;"
-                      onsubmit="return confirmDelete(event, '<%= product._id %>')">
-                      <button type="submit" class="icon-btn delete" title="Delete">
-                        <i class="ri-delete-bin-6-line"></i>
-                      </button>
-                    </form>
-
-                    <button class="icon-btn tag" title="<%= product.isBlocked ? 'Unblock' : 'Block' %>"
-                      onclick="toggleBlock('<%= product._id %>')">
-                      <i class="ri-price-tag-3-line"></i>
-                    </button>
-                  </td>
+                        No variants
+                        <% } %>
+              </td>
+              <td>
+                <div class="status-label">
+                  <label class="toggle-switch <%= product.isBlocked ? 'blocked' : '' %>">
+                    <input type="checkbox" <%=product.isBlocked ? '' : 'checked' %>
+                    onchange="toggleProductStatus('<%= product._id %>')">
+                      <span class="toggle-slider"></span>
+                  </label>
+                  <span>
+                    <%= product.isBlocked ? 'Inactive' : 'Active' %>
+                  </span>
+                </div>
+              </td>
+              <td class="actions">
+                <i class="ri-edit-2-line edit" onclick="openEditProductModal('<%= product._id %>')"></i>
+                <!-- <button type="button" style="background:none;border:none;padding:0;margin:0;"
+                  onclick="deleteProduct('<%= product._id %>')">
+                  <i class="ri-delete-bin-6-line delete"></i>
+                </button> -->
+              </td>
+            </tr>
+            <% }) %>
+              <% } else { %>
+                <tr>
+                  <td colspan="6" style="text-align:center;padding:40px;">No products found.</td>
                 </tr>
                 <% } %>
-                  <% }) %>
-                    <% } else { %>
-                      <tr>
-                        <td colspan="9" style="text-align:center;padding:28px;color:#666">No products found</td>
-                      </tr>
-                      <% } %>
-        </tbody>
-      </table>
-    </div>
+      </tbody>
+    </table>
+
+    <!-- PAGINATION -->
+    <% if (totalPages> 1) { %>
+      <div class="pagination">
+
+        <% if (page> 1) { %>
+          <a class="page-btn" href="?page=<%= page - 1 %>&search=<%= search %>">‹ Prev</a>
+          <% } else { %>
+            <span class="page-btn disabled">‹ Prev</span>
+            <% } %>
+
+              <ul class="page-numbers">
+                <% for (let p=1; p <=totalPages; p++) { %>
+                  <li>
+                    <a href="?page=<%= p %>&search=<%= search %>" class="<%= p === page ? 'active' : '' %>">
+                      <%= p %>
+                    </a>
+                  </li>
+                  <% } %>
+              </ul>
+
+              <% if (page < totalPages) { %>
+                <a class="page-btn" href="?page=<%= page + 1 %>&search=<%= search %>">Next ›</a>
+                <% } else { %>
+                  <span class="page-btn disabled">Next ›</span>
+                  <% } %>
+
+      </div>
+      <% } %>
+
+
   </div>
 
   <!-- ADD PRODUCT MODAL -->
   <div id="addProductModal" class="modal-overlay">
-    <div class="modal">
-      <div class="modal-head">
-        <h3>Add Product</h3>
-        <button class="close" onclick="closeAddProductModal()">×</button>
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>Add New Product</h2>
+        <span class="modal-close" onclick="closeAddProductModal()">×</span>
       </div>
 
-      <form id="addProductForm" method="POST" action="/admin/products/add" enctype="multipart/form-data"
-        onsubmit="return validateAddForm(event)">
-        <div class="form-grid">
-          <label>
-            Name
-            <input name="name" type="text" required>
-          </label>
+      <div class="modal-content">
+        <form id="addProductForm">
+          <!-- Basic Product Information -->
+          <div class="form-section">
+            <h3 class="section-title">Basic Information</h3>
+            <div class="form-grid">
+              <div class="form-group full-width">
+                <label>Product Name <span class="required">*</span></label>
+                <input type="text" name="productName" required>
+              </div>
 
-          <label>
-            Category
-            <select name="category" required>
-              <option value="">Select category</option>
-              <% categories.forEach(c=> { %>
-                <option value="<%= c._id %>">
-                  <%= c.name %>
-                </option>
-                <% }) %>
-            </select>
-          </label>
+              <div class="form-group full-width">
+                <label>Description <span class="required">*</span></label>
+                <textarea name="description" required></textarea>
+              </div>
 
-          <label>
-            Brand
-            <select name="brand" required>
-              <option value="">Select brand</option>
-              <% brands.forEach(b=> { %>
-                <option value="<%= b._id %>">
-                  <%= b.brandName %>
-                </option>
-                <% }) %>
-            </select>
-          </label>
+              <div class="form-group">
+                <label>Category <span class="required">*</span></label>
+                <select name="category" required>
+                  <option value="">Select Category</option>
+                  <% if (categories && categories.length> 0) { %>
+                    <% categories.forEach(cat=> { %>
+                      <option value="<%= cat._id %>">
+                        <%= cat.name %>
+                      </option>
+                      <% }) %>
+                        <% } %>
+                </select>
+              </div>
 
+              <div class="form-group">
+                <label>Brand <span class="required">*</span></label>
+                <select name="brand" required>
+                  <option value="">Select Brand</option>
+                  <% if (brands && brands.length> 0) { %>
+                    <% brands.forEach(brand=> { %>
+                      <option value="<%= brand._id %>">
+                        <%= brand.brandName %>
+                      </option>
+                      <% }) %>
+                        <% } %>
+                </select>
+              </div>
+            </div>
+          </div>
 
-          <label>
-            Gender
-            <select name="gender" required>
-              <option value="Men">Men</option>
-              <option value="Women">Women</option>
-              <option value="Unisex">Unisex</option>
-            </select>
-          </label>
+          <!-- VARIANTS SECTION -->
+          <div class="form-section variants-section">
+            <div class="variants-header">
+              <h3>Product Variants <span class="required">*</span></h3>
+              <button type="button" class="add-variant-btn" onclick="addVariant('add')">
+                <i class="ri-add-line"></i> Add Variant
+              </button>
+            </div>
+            <div id="addVariantsContainer">
+              <!-- Variants will be added here -->
+            </div>
+            <div class="error-message" id="addVariantError">Please add at least one variant</div>
+          </div>
+        </form>
+      </div>
 
-          <label>
-            Type
-            <select name="type" required>
-              <option value="Automatic">Automatic</option>
-              <option value="Quartz">Quartz</option>
-              <option value="Mechanical">Mechanical</option>
-              <option value="Chronograph">Chronograph</option>
-            </select>
-          </label>
-
-          <label>
-            Price (USD)
-            <input name="price" type="number" min="0" step="0.01" required>
-          </label>
-
-          <label>
-            Offer Price (optional)
-            <input name="offerPrice" type="number" min="0" step="0.01">
-          </label>
-
-          <label>
-            Stock
-            <input name="stock" type="number" min="0" required>
-          </label>
-
-          <label class="full">
-            Description
-            <textarea name="description" rows="3" required></textarea>
-          </label>
-
-          <label class="full">
-            Images (min 3) — choose multiple
-            <input id="addImages" name="images" type="file" accept="image/*" multiple>
-            <div id="addPreview" class="preview-grid"></div>
-          </label>
-        </div>
-
-        <div class="modal-actions">
-          <button type="button" class="btn btn-cancel" onclick="closeAddProductModal()">Cancel</button>
-          <button type="submit" class="btn btn-primary">Add Product</button>
-        </div>
-      </form>
+      <div class="modal-actions">
+        <button type="button" class="cancel-btn" onclick="closeAddProductModal()">Cancel</button>
+        <button type="button" class="submit-btn" onclick="submitAddProduct()">Add Product</button>
+      </div>
     </div>
   </div>
 
   <!-- EDIT PRODUCT MODAL -->
   <div id="editProductModal" class="modal-overlay">
-    <div class="modal">
-      <div class="modal-head">
-        <h3>Edit Product</h3>
-        <button class="close" onclick="closeEditProductModal()">×</button>
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>Edit Product</h2>
+        <span class="modal-close" onclick="closeEditProductModal()">×</span>
       </div>
 
-      <form id="editProductForm" method="POST" enctype="multipart/form-data" onsubmit="return validateEditForm(event)">
-        <input id="editId" name="id" type="hidden">
-        <div class="form-grid">
-          <label>
-            Name
-            <input id="editName" name="name" type="text" required>
-          </label>
+      <div class="modal-content">
+        <form id="editProductForm">
+          <input type="hidden" id="editProductId" name="productId">
 
-          <label>
-            Category
-            <select id="editCategory" name="category" required>
-              <option value="">Select category</option>
-              <% categories.forEach(c=> { %>
-                <option value="<%= c._id %>">
-                  <%= c.name %>
-                </option>
-                <% }) %>
-            </select>
-          </label>
+          <!-- Basic Product Information -->
+          <div class="form-section">
+            <h3 class="section-title">Basic Information</h3>
+            <div class="form-grid">
+              <div class="form-group full-width">
+                <label>Product Name <span class="required">*</span></label>
+                <input type="text" id="editProductName" name="productName" required>
+              </div>
 
-          <label>
-            Brand
-            <select id="editBrand" name="brand" required>
-              <option value="">Select brand</option>
-              <% brands.forEach(b=> { %>
-                <option value="<%= b._id %>">
-                  <%= b.brandName %> 
-                </option>
-                <% }) %>
-            </select>
-          </label>
+              <div class="form-group full-width">
+                <label>Description <span class="required">*</span></label>
+                <textarea id="editDescription" name="description" required></textarea>
+              </div>
 
-          <label>
-            Gender
-            <select id="editGender" name="gender" required>
-              <option value="Men">Men</option>
-              <option value="Women">Women</option>
-              <option value="Unisex">Unisex</option>
-            </select>
-          </label>
+              <div class="form-group">
+                <label>Category <span class="required">*</span></label>
+                <select id="editCategory" name="category" required>
+                  <option value="">Select Category</option>
+                  <% if (categories && categories.length> 0) { %>
+                    <% categories.forEach(cat=> { %>
+                      <option value="<%= cat._id %>">
+                        <%= cat.name %>
+                      </option>
+                      <% }) %>
+                        <% } %>
+                </select>
+              </div>
 
-          <label>
-            Type
-            <select id="editType" name="type" required>
-              <option value="Automatic">Automatic</option>
-              <option value="Quartz">Quartz</option>
-              <option value="Mechanical">Mechanical</option>
-              <option value="Chronograph">Chronograph</option>
-            </select>
-          </label>
+              <div class="form-group">
+                <label>Brand <span class="required">*</span></label>
+                <select id="editBrand" name="brand" required>
+                  <option value="">Select Brand</option>
+                  <% if (brands && brands.length> 0) { %>
+                    <% brands.forEach(brand=> { %>
+                      <option value="<%= brand._id %>">
+                        <%= brand.brandName %>
+                      </option>
+                      <% }) %>
+                        <% } %>
+                </select>
+              </div>
+            </div>
+          </div>
 
-          <label>
-            Price (USD)
-            <input id="editPrice" name="price" type="number" min="0" step="0.01" required>
-          </label>
+          <!-- VARIANTS SECTION -->
+          <div class="form-section variants-section">
+            <div class="variants-header">
+              <h3>Product Variants <span class="required">*</span></h3>
+              <button type="button" class="add-variant-btn" onclick="addVariant('edit')">
+                <i class="ri-add-line"></i> Add Variant
+              </button>
+            </div>
+            <div id="editVariantsContainer"></div>
+            <div class="error-message" id="editVariantError">Please add at least one variant</div>
+          </div>
+        </form>
+      </div>
 
-          <label>
-            Offer Price (optional)
-            <input id="editOffer" name="offerPrice" type="number" min="0" step="0.01">
-          </label>
-
-          <label>
-            Stock
-            <input id="editStock" name="stock" type="number" min="0" required>
-          </label>
-
-          <label class="full">
-            Description
-            <textarea id="editDesc" name="description" rows="3" required></textarea>
-          </label>
-
-          <label class="full">
-            Replace Images (optional — choose multiple; min 3 if replacing)
-            <input id="editImages" name="images" type="file" accept="image/*" multiple>
-            <div id="editPreview" class="preview-grid"></div>
-            <small class="muted">If you don't upload images here, current images will be kept.</small>
-          </label>
-        </div>
-
-        <div class="modal-actions">
-          <button type="button" class="btn btn-cancel" onclick="closeEditProductModal()">Cancel</button>
-          <button type="submit" class="btn btn-primary">Update Product</button>
-        </div>
-      </form>
+      <div class="modal-actions">
+        <button type="button" class="cancel-btn" onclick="closeEditProductModal()">Cancel</button>
+        <button type="button" class="submit-btn" onclick="submitEditProduct()">Update Product</button>
+      </div>
     </div>
   </div>
 
-  <!-- SCRIPTS -->
+  <!-- CROP MODAL -->
+  <div id="cropperModal" style="display:none;
+            position:fixed;
+            inset:0;
+            background:rgba(0,0,0,.65);
+            z-index:999999;
+            justify-content:center;
+            align-items:center;">
+    <div style="background:white; padding:15px; width:90%; max-width:460px;">
+      <img id="cropperImage" style="width:100%; max-height:350px; object-fit:contain;">
+      <div style="display:flex; justify-content:flex-end; margin-top:10px;">
+        <button id="btnCropNext" style="background:#5a6b3f; padding:10px 18px;
+                           border:none; color:white;
+                           border-radius:8px; cursor:pointer;">
+          Crop & Next
+        </button>
+      </div>
+    </div>
+  </div>
+
+
   <script>
-    // utility: show modal
-    function showModal(id) { document.getElementById(id).style.display = 'flex'; }
-    function hideModal(id) { document.getElementById(id).style.display = 'none'; }
+    let variantCounter = 0;
+    let variantImages = {}; // key: mode_variantId -> [Blob,...]
 
-    // Add modal open/close
-    function openAddProductModal() { showModal('addProductModal'); }
-    function closeAddProductModal() { hideModal('addProductModal'); clearAddPreview(); document.getElementById('addProductForm').reset(); }
+    // Cropper state
+    let currentFilesQueue = [];
+    let currentVariantKey = null;
+    let cropper = null;
 
-    // Edit modal open/close
-    function openEditProductModal(id) {
-      // find product data from page (we could also fetch from server)
-      const row = document.querySelector(`tr[data-id="${id}"]`);
-      if (!row) return;
-
-      // Read values from the row (we'll pull attributes rendered server-side in a data-* if necessary)
-      // But since server rendered, better to fetch details via AJAX endpoint for product details.
-      // We'll attempt a fetch to /admin/products/json/:id (implement server side), fallback to row reading.
-      fetch(`/admin/products/json/${id}`)
-        .then(r => r.ok ? r.json() : Promise.reject('failed'))
-        .then(product => {
-          populateEditForm(product);
-          showModal('editProductModal');
-        })
-        .catch(_ => {
-          // fallback - attempt to read visible columns
-          const title = row.querySelector('.prod-title') ? row.querySelector('.prod-title').innerText.trim() : '';
-          const desc = row.querySelector('.prod-desc') ? row.querySelector('.prod-desc').innerText.trim() : '';
-          document.getElementById('editId').value = id;
-          document.getElementById('editName').value = title;
-          document.getElementById('editDesc').value = desc;
-          // other selects left blank - user should fetch full product server-side in real integration
-          showModal('editProductModal');
-        });
+    // Modal functions
+    function openAddProductModal() {
+      document.getElementById('addProductModal').style.display = 'flex';
+      document.getElementById('addProductForm').reset();
+      document.getElementById('addVariantsContainer').innerHTML = '';
+      document.getElementById('addVariantError').classList.remove('show');
+      variantImages = {};
+      variantCounter = 0;
     }
 
-    function populateEditForm(product) {
-      document.getElementById('editId').value = product._id;
-      document.getElementById('editName').value = product.name || '';
-      document.getElementById('editDesc').value = product.description || '';
-      document.getElementById('editPrice').value = product.price || '';
-      document.getElementById('editOffer').value = product.offerPrice || '';
-      document.getElementById('editStock').value = product.stock || 0;
-      document.getElementById('editGender').value = product.gender || 'Men';
-      document.getElementById('editType').value = product.type || 'Automatic';
-      if (product.category) document.getElementById('editCategory').value = product.category._id || '';
-      if (product.brand) document.getElementById('editBrand').value = product.brand._id || '';
+    function closeAddProductModal() {
+      document.getElementById('addProductModal').style.display = 'none';
+    }
 
-      // show current images as preview
-      const preview = document.getElementById('editPreview');
-      preview.innerHTML = '';
-      if (product.images && product.images.length) {
-        product.images.forEach(src => {
-          const img = document.createElement('img');
-          img.src = src;
-          preview.appendChild(img);
-        });
+    function closeEditProductModal() {
+      document.getElementById('editProductModal').style.display = 'none';
+    }
+
+    // When user selects files for a variant
+    function previewVariantImages(event, variantId, mode) {
+      const files = Array.from(event.target.files);
+      if (!files || files.length === 0) return;
+
+      const key = `${mode}_${variantId}`;
+      if (!variantImages[key]) variantImages[key] = [];
+
+      currentFilesQueue = files;
+      currentVariantKey = key;
+
+      openCropperForNext();
+    }
+
+    function openCropperForNext() {
+      // If no more files in queue -> render preview and exit
+      if (!currentFilesQueue || currentFilesQueue.length === 0) {
+        renderVariantPreview(currentVariantKey);
+        return;
       }
-      // set form action URL
-      document.getElementById('editProductForm').action = `/admin/products/edit/${product._id}`;
+
+      const file = currentFilesQueue.shift();
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = document.getElementById('cropperImage');
+        img.src = e.target.result;
+
+        const modal = document.getElementById('cropperModal');
+        modal.style.display = 'flex';
+
+        setTimeout(() => {
+          if (cropper) cropper.destroy();
+          cropper = new Cropper(img, {
+            aspectRatio: 1,
+            viewMode: 1,
+            autoCropArea: 1,
+          });
+        }, 50);
+      };
+      reader.readAsDataURL(file);
     }
 
-    function closeEditProductModal() { hideModal('editProductModal'); document.getElementById('editProductForm').reset(); document.getElementById('editPreview').innerHTML = ''; }
+    document.getElementById('btnCropNext').addEventListener('click', () => {
+      if (!cropper) return;
 
-    // Delete confirm using SweetAlert
-    function confirmDelete(e, id) {
-      e.preventDefault();
-      Swal.fire({
-        title: 'Delete product?',
-        text: 'This will soft-delete the product (recoverable).',
+      cropper.getCroppedCanvas().toBlob((blob) => {
+        if (blob) {
+          variantImages[currentVariantKey].push(blob);
+        }
+
+        cropper.destroy();
+        cropper = null;
+
+        document.getElementById('cropperModal').style.display = 'none';
+
+        // Continue with next file in queue
+        openCropperForNext();
+      }, 'image/jpeg', 0.9);
+    });
+
+    function renderVariantPreview(key) {
+      if (!key) return;
+
+      const [mode, id] = key.split('_');
+      const previewId = `${mode}VariantPreview${id}`;
+      const preview = document.getElementById(previewId);
+      if (!preview) return;
+
+      preview.innerHTML = '';
+
+      const blobs = variantImages[key] || [];
+      blobs.forEach((blob, index) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const div = document.createElement('div');
+          div.className = 'image-preview-item';
+          div.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview">
+                    <span class="remove-img" onclick="removeVariantImage(${index}, '${key}')">×</span>
+                `;
+          preview.appendChild(div);
+        };
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    function removeVariantImage(index, key) {
+      const arr = variantImages[key];
+      if (!arr) return;
+      arr.splice(index, 1);
+      renderVariantPreview(key);
+    }
+
+    // Variant management
+    function addVariant(mode) {
+      const currentIndex = variantCounter;
+      variantCounter++;
+
+      const container = document.getElementById(`${mode}VariantsContainer`);
+
+      const variantHtml = `
+    <div class="variant-item" data-variant-id="${currentIndex}">
+      <div class="variant-header">
+        <h4>Variant #${currentIndex + 1}</h4>
+        <button type="button" class="remove-variant-btn" onclick="removeVariant(this, '${mode}')">
+          <i class="ri-close-line"></i> Remove
+        </button>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Color <span class="required">*</span></label>
+          <input type="text" name="variants[${currentIndex}][color]" required>
+        </div>
+        <div class="form-group">
+          <label>Dial Size <span class="required">*</span></label>
+          <input type="text" name="variants[${currentIndex}][dialSize]" required>
+        </div>
+        <div class="form-group">
+          <label>Price <span class="required">*</span></label>
+          <input type="number" name="variants[${currentIndex}][price]" required>
+        </div>
+        <div class="form-group">
+          <label>Stock <span class="required">*</span></label>
+          <input type="number" name="variants[${currentIndex}][stock]" required>
+        </div>
+      </div>
+
+      <div class="variant-images-section">
+        <div class="form-group full-width">
+          <label>Variant Images <span class="required">*</span></label>
+          <div class="file-upload-wrapper">
+            <label for="${mode}VariantImages${currentIndex}" class="file-upload-label">
+              <i class="ri-upload-cloud-line"></i> Upload
+            </label>
+            <input id="${mode}VariantImages${currentIndex}"
+                   type="file"
+                   multiple
+                   accept="image/*"
+                   onchange="previewVariantImages(event, ${currentIndex}, '${mode}')">
+          </div>
+
+          <div id="${mode}VariantPreview${currentIndex}" class="image-preview"></div>
+        </div>
+      </div>
+    </div>
+  `;
+
+      container.insertAdjacentHTML('beforeend', variantHtml);
+    }
+
+
+    function removeVariant(button, mode) {
+      const variantItem = button.closest('.variant-item');
+      const variantId = variantItem.dataset.variantId;
+      const key = `${mode}_${variantId}`;
+
+      delete variantImages[key];
+      variantItem.remove();
+    }
+
+    // Validate form before submission (only variants count; images validated in backend)
+    function validateForm(mode) {
+      const container = document.getElementById(`${mode}VariantsContainer`);
+      const variants = container.querySelectorAll('.variant-item');
+
+      if (variants.length === 0) {
+        document.getElementById(`${mode}VariantError`).classList.add('show');
+        Swal.fire('Error', 'Please add at least one variant', 'error');
+        return false;
+      }
+
+      return true;
+    }
+
+    // Submit Add Product
+    async function submitAddProduct() {
+      if (!validateForm('add')) return;
+
+      const form = document.getElementById('addProductForm');
+      const formData = new FormData(form);
+
+      const variants = [];
+      const variantElements = document.querySelectorAll('#addVariantsContainer .variant-item');
+
+      for (let i = 0; i < variantElements.length; i++) {
+
+        const variantItem = variantElements[i];
+        const variantId = variantItem.dataset.variantId;
+        const key = `add_${variantId}`;
+
+        const variant = {
+          color: form.querySelector(`[name="variants[${variantId}][color]"]`).value,
+          dialSize: form.querySelector(`[name="variants[${variantId}][dialSize]"]`).value,
+          price: parseFloat(form.querySelector(`[name="variants[${variantId}][price]"]`).value),
+          stock: parseInt(form.querySelector(`[name="variants[${variantId}][stock]"]`).value)
+        };
+
+        const files = variantImages[key] || [];
+        files.forEach(file => {
+          formData.append(`variant_${variantId}_images`, file);
+        });
+
+        variants.push(variant);
+      }
+
+      // ❗ DO NOT append JSON anymore
+      // formData.append('variants', JSON.stringify(variants)); ❌ remove
+
+      try {
+        const response = await axios.post('/admin/products/add', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+
+        if (response.data.success) {
+          await Swal.fire({ title: 'Success', icon: 'success', timer: 1500 });
+          location.reload();
+        }
+      } catch (err) {
+        console.log(err);
+        Swal.fire('Error', 'Something went wrong', 'error');
+      }
+    }
+
+    // Open Edit Modal
+    async function openEditProductModal(productId) {
+      try {
+        const response = await axios.get(`/admin/products/${productId}`);
+        const product = response.data.product;
+
+        document.getElementById('editProductModal').style.display = 'flex';
+        document.getElementById('editProductId').value = product._id;
+        document.getElementById('editProductName').value = product.productName;
+        document.getElementById('editDescription').value = product.description;
+        document.getElementById('editCategory').value = product.category?._id || product.category;
+        document.getElementById('editBrand').value = product.brand?._id || product.brand;
+
+        const variantsContainer = document.getElementById('editVariantsContainer');
+        variantsContainer.innerHTML = '';
+        variantCounter = 0;
+        variantImages = {}; // reset only NEW images
+
+        if (product.variants && product.variants.length > 0) {
+          product.variants.forEach((variant, index) => {
+            const currentIndex = index;
+
+            const variantHtml = `
+          <div class="variant-item" data-variant-id="${currentIndex}">
+            <div class="variant-header">
+              <h4>Variant #${currentIndex + 1}</h4>
+              <button type="button" class="remove-variant-btn" onclick="removeVariant(this, 'edit')">
+                <i class="ri-close-line"></i> Remove
+              </button>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Color <span class="required">*</span></label>
+                <input type="text" name="variants[${currentIndex}][color]" value="${variant.color || ''}" required>
+              </div>
+              <div class="form-group">
+                <label>Dial Size <span class="required">*</span></label>
+                <input type="text" name="variants[${currentIndex}][dialSize]" value="${variant.dialSize || ''}" required>
+              </div>
+              <div class="form-group">
+                <label>Price (₹) <span class="required">*</span></label>
+                <input type="number" name="variants[${currentIndex}][price]" min="0" value="${variant.price || 0}" required>
+              </div>
+              <div class="form-group">
+                <label>Stock Quantity <span class="required">*</span></label>
+                <input type="number" name="variants[${currentIndex}][stock]" min="0" value="${variant.stock || 0}" required>
+              </div>
+            </div>
+
+            <!-- IMPORTANT: keep subdocument _id -->
+            <input type="hidden" name="variants[${currentIndex}][_id]" value="${variant._id || ''}">
+
+            <div class="variant-images-section">
+              <div class="form-group full-width">
+                <label>Variant Images <span class="required">*</span></label>
+
+                <div class="file-upload-wrapper">
+                  <label for="editVariantImages${currentIndex}" class="file-upload-label">
+                    <i class="ri-upload-cloud-line"></i>
+                    <span>Click to upload new images</span>
+                    <span class="file-info">You can select multiple images</span>
+                  </label>
+
+                  <input id="editVariantImages${currentIndex}"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onchange="previewVariantImages(event, ${currentIndex}, 'edit')">
+                </div>
+
+                <div id="editVariantPreview${currentIndex}" class="image-preview"></div>
+              </div>
+            </div>
+          </div>
+        `;
+
+            variantsContainer.insertAdjacentHTML('beforeend', variantHtml);
+
+            // Show OLD images (just for preview)
+            const preview = document.getElementById(`editVariantPreview${currentIndex}`);
+            if (variant.images && variant.images.length > 0) {
+              variant.images.forEach((img) => {
+                const div = document.createElement('div');
+                div.className = 'image-preview-item';
+                div.innerHTML = `<img src="${img}" alt="Variant image">`;
+                preview.appendChild(div);
+              });
+            }
+          });
+
+          // for new variants added after existing
+          variantCounter = product.variants.length;
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        Swal.fire('Error', 'Failed to load product data', 'error');
+      }
+    }
+
+
+    // Submit Edit Product
+    async function submitEditProduct() {
+      if (!validateForm('edit')) return;
+
+      const form = document.getElementById('editProductForm');
+      const formData = new FormData(form);
+      const productId = document.getElementById('editProductId').value;
+
+      const variants = [];
+      const variantElements = document.querySelectorAll('#editVariantsContainer .variant-item');
+
+      for (let i = 0; i < variantElements.length; i++) {
+        const variantItem = variantElements[i];
+        const variantId = variantItem.dataset.variantId;    // "0", "1", ...
+        const key = `edit_${variantId}`;
+
+        const color = form.querySelector(`[name="variants[${variantId}][color]"]`).value;
+        const dialSize = form.querySelector(`[name="variants[${variantId}][dialSize]"]`).value;
+        const price = parseFloat(form.querySelector(`[name="variants[${variantId}][price]"]`).value);
+        const stock = parseInt(form.querySelector(`[name="variants[${variantId}][stock]"]`).value);
+
+        const variantDbIdInput = form.querySelector(`[name="variants[${variantId}][_id]"]`);
+        const variantDbId = variantDbIdInput ? variantDbIdInput.value : null;
+
+        const variant = {
+          id: variantId,         // frontend index
+          _id: variantDbId,      // mongo subdoc
+          color,
+          dialSize,
+          price,
+          stock
+        };
+
+        // NEW (cropped) images only
+        const files = variantImages[key] || [];
+        files.forEach(file => {
+          formData.append(`variant_${variantId}_images`, file);
+        });
+
+        variants.push(variant);
+      }
+
+
+      // ⭐ remove auto-sent variant fields
+      for (let key of Array.from(formData.keys())) {
+        if (key.startsWith("variants[")) {
+          formData.delete(key);
+        }
+      }
+
+      // send clean variant JSON
+      formData.append("variants", JSON.stringify(variants));
+
+
+      try {
+        const response = await axios.patch(`/admin/products/edit/${productId}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
+
+        if (response.data.success) {
+          await Swal.fire({
+            title: "Success!",
+            text: "Product updated successfully",
+            icon: "success",
+            timer: 1500,
+            showConfirmButton: false
+          });
+          window.location.reload();
+        } else {
+          Swal.fire("Error", response.data.message || "Failed to update product", "error");
+        }
+
+      } catch (error) {
+        console.error("Error:", error);
+        Swal.fire("Error", error.response?.data?.message || "Something went wrong!", "error");
+      }
+    }
+
+
+
+
+    // Toggle product status
+    async function toggleProductStatus(productId) {
+      try {
+        const response = await axios.patch(`/admin/products/block/${productId}`);
+
+        if (response.data.success) {
+          await Swal.fire({
+            title: 'Success!',
+            text: 'Product status updated',
+            icon: 'success',
+            timer: 1200,
+            showConfirmButton: false
+          });
+          window.location.reload();
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        Swal.fire('Error', 'Failed to update status', 'error');
+      }
+    }
+
+    // Delete product
+    async function deleteProduct(productId) {
+      const result = await Swal.fire({
+        title: 'Delete Product?',
+        text: 'This action cannot be undone',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Delete',
+        cancelButtonText: 'Cancel',
         confirmButtonColor: '#e74c3c'
-      }).then(res => {
-        if (res.isConfirmed) {
-          // submit original form (find by id)
-          // the event target was the form element
-          // find a form with action containing the id
-          const form = e.target;
-          form.submit();
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const response = await axios.delete(`/admin/products/delete/${productId}`);
+
+          if (response.data.success) {
+            await Swal.fire({
+              title: 'Deleted!',
+              text: 'Product deleted successfully',
+              icon: 'success',
+              timer: 1500,
+              showConfirmButton: false
+            });
+            window.location.reload();
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          Swal.fire('Error', 'Failed to delete product', 'error');
         }
-      });
-      return false;
-    }
-
-    // Block/unblock
-    function toggleBlock(id) {
-      fetch(`/admin/products/toggle-block/${id}`, { method: 'PATCH' })
-        .then(r => r.json())
-        .then(data => {
-          if (data.success) location.reload();
-          else Swal.fire('Error', data.message || 'Could not toggle block', 'error');
-        }).catch(() => Swal.fire('Error', 'Network error', 'error'));
-    }
-
-    // Filter and search helpers
-    function applyFilters() {
-      const search = document.getElementById('searchInput').value.trim();
-      const category = document.getElementById('categoryFilter').value;
-      const brand = document.getElementById('brandFilter').value;
-      const params = new URLSearchParams();
-      if (search) params.set('search', search);
-      if (category) params.set('category', category);
-      if (brand) params.set('brand', brand);
-      window.location.href = '/admin/products' + (params.toString() ? '?' + params.toString() : '');
-    }
-
-    // Add preview logic
-    const addImagesInput = document.getElementById('addImages');
-    const addPreview = document.getElementById('addPreview');
-
-    if (addImagesInput) {
-      addImagesInput.addEventListener('change', e => {
-        addPreview.innerHTML = '';
-        const files = Array.from(e.target.files);
-        files.forEach(file => {
-          const url = URL.createObjectURL(file);
-          const img = document.createElement('img');
-          img.src = url;
-          addPreview.appendChild(img);
-        });
-      });
-    }
-
-    function clearAddPreview() {
-      if (addPreview) addPreview.innerHTML = '';
-    }
-
-    // Edit preview logic
-    const editImagesInput = document.getElementById('editImages');
-    if (editImagesInput) {
-      editImagesInput.addEventListener('change', e => {
-        const preview = document.getElementById('editPreview');
-        preview.innerHTML = '';
-        const files = Array.from(e.target.files);
-        files.forEach(file => {
-          const url = URL.createObjectURL(file);
-          const img = document.createElement('img');
-          img.src = url;
-          preview.appendChild(img);
-        });
-      });
-    }
-
-    // Validate add form (at least 3 images)
-    function validateAddForm(e) {
-      const input = document.getElementById('addImages');
-      if (!input || (input.files && input.files.length < 3)) {
-        e.preventDefault();
-        Swal.fire('Image error', 'Please upload at least 3 images', 'error');
-        return false;
       }
-      return true;
     }
 
-    // Validate edit form: if files chosen ensure at least 3
-    function validateEditForm(e) {
-      const input = document.getElementById('editImages');
-      if (input && input.files && input.files.length > 0 && input.files.length < 3) {
-        e.preventDefault();
-        Swal.fire('Image error', 'If replacing images, upload at least 3 images', 'error');
-        return false;
+    // Close modals on outside click
+    window.onclick = function (event) {
+      const addModal = document.getElementById('addProductModal');
+      const editModal = document.getElementById('editProductModal');
+      const cropModal = document.getElementById('cropperModal');
+
+      if (event.target === addModal) {
+        closeAddProductModal();
       }
-      // form action should already be set to /admin/products/edit/:id by populateEditForm
-      return true;
+      if (event.target === editModal) {
+        closeEditProductModal();
+      }
+      if (event.target === cropModal) {
+        // cancel cropping current image
+        if (cropper) {
+          cropper.destroy();
+          cropper = null;
+        }
+        cropModal.style.display = 'none';
+        currentFilesQueue = [];
+      }
     }
-
-    // Open edit modal if you want to pre-populate via server route (optional)
-    // Example endpoint to implement on server: GET /admin/products/json/:id  => returns product JSON with category and brand populated
-
-    // extra: press enter in search triggers apply
-    document.getElementById('searchInput').addEventListener('keydown', function (ev) {
-      if (ev.key === 'Enter') { applyFilters(); }
-    });
   </script>

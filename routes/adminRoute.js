@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // Controllers
-const adminController = require('../controllers/admin/adminController');
+const adminController = require('../controllers/admin/admin.controller.js');
 
 // Middlewares
 const { adminAuth } = require("../middlewares/auth");
@@ -62,27 +62,58 @@ router.post("/brands/delete/:id", adminAuth, adminController.deleteBrand);
 // -------------------------------------------------
 // PRODUCT MANAGEMENT
 // -------------------------------------------------
-router.get("/products", adminAuth, adminController.loadProductPage);
+router.get("/products",  adminController.loadProductPage);
+
+//ADD-PRODUCT
 
 router.post(
     "/products/add",
-    adminAuth,
-    upload.array("images", 10),
+    upload.any(),
     adminController.addProduct
 );
 
-router.post(
-    "/products/edit/:id",
+//TOGGLE-BUTTON
+
+router.patch(
+    "/products/block/:id",
     adminAuth,
-    upload.array("images", 10),
-    adminController.editProduct
+    adminController.toggleProductBlock
+)
+
+//EDIT PRODUCT
+
+router.get("/products/:productId", adminAuth, adminController.getProductJson)
+
+// EDIT PRODUCT
+router.patch(
+  "/products/edit/:productId",
+  adminAuth,
+  upload.any(),
+  adminController.editProduct
 );
 
-router.post("/products/delete/:id", adminAuth, adminController.deleteProduct);
-router.patch("/products/toggle-block/:id", adminAuth, adminController.toggleProductBlock);
-router.get("/products/json/:id", adminAuth, adminController.getProductJson);
 
-// Category Management
-router.get('/categories', adminAuth, adminController.loadCategories);
+// CATEGORY MANAGEMENT
+router.get("/categories", adminAuth, adminController.loadCategoryManagement);
+
+router.post(
+    "/categories/add",
+    adminAuth,
+    upload.single("image"),
+    adminController.addCategory
+);
+
+router.post(
+    "/categories/edit/:id",
+    adminAuth,
+    upload.single("image"),
+    adminController.editCategory
+);
+
+router.patch(
+    "/categories/toggle/:id",
+    adminAuth,
+    adminController.toggleCategoryStatus
+)
 
 module.exports = router;

@@ -1,206 +1,258 @@
 <%- include('../partials/admin/sidebar') %>
 
-<link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
-<link rel="stylesheet" href="/styles/admin/category-management.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="stylesheet" href="/styles/admin/category-management.css">
 
-<div class="main">
-    <p class="page-title">Category Management</p>
-    <p class="page-sub">Manage your product categories</p>
+    <div class="main category-page-wrapper">
+        <p class="page-title">Category Management</p>
+        <p class="page-sub">Manage your product categories</p>
 
-    <!-- TOP BAR -->
-    <div class="top-bar">
-        <!-- Left: Search -->
-        <input id="categorySearch" class="search-box" type="text"
-            placeholder="Search categories..." oninput="filterCategories()">
+        <!-- TOP BAR -->
+        <div class="top-bar">
 
-        <!-- Right: Add category -->
-        <button class="add-category-btn" onclick="openAddCategoryModal()">
-            <i class="ri-add-line"></i> Add Category
-        </button>
-    </div>
+            <!-- Backend Search -->
+            <form action="/admin/categories" method="GET" class="search-form" style="display:flex; gap:10px;">
+                <input class="search-box" type="text" name="search" placeholder="Search categories..."
+                    value="<%= search %>" />
 
-    <!-- TABLE -->
-    <table id="categoryTable" class="category-table">
-        <thead>
-            <tr>
-                <th>Category Name</th>
-                <th>Description</th>
-                <th>Products</th>
-                <th>Offers</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
+                <button type="submit" class="search-btn">Search</button>
 
-        <tbody>
-            <% categories.forEach(category => { %>
-            <tr>
-                <td class="cell-name"><%= category.name %></td>
-                <td class="cell-desc"><%= category.description %></td>
-                <td><%= category.productCount %> products</td>
-
-                <td>
-                    <% if (category.offer) { %>
-                        <span class="offer-badge"><%= category.offer.title %></span>
-                    <% } else { %>
-                        <span class="offer-link" onclick="openAddOfferModal('<%= category._id %>')">
-                            Add Offer
-                        </span>
+                <% if (search && search.trim() !=="" ) { %>
+                    <a href="/admin/categories" class="cancel-btn">Clear</a>
                     <% } %>
-                </td>
+            </form>
 
-                <!-- STATUS -->
-                <td style="display:flex; align-items:center; gap:12px;">
-                    <label class="switch">
-                        <input type="checkbox" <%= category.isActive ? "checked" : "" %>
-                            onchange="toggleCategoryStatus('<%= category._id %>')">
-                        <span class="slider"></span>
-                    </label>
-                    <span><%= category.isActive ? "Active" : "Inactive" %></span>
-                </td>
 
-                <!-- ACTIONS -->
-                <td class="actions">
-                    <!-- EDIT -->
-                    <i class="ri-edit-2-line edit"
-                        onclick='openEditCategoryModal(
-                            <%- JSON.stringify(category._id) %>,
-                            <%- JSON.stringify(category.name) %>,
-                            <%- JSON.stringify(category.description || "") %>
+            <!-- Add category -->
+            <button class="add-category-btn" onclick="openAddCategoryModal()">
+                <i class="ri-add-line"></i> Add Category
+            </button>
+
+        </div>
+
+        <!-- TABLE -->
+        <table class="category-table">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Offer (%)</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <% categories.forEach(category=> { %>
+                    <tr>
+
+                        <!-- CATEGORY NAME + IMAGE -->
+                        <td class="cell-name">
+                            <img src="<%= category.categoryImage %>" width="45"
+                                style="border-radius:6px; margin-right:8px;">
+                            <%= category.name %>
+                        </td>
+
+                        <td class="cell-desc">
+                            <%= category.description %>
+                        </td>
+
+                        <td>
+                            <%= category.categoryOffer %> %
+                        </td>
+
+                        <!-- STATUS TOGGLE -->
+                        <td>
+                            <label class="toggle-switch <%= category.isListed ? '' : 'blocked' %>">
+                                <input type="checkbox" <%=category.isListed ? "checked" : "" %>
+                                onchange="toggleCategoryStatus('<%= category._id %>')">
+                                    <span class="toggle-slider"></span>
+                            </label>
+
+                            <span>
+                                <%= category.isListed ? "Active" : "Inactive" %>
+                            </span>
+                        </td>
+
+
+                        <!-- EDIT ONLY -->
+                        <td class="actions">
+
+                            <i class="ri-edit-2-line edit" onclick='openEditCategoryModal(
+                            "<%= category._id %>",
+                            "<%= category.name %>",
+                            "<%= category.description %>",
+                            "<%= category.categoryOffer %>"
                         )'>
-                    </i>
+                            </i>
 
-                    <!-- DELETE -->
-                    <button type="button"
-                        onclick='openDeleteCategoryModal(
-                            <%- JSON.stringify(category._id) %>,
-                            <%- JSON.stringify(category.name) %>
-                        )'
-                        style="background:none;border:none;">
-                        <i class="ri-delete-bin-6-line delete"></i>
-                    </button>
-                </td>
-            </tr>
-            <% }) %>
-        </tbody>
-    </table>
-</div>
+                        </td>
 
+                    </tr>
+                    <% }) %>
+            </tbody>
+        </table>
 
-<!-- ADD CATEGORY MODAL -->
-<div id="addCategoryModal" class="modal-overlay">
-    <div class="modal-box">
-        <div class="modal-header">
-            <h2>Add New Category</h2>
-            <span class="modal-close" onclick="closeAddCategoryModal()">×</span>
+        <!-- PAGINATION -->
+        <div class="pagination">
+            <% if (page> 1) { %>
+                <a class="page-btn" href="/admin/categories?page=<%= page - 1 %>&search=<%= search %>">
+                    ‹ Prev
+                </a>
+                <% } else { %>
+                    <span class="page-btn disabled">‹ Prev</span>
+                    <% } %>
+
+                        <div class="page-numbers">
+                            <% for (let p=1; p <=totalPages; p++) { %>
+                                <a href="/admin/categories?page=<%= p %>&search=<%= search %>"
+                                    class="page-number <%= p === page ? 'active' : '' %>">
+                                    <%= p %>
+                                </a>
+                                <% } %>
+                        </div>
+
+                        <% if (page < totalPages) { %>
+                            <a class="page-btn" href="/admin/categories?page=<%= page + 1 %>&search=<%= search %>">
+                                Next ›
+                            </a>
+                            <% } else { %>
+                                <span class="page-btn disabled">Next ›</span>
+                                <% } %>
         </div>
 
-        <form id="addCategoryForm" method="POST" action="/admin/categories/add">
-            <label>Category Name</label>
-            <input type="text" name="name" required placeholder="Enter category name">
 
-            <label>Description</label>
-            <input type="text" name="description" required placeholder="Enter description">
-
-            <div class="modal-actions">
-                <button type="button" class="cancel-btn" onclick="closeAddCategoryModal()">Cancel</button>
-                <button type="submit" class="submit-btn">Add Category</button>
-            </div>
-        </form>
     </div>
-</div>
 
 
-<!-- EDIT CATEGORY MODAL -->
-<div id="editCategoryModal" class="modal-overlay">
-    <div class="modal-box">
-        <div class="modal-header">
-            <h2>Edit Category</h2>
-            <span class="modal-close" onclick="closeEditCategoryModal()">×</span>
+    <!-- ADD CATEGORY MODAL -->
+    <div id="addCategoryModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>Add New Category</h2>
+                <span class="modal-close" onclick="closeAddCategoryModal()">×</span>
+            </div>
+
+            <form method="POST" action="/admin/categories/add" enctype="multipart/form-data">
+
+                <label>Category Name</label>
+                <input type="text" name="name" required>
+
+                <label>Description</label>
+                <input type="text" name="description" required>
+
+                <label>Offer (%)</label>
+                <input type="number" name="categoryOffer" min="0" max="100" value="0">
+
+                <label>Category Image</label>
+                <div class="file-upload-wrapper">
+                    <label for="editCatImage" class="custom-file-upload">
+                        <i class="ri-upload-cloud-line"></i> Choose Image
+                    </label>
+                    <input id="editCatImage" type="file" name="image" accept="image/*" />
+                    <span id="editFileName" class="file-name">No file chosen</span>
+                </div>
+
+
+                <div class="modal-actions">
+                    <button type="button" class="cancel-btn" onclick="closeAddCategoryModal()">Cancel</button>
+                    <button type="submit" class="submit-btn">Add Category</button>
+                </div>
+            </form>
         </div>
-
-        <form id="editCategoryForm" method="POST">
-            <label>Category Name</label>
-            <input type="text" id="editCatName" name="name" required>
-
-            <label>Description</label>
-            <input type="text" id="editCatDesc" name="description" required>
-
-            <div class="modal-actions">
-                <button type="button" class="cancel-btn" onclick="closeEditCategoryModal()">Cancel</button>
-                <button type="submit" class="submit-btn">Update Category</button>
-            </div>
-        </form>
     </div>
-</div>
 
 
-<!-- DELETE CATEGORY MODAL -->
-<div id="deleteCategoryModal" class="modal-overlay">
-    <div class="modal-box" style="max-width:480px;">
-        <div class="modal-header">
-            <h2>Delete Category</h2>
-            <span class="modal-close" onclick="closeDeleteCategoryModal()">×</span>
+    <!-- EDIT CATEGORY MODAL -->
+    <div id="editCategoryModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2>Edit Category</h2>
+                <span class="modal-close" onclick="closeEditCategoryModal()">×</span>
+            </div>
+
+            <form id="editCategoryForm" method="POST" enctype="multipart/form-data">
+
+                <label>Category Name</label>
+                <input type="text" id="editCatName" name="name" required>
+
+                <label>Description</label>
+                <input type="text" id="editCatDesc" name="description" required>
+
+                <label>Offer (%)</label>
+                <input type="number" id="editCatOffer" name="categoryOffer" min="0" max="100">
+
+                <label>Category Image (optional)</label>
+
+                <div class="file-upload-wrapper">
+                    <label for="editImageInput" class="custom-file-upload">
+                        <i class="ri-upload-cloud-line"></i> Choose Image
+                    </label>
+
+                    <input id="editImageInput" type="file" name="image" accept="image/*">
+
+                    <span id="editImageFileName" class="file-name">No file chosen</span>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="cancel-btn" onclick="closeEditCategoryModal()">Cancel</button>
+                    <button type="submit" class="submit-btn">Update Category</button>
+                </div>
+            </form>
         </div>
-
-        <p style="margin:10px 0; font-size:15px; color:#444;">
-            Are you sure you want to delete <strong id="deleteCategoryName"></strong>?
-        </p>
-
-        <form id="deleteCategoryForm" method="POST">
-            <div class="modal-actions" style="justify-content:space-between;">
-                <button type="button" class="cancel-btn" onclick="closeDeleteCategoryModal()">Cancel</button>
-                <button type="submit" class="submit-btn" style="background:#d9534f;">Delete</button>
-            </div>
-        </form>
     </div>
-</div>
 
 
-<!-- JS -->
-<script>
-    function openAddCategoryModal() {
-        document.getElementById("addCategoryModal").style.display = "flex";
-    }
-    function closeAddCategoryModal() {
-        document.getElementById("addCategoryModal").style.display = "none";
-    }
 
-    function openEditCategoryModal(id, name, desc) {
-        document.getElementById("editCategoryModal").style.display = "flex";
-        document.getElementById("editCatName").value = name;
-        document.getElementById("editCatDesc").value = desc;
-        document.getElementById("editCategoryForm").action = `/admin/categories/edit/${id}`;
-    }
-    function closeEditCategoryModal() {
-        document.getElementById("editCategoryModal").style.display = "none";
-    }
+    <!-- JS -->
+    <script>
 
-    function openDeleteCategoryModal(id, name) {
-        document.getElementById("deleteCategoryModal").style.display = "flex";
-        document.getElementById("deleteCategoryName").textContent = name;
-        document.getElementById("deleteCategoryForm").action = `/admin/categories/delete/${id}`;
-    }
-    function closeDeleteCategoryModal() {
-        document.getElementById("deleteCategoryModal").style.display = "none";
-    }
+        /* ----------------------- ADD CATEGORY MODAL ----------------------- */
+        function openAddCategoryModal() {
+            document.getElementById("addCategoryModal").style.display = "flex";
+        }
 
-    function toggleCategoryStatus(id) {
-        fetch(`/admin/category/status/${id}`, { method: "PATCH" });
-    }
+        function closeAddCategoryModal() {
+            document.getElementById("addCategoryModal").style.display = "none";
+        }
 
-    function filterCategories() {
-        const q = document.getElementById('categorySearch').value.trim().toLowerCase();
-        const rows = document.querySelectorAll("#categoryTable tbody tr");
 
-        rows.forEach(row => {
-            const name = row.querySelector(".cell-name").textContent.toLowerCase();
-            const desc = row.querySelector(".cell-desc").textContent.toLowerCase();
-            row.style.display = (name.includes(q) || desc.includes(q)) ? "" : "none";
+        /* ----------------------- EDIT CATEGORY MODAL ----------------------- */
+        function openEditCategoryModal(id, name, desc, offer) {
+            document.getElementById("editCategoryModal").style.display = "flex";
+
+            document.getElementById("editCatName").value = name;
+            document.getElementById("editCatDesc").value = desc;
+            document.getElementById("editCatOffer").value = offer;
+
+            document.getElementById("editCategoryForm").action = `/admin/categories/edit/${id}`;
+        }
+
+        function closeEditCategoryModal() {
+            document.getElementById("editCategoryModal").style.display = "none";
+        }
+
+
+        /* ----------------------- TOGGLE ACTIVE / INACTIVE ----------------------- */
+        function toggleCategoryStatus(id) {
+            fetch(`/admin/categories/toggle/${id}`, {
+                method: "PATCH"
+            })
+                .then(() => window.location.reload());
+        }
+
+
+        /* ----------------------- FILE NAME UPDATE (ADD MODAL) ----------------------- */
+        document.getElementById("editCatImage").addEventListener("change", function () {
+            const fileName = this.files[0] ? this.files[0].name : "No file chosen";
+            document.getElementById("editFileName").textContent = fileName;
         });
-    }
 
-    function openAddOfferModal(categoryId) {
-        window.location.href = `/admin/category/offer/${categoryId}`;
-    }
-</script>
+
+        /* ----------------------- FILE NAME UPDATE (EDIT MODAL) ----------------------- */
+        document.getElementById("editImageInput").addEventListener("change", function () {
+            const fileName = this.files[0] ? this.files[0].name : "No file chosen";
+            document.getElementById("editImageFileName").textContent = fileName;
+        });
+
+    </script>

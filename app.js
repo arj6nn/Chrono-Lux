@@ -5,9 +5,10 @@ const env = require('dotenv').config();
 const session = require('express-session');
 const passport = require('./config/passport');
 const db = require('./config/db');
-const User = require("./models/userSchema");   // ✅ ADD THIS LINE
+const userSession = require("./middlewares/userSession");   // ✅ ADD THIS
 const adminRoute = require('./routes/adminRoute.js');
 const userRouter = require('./routes/userRouter.js');
+const flash = require('connect-flash');
 
 db();
 
@@ -22,6 +23,8 @@ app.use(session({
     }
 }));
 
+app.use(flash());
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -32,23 +35,14 @@ app.set('view engine', 'ejs');
 app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ✅ FIXED USER MIDDLEWARE
-app.use(async (req, res, next) => {
-    try {
-        if (req.session.user) {
-            const userData = await User.findById(req.session.user).lean();
-            res.locals.user = userData;    // full user object available everywhere
-        } else {
-            res.locals.user = null;
-        }
-        next();
-    } catch (error) {
-        console.error("User middleware error:", error);
-        res.locals.user = null;
-        next();
-    }
-});
+// ⭐️ Serve uploaded images
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+
+// ⭐️ ADD THIS BEFORE ROUTES
+app.use(userSession);   // ⬅ res.locals.user always available in navbar
+
+// ROUTES
 app.use('/', userRouter);
 app.use('/admin', adminRoute);
 

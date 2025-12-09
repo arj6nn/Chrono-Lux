@@ -1,5 +1,7 @@
 
+
 const User = require("../../models/userSchema");
+const Product = require("../../models/productSchema")
 const nodemailer = require("nodemailer");
 const env = require("dotenv").config();
 const bcrypt = require("bcrypt");
@@ -46,7 +48,7 @@ const loadSignup = async (req, res) => {
 const loadLogin = async (req, res) => {
     try {
         if (!req.session.user) {
-            return res.render("users/login", { message: null,blocked: false });
+            return res.render("users/login", { message: null, blocked: false });
         } else {
             return res.redirect("/home");
         }
@@ -72,9 +74,6 @@ function generateOtp() {
 // SEND MAIL FUNCTION
 async function sendVerificationEmail(email, otp) {
     try {
-        // console.log("Loaded Email:", process.env.NODEMAILER_EMAIL);
-        // console.log("Loaded Password:", process.env.NODEMAILER_PASSWORD);
-
         const transporter = nodemailer.createTransport({
             service: "gmail",
             port: 587,
@@ -231,36 +230,6 @@ const resendOtp = async (req, res) => {
 };
 
 // LOGIN
-// const login = async (req, res) => {
-//     try {
-//         const { email, password } = req.body;
-//         const findUser = await User.findOne({ isAdmin: 0, email });
-
-//         if (!findUser) {
-//             return res.render("users/login", { message: "User not found" });
-//         }
-
-//         if (findUser.isBlocked) {
-//             // return res.render("users/login", { message: "User is blocked by admin" });
-//             return res.render("users/login", { blocked: true, message: null })
-//         }
-
-//         const passwordMatch = await bcrypt.compare(password, findUser.password);
-
-//         if (!passwordMatch) {
-//             return res.render("users/login", { message: "Incorrect password" });
-//         }
-
-//         req.session.user = findUser._id;
-//         return res.redirect("/home");
-//     } catch (error) {
-//         console.error("Login error", error);
-//         return res.render("users/login", {
-//             message: "Login failed, Please try again later",
-//         });
-//     }
-// };
-
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -276,9 +245,9 @@ const login = async (req, res) => {
         }
 
         if (!findUser.password) {
-            return res.render("users/login", { 
-                message: "Account error: missing password. Please reset password.", 
-                blocked: false 
+            return res.render("users/login", {
+                message: "Account error: missing password. Please reset password.",
+                blocked: false
             });
         }
 
@@ -300,21 +269,17 @@ const login = async (req, res) => {
     }
 };
 
-const logout = async (req,res) => {
+// LOGOUT (fixed)
+const logout = (req, res) => {
     try {
-        req.session.destroy((err) => {
-            if(err){
-                console.log("Logout Error",err);
-                return res.redirect("/home");
-            }
-            res.clearCookie("connect.sid");
-            return res.redirect("/login")
-        })
+        // remove ONLY user session
+        delete req.session.user;
+        return res.redirect("/login");
     } catch (error) {
-        console.log("logout Error",error)
-        res.redirect("/home")
+        console.log("logout Error", error);
+        res.redirect("/home");
     }
-}
+};
 
 module.exports = {
     loadLandingPage,

@@ -1,15 +1,23 @@
+/* MAIN CONTENT FULL HEIGHT */
 .main-content {
     flex: 1;
     padding: 30px 40px;
     background: #f5f5f5;
+
+    min-height: calc(100vh - 80px);
+    display: flex;
+    flex-direction: column;
 }
 
+/* TABLE CONTAINER */
 .table-container {
+    flex: 1;
     margin-top: 25px;
     background: white;
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    /* FIX: removed margin-bottom */
 }
 
 table {
@@ -72,75 +80,130 @@ tbody td {
 .actions {
     display: flex;
     gap: 10px;
-    /* Ensure the column contents are centered */
     align-items: center;
 }
 
-/* 🛑 CRITICAL STYLES FOR VISIBILITY 🛑 */
 .action-btn {
-    /* Retain original properties */
     background: none;
     border: none;
     cursor: pointer;
     padding: 6px;
 
-    /* Add structure to ensure visibility/clickability */
     width: 32px;
-    /* Set a fixed width */
     height: 32px;
-    /* Set a fixed height */
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     border-radius: 50%;
-    /* Optional: make them round */
     transition: background 0.2s;
-    /* Add hover effect */
 }
 
-/* Optional: Add hover state for better UX */
 .action-btn:hover {
     background: #e0e0e0;
 }
 
 .action-btn svg {
     width: 20px;
-    /* Ensure SVG has a size */
     height: 20px;
 }
 
-/* 🛑 END CRITICAL STYLES 🛑 */
-
-
 .btn-block svg {
     stroke: #c0392b;
-    /* Reddish for block */
 }
 
 .btn-unblock svg {
     stroke: #27ae60;
-    /* Greenish for unblock */
 }
 
-.btn-delete svg {
-    stroke: #e74c3c;
-}
+/* SEARCH BAR */
 .search-container {
     margin: 15px 0 25px 0;
     display: flex;
     justify-content: flex-end;
 }
+
 #searchInput {
     width: 280px;
     padding: 10px 14px;
     border: 1px solid #ccc;
     border-radius: 6px;
     font-size: 14px;
-    outline: none;
     transition: 0.2s ease;
 }
 
 #searchInput:focus {
     border-color: #2E4235;
     box-shadow: 0 0 4px rgba(46, 66, 53, .3);
+}
+
+/* PAGINATION STYLING (MATCHES CATEGORY PAGE) */
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 25px;
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.pagination {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.page-btn {
+    padding: 8px 18px;
+    background: #fff;
+    border-radius: 50px;
+    border: 1px solid #dcdcdc;
+    color: #444;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-decoration: none;
+}
+
+.page-btn:hover {
+    background: #f3f3f3;
+}
+
+.page-btn.disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.page-numbers {
+    display: flex;
+    gap: 8px;
+}
+
+.page-number {
+    padding: 8px 14px;
+    border-radius: 50px;
+    background: #fff;
+    border: 1px solid #e4e4e4;
+    color: #333;
+    font-size: 14px;
+    text-decoration: none;
+    transition: 0.25s ease;
+}
+
+.page-number:hover {
+    background: #eef1e4;
+    transform: translateY(-2px);
+}
+
+.page-number.active {
+    background: #7a8f33;
+    color: white;
+    border-color: #7a8f33;
+    box-shadow: 0 3px 8px rgba(122, 143, 51, 0.35);
+    transform: translateY(-2px);
 }
