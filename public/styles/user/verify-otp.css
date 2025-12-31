@@ -2,23 +2,28 @@
         body {
             margin: 0;
             font-family: "Inter", sans-serif;
-            background: #f5f5f5;
+            background: url('/images/optimg.jpg');
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            background-size: cover;
         }
 
         /* OTP Card Container */
         .card-wrapper {
             width: 100%;
             max-width: 450px;
-            background: white;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(3px);
             padding: 40px 32px;
             border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
             text-align: center;
+            color: white;
         }
+
 
 
         h2 {
@@ -28,7 +33,7 @@
         }
 
         p {
-            color: #555;
+            color: white;
             margin-bottom: 25px;
         }
 
@@ -44,19 +49,19 @@
             height: 55px;
             font-size: 22px;
             text-align: center;
-            border: 2px solid #dcdcdc;
+            border: 2px solid #C8A974;
             border-radius: 8px;
             outline: none;
             background: white;
         }
 
         .otp-box input:focus {
-            border-color: #3c5f2c;
+            border-color: #C8A974;
         }
 
         button {
             width: 100%;
-            background: #29491f;
+            background: #8A6F3E;
             color: white;
             padding: 14px;
             border: none;
@@ -67,7 +72,7 @@
         }
 
         button:hover {
-            background: #1f3817;
+            background: #6F5632;
         }
 
         .resend {
@@ -77,7 +82,7 @@
 
         .resend a {
             font-weight: 600;
-            color: #29491f;
+            color: white;
             cursor: pointer;
             text-decoration: none;
         }
@@ -92,7 +97,17 @@
         }
 
         .return-login a {
-            color: #29491f;
+            color: #5A4631;
             font-weight: 600;
             text-decoration: none;
+        }
+
+        .glass-popup {
+            color: white;
+            backdrop-filter: blur(15px) saturate(180%);
+            -webkit-backdrop-filter: blur(15px) saturate(180%);
+            background: rgba(255, 255, 255, 0.15) !important;
+            border-radius: 20px !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }

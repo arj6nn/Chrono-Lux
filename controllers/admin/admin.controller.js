@@ -1,11 +1,10 @@
-// controllers/admin/adminController.js
 
-const User = require("../../models/userSchema");
+const User = require("../../models/user.model");
 const bcrypt = require("bcrypt");
 
-const Brand = require("../../models/brandSchema");
-const Category = require("../../models/categorySchema");
-const Product = require("../../models/productSchema");
+const Brand = require("../../models/brand.model");
+const Category = require("../../models/category.model");
+const Product = require("../../models/product.model");
 
 const cloudinary = require("../../config/cloudinary");
 const streamifier = require("streamifier");
@@ -25,7 +24,7 @@ const login = async (req, res) => {
         const admin = await User.findOne({ email, isAdmin: true });
 
         if (admin && await bcrypt.compare(password, admin.password)) {
-            req.session.admin = admin._id;
+            req.session.admin = { id: admin._id };
             return res.redirect("/admin/dashboard");
         }
         return res.redirect("/admin/login");
@@ -36,10 +35,13 @@ const login = async (req, res) => {
 };
 
 const logout = (req, res) => {
-    req.session.destroy(() => res.redirect("/admin/login"));
+    req.session.destroy(() => {
+        res.clearCookie("connect.sid");
+        res.redirect("/admin/login");
+    });
 };
 
-// ---------------------- DASHBOARD -------------------------
+//DASHBOARD
 const loadDashboard = async (req, res) => {
     try {
         res.render("admins/dashboard", { activePage: "dashboard" });
@@ -48,7 +50,7 @@ const loadDashboard = async (req, res) => {
     }
 };
 
-// --------------------- USER MANAGEMENT ---------------------
+//USER MANAGEMENT
 const loadUsersPage = async (req, res) => {
     try {
         let { page = 1, search = "" } = req.query;
@@ -122,18 +124,73 @@ const deleteUser = async (req, res) => {
     }
 };
 
-// --------------------- BRAND MANAGEMENT ---------------------
+//BRAND MANAGEMENT
 const loadBrandManagement = async (req, res) => {
-    try {
-        const brands = await Brand.find();
-        res.render("admins/brand-management", {
-            activePage: "brands",
-            brands
-        });
-    } catch (err) {
-        console.log(err);
-        res.redirect("/admin/pageerror");
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const skip = (page - 1) * limit;
+
+    const search = req.query.search || "";
+
+    const matchStage = {
+        brandName: { $regex:search, $options:"i" }
+    };
+
+    const totalBrands = await Brand.countDocuments(matchStage);
+    const totalPages = Math.ceil(totalBrands / limit)
+    
+const brands = await Brand.aggregate([
+  { $match: matchStage },
+
+  {
+    $lookup: {
+      from: "products",
+      localField: "_id",
+      foreignField: "brand",
+      as: "products"
     }
+  },
+  {
+    $addFields: {
+      productCount: {
+        $size: {
+          $filter: {
+            input: "$products",
+            as: "product",
+            cond: { $eq: ["$$product.isBlocked", false] }
+          }
+        }
+      }
+    }
+  },
+  {
+    $project: {
+      brandName: 1,
+      brandImage: 1,
+      isBlocked: 1,
+      productCount: 1
+    }
+  },
+
+  { $sort: { brandName: 1 } },
+  { $skip: skip },
+  { $limit: limit }
+]);
+
+
+    res.render("admins/brand-management", {
+      activePage: "brands",
+      brands,
+      currentPage: page,
+      totalPages,
+      search
+    });
+
+  } catch (err) {
+    console.log(err);
+    res.redirect("/admin/pageerror");
+  }
 };
 
 const addBrand = async (req, res) => {
@@ -169,7 +226,7 @@ const editBrand = async (req, res) => {
             brandName: name.trim()
         };
 
-        // If new logo uploaded → upload to Cloudinary
+        // If new logo uploaded => upload to Cloudinary
         if (req.file) {
             const imageUrl = await uploadBrandToCloudinary(req.file.buffer);
             updates.brandImage = [imageUrl];
@@ -184,19 +241,68 @@ const editBrand = async (req, res) => {
     }
 };
 
+// BLOCK BRAND (SOFT DELETE)
+const softDeleteBrand = async (req, res) => {
+  try {
+    const brand = await Brand.findByIdAndUpdate(
+      req.params.id,
+      {
+        isBlocked: true,
+        deletedAt: new Date()
+      },
+      { new: true }
+    );
 
-
-const deleteBrand = async (req, res) => {
-    try {
-        await Brand.findByIdAndDelete(req.params.id);
-        res.redirect("/admin/brands");
-    } catch (err) {
-        console.log(err);
-        res.redirect("/admin/pageerror");
+    if (!brand) {
+      return res.status(404).json({ success: false, message: "Brand not found" });
     }
+
+
+    await Product.updateMany(
+      { brand: req.params.id },
+      { $set: { isBlocked: true } }
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("softDeleteBrand error:", err);
+    res.status(500).json({ success: false });
+  }
 };
 
-// --------------------- PRODUCT MANAGEMENT ---------------------
+
+// RESTORE BRAND
+const restoreBrand = async (req, res) => {
+  try {
+    const brand = await Brand.findByIdAndUpdate(
+      req.params.id,
+      {
+        isBlocked: false,
+        deletedAt: null
+      },
+      { new: true }
+    );
+
+    if (!brand) {
+      return res.status(404).json({ success: false, message: "Brand not found" });
+    }
+
+    await Product.updateMany(
+      { brand: req.params.id },
+      { $set: { isBlocked: false } }
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("restoreBrand error:", err);
+    res.status(500).json({ success: false });
+  }
+};
+
+
+
+
+//PRODUCT MANAGEMENT
 
 function uploadBufferToCloudinary(buffer, folder = "chrono_lux_products") {
     return new Promise((resolve, reject) => {
@@ -245,19 +351,21 @@ const loadProductPage = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = 5;
-    const search = req.query.search || "";
+    const search = req.query.search?.trim() || "";
 
-    let match = {};
+    const searchMatch = search
+      ? {
+          $or: [
+            { productName: { $regex: search, $options: "i" } },
+            { description: { $regex: search, $options: "i" } },
+            { "brand.brandName": { $regex: search, $options: "i" } },
+            { "category.name": { $regex: search, $options: "i" } }
+          ]
+        }
+      : {};
 
-    if (search.trim() !== "") {
-      match.$or = [
-        { productName: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-      ];
-    }
-
+    //PRODUCTS
     const products = await Product.aggregate([
-      { $match: match },
       {
         $lookup: {
           from: "categories",
@@ -278,24 +386,41 @@ const loadProductPage = async (req, res) => {
       },
       { $unwind: "$brand" },
 
-      {
-        $match: {
-          $or: [
-            { productName: { $regex: search, $options: "i" } },
-            { description: { $regex: search, $options: "i" } },
-            { "brand.brandName": { $regex: search, $options: "i" } },
-            { "category.name": { $regex: search, $options: "i" } }
-          ]
-        }
-      },
+      { $match: searchMatch },
 
       { $sort: { createdAt: -1 } },
       { $skip: (page - 1) * limit },
       { $limit: limit }
     ]);
 
-    const totalProducts = await Product.countDocuments(match);
+    //TOTAL COUNT
+    const countResult = await Product.aggregate([
+      {
+        $lookup: {
+          from: "categories",
+          localField: "category",
+          foreignField: "_id",
+          as: "category"
+        }
+      },
+      { $unwind: "$category" },
 
+      {
+        $lookup: {
+          from: "brands",
+          localField: "brand",
+          foreignField: "_id",
+          as: "brand"
+        }
+      },
+      { $unwind: "$brand" },
+
+      { $match: searchMatch },
+
+      { $count: "total" }
+    ]);
+
+    const totalProducts = countResult[0]?.total || 0;
     const totalPages = Math.ceil(totalProducts / limit);
 
     const categories = await Category.find();
@@ -307,9 +432,10 @@ const loadProductPage = async (req, res) => {
       brands,
       page,
       totalPages,
+      totalProducts, 
       search,
       admin: req.session.admin,
-      activePage: 'products'
+      activePage: "products"
     });
 
   } catch (err) {
@@ -317,6 +443,7 @@ const loadProductPage = async (req, res) => {
     res.redirect("/admin/pageerror");
   }
 };
+
 
 
 
@@ -341,9 +468,6 @@ const addProduct = async (req, res) => {
     try {
         const { productName, description, category, brand } = req.body;
 
-        console.log("BODY:", req.body);
-        console.log("FILES:", req.files);
-
         // Basic validation
         if (!productName || !description || !category || !brand) {
             return res.status(400).json({
@@ -352,19 +476,16 @@ const addProduct = async (req, res) => {
             });
         }
 
-        // --------------------------
-        // 1) NORMALIZE VARIANTS
-        // --------------------------
-        // From your logs, variants looks like:
-        // variants: [ <1 empty item>, { color:'black', ... } ]
         let rawVariants = req.body.variants || [];
+
+        if (typeof rawVariants === "string") {
+            rawVariants = JSON.parse(rawVariants);
+        }
 
         let variants = Array.isArray(rawVariants)
             ? rawVariants
             : Object.values(rawVariants);
 
-        // remove empty holes / nulls
-        // variants = variants.filter(v => v && Object.keys(v).length > 0);
 
         variants = variants.filter(v => v && v.color);
 
@@ -375,11 +496,6 @@ const addProduct = async (req, res) => {
             });
         }
 
-        // --------------------------
-        // 2) HANDLE FILES (upload.any())
-        // --------------------------
-        // With upload.any(), req.files is an ARRAY like:
-        // [ { fieldname: 'variant_0_images', buffer: <Buffer>, mimetype: 'image/jpeg', ... }, ... ]
         const allFiles = Array.isArray(req.files) ? req.files : [];
 
         // helper: upload a buffer to Cloudinary
@@ -397,9 +513,7 @@ const addProduct = async (req, res) => {
             });
         };
 
-        // --------------------------
         // 3) PROCESS EACH VARIANT + IMAGES
-        // --------------------------
         for (let i = 0; i < variants.length; i++) {
             let images = [];
 
@@ -410,10 +524,10 @@ const addProduct = async (req, res) => {
 
             console.log(`Files for ${fieldName}:`, uploadedFiles);
 
-            if (!uploadedFiles.length) {
+            if (uploadedFiles.length < 3) {
                 return res.status(400).json({
                     success: false,
-                    message: `Each variant must contain at least one image (missing for variant #${i + 1})`,
+                    message: `Each variant must contain at least 3 image (missing for variant #${i + 1})`,
                 });
             }
 
@@ -426,12 +540,20 @@ const addProduct = async (req, res) => {
             // assign images + convert numeric fields
             variants[i].images = images;
             variants[i].price = Number(variants[i].price) || 0;
+            variants[i].salesPrice = Number(variants[i].salesPrice) || 0;
             variants[i].stock = Number(variants[i].stock) || 0;
+
+            // validate sales price
+            if (variants[i].salesPrice > variants[i].price) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Sales price cannot be higher than price for variant #${i + 1}`,
+                });
+            }
+
         }
 
-        // --------------------------
         // 4) CREATE PRODUCT
-        // --------------------------
         const product = new Product({
             productName,
             description,
@@ -506,8 +628,8 @@ const editProduct = async (req, res) => {
             const variant = variants[i];
             if (!variant) continue;
 
-            const variantIdStr = String(variant.id);          // "0", "1", ...
-            const variantDbId = variant._id || null;          // Mongo subdoc _id (optional)
+            const variantIdStr = String(variant.id);
+            const variantDbId = variant._id || null;
 
             // find existing variant in DB
             let existingVariantDoc = null;
@@ -520,16 +642,29 @@ const editProduct = async (req, res) => {
                 existingVariantDoc = existingProduct.variants[Number(variantIdStr)];
             }
 
-            const existingImages = existingVariantDoc?.images || [];
+            const existingImages =
+  Array.isArray(variant.remainingImages)
+    ? variant.remainingImages
+    : existingVariantDoc?.images || [];
+
 
             const variantObj = {
                 color: variant.color,
                 dialSize: variant.dialSize,
                 price: Number(variant.price) || 0,
+                salesPrice: Number(variant.salesPrice) || 0,
                 stock: Number(variant.stock) || 0,
-                images: [...existingImages]   // start with existing images
+                images: [...existingImages]
             };
 
+            // SALES PRICE VALIDATION
+            if (variantObj.salesPrice > variantObj.price) {
+                return res.status(400).json({
+                    success: false,
+                    message: `Sales price cannot be higher than price for variant #${i + 1}`
+                });
+            }
+            
             // any NEW files for this variant?
             const filesForVariant = (req.files || []).filter(
                 f => f.fieldname === `variant_${variantIdStr}_images`
@@ -543,10 +678,10 @@ const editProduct = async (req, res) => {
             }
 
             // still no images? => invalid
-            if (!variantObj.images.length) {
+            if (variantObj.images.length < 3) {
                 return res.status(400).json({
                     success: false,
-                    message: `Each variant must contain at least one image (variant #${i + 1})`
+                    message: `Each variant must contain at least 3 image (variant #${i + 1} has only ${variantObj.images.length} )`
                 });
             }
 
@@ -584,6 +719,38 @@ const deleteProduct = async (req, res) => {
     }
 };
 
+const deleteVariantImage = async (req, res) => {
+  try {
+    const { productId, variantId, imageIndex } = req.body;
+
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.json({ success: false, message: 'Product not found' });
+    }
+
+    const variant = product.variants.id(variantId);
+    if (!variant) {
+      return res.json({ success: false, message: 'Variant not found' });
+    }
+
+    if (variant.images.length <= 1) {
+      return res.json({
+        success: false,
+        message: 'At least one image is required'
+      });
+    }
+
+    variant.images.splice(imageIndex, 1);
+    await product.save();
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.json({ success: false });
+  }
+};
+
+
 const toggleProductBlock = async (req, res) => {
     try {
         const product = await Product.findById(req.params.id);
@@ -600,7 +767,7 @@ const toggleProductBlock = async (req, res) => {
     }
 };
 
-// --------------------- CATEGORY MANAGEMENT ---------------------
+//CATEGORY MANAGEMENT
 
 const loadCategoryManagement = async (req, res) => {
     try {
@@ -613,7 +780,7 @@ const loadCategoryManagement = async (req, res) => {
         // Normalize search
         search = search.trim();
 
-        // If searching → filter
+        // If searching => filter
         if (search.length > 0) {
             query.name = { $regex: new RegExp(`^${search}$`, "i") };
         }
@@ -630,7 +797,7 @@ const loadCategoryManagement = async (req, res) => {
             categories,
             page,
             totalPages: Math.ceil(totalCategories / limit),
-            search, // keep real search value
+            search,
         });
 
     } catch (error) {
@@ -715,6 +882,7 @@ const toggleCategoryStatus = async (req, res) => {
 
 
 
+
 // EXPORT
 module.exports = {
     loadLogin,
@@ -729,12 +897,15 @@ module.exports = {
     loadBrandManagement,
     addBrand,
     editBrand,
-    deleteBrand,
+    softDeleteBrand,
+    restoreBrand,
+
 
     loadProductPage,
     addProduct,
     editProduct,
     deleteProduct,
+    deleteVariantImage,
     toggleProductBlock,
     getProductJson,
     pageerror,

@@ -1,24 +1,22 @@
-    <%-include("../partials/user/header")%>
+<%-include("../partials/user/header")%>
+
+    <link rel="stylesheet" href="/styles/user/header.css">
     <link rel="stylesheet" href="/styles/user/home.css">
 
     <body>
-        <section class="hero">
-            <div class="container hero-wrapper">
-                <div class="hero-text">
-                    <h1>Timeless Elegance,<br>Exceptional Craftsmanship</h1>
-                    <p>Discover our curated collection of luxury timepieces where precision meets artistry.</p>
-                    <div class="hero-buttons">
-                        <a href="#" class="btn btn-primary">Shop Now</a>
-                        <a href="#" class="btn btn-outline">View Collections</a>
-                    </div>
-                </div>
-                <div class="hero-image">
-                    <img src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?q=80&w=1780&auto=format&fit=crop"
-                        alt="Black Rolex Watch">
-                </div>
 
+        <section class="hero-video-section">
+            <div class="video-frame">
+                <video autoplay muted playsinline>
+                    <source src="/videos/watch3.mp4" type="video/mp4">
+                </video>
             </div>
+
+            <h1 class="hero-brand">CHRONO</h1>
+
+            <a href="/shop" class="hero-discover">Discover The Collection</a>
         </section>
+
 
         <section class="features">
             <div class="container features-wrapper">
@@ -41,87 +39,82 @@
         </section>
 
         <section class="products">
-            <div class="container">
-                <div class="section-title">
-                    <h2>Featured Timepieces</h2>
-                    <p>Handpicked selections from our master collection</p>
-                </div>
-                <div class="product-grid">
-                    <div class="product-card">
-                        <div class="img-container">
-                            <img src="https://images.unsplash.com/photo-1614164185128-e4899ca56160?auto=format&fit=crop&w=800&q=80"
-                                alt="Watch 1">
-                        </div>
-                        <div class="product-info">
-                            <h4>Heritage Chronograph</h4>
-                            <p>$12,500</p>
-                        </div>
-                    </div>
-                    <div class="product-card">
-                        <div class="img-container">
-                            <img src="https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=800&q=80"
-                                alt="Watch 2">
-                        </div>
-                        <div class="product-info">
-                            <h4>Classic Elegance</h4>
-                            <p>$8,900</p>
-                        </div>
-                    </div>
-                    <div class="product-card">
-                        <div class="img-container">
-                            <img src="https://images.unsplash.com/photo-1622434641406-a158123450f9?auto=format&fit=crop&w=800&q=80"
-                                alt="Watch 3">
-                        </div>
-                        <div class="product-info">
-                            <h4>Sport Master</h4>
-                            <p>$15,200</p>
-                        </div>
-                    </div>
-                    <div class="product-card">
-                        <div class="img-container">
-                            <img src="https://images.unsplash.com/photo-1685085006409-07ef0f4c149b?auto=format&fit=crop&w=1920&q=80"
-                                alt="Watch 4">
-                        </div>
-                        <div class="product-info">
-                            <h4>Moonphase Elite</h4>
-                            <p>$18,750</p>
-                        </div>
-                    </div>
-                </div>
+  <div class="container">
+    <div class="section-title">
+      <h2>New Arrivals</h2>
+      <p>Handpicked selections from our master collection</p>
+    </div>
+
+    <div class="product-grid">
+
+      <% if (featuredProducts && featuredProducts.length > 0) { %>
+
+        <% featuredProducts.forEach(product => { 
+          const v = product.variants[0];
+        %>
+
+          <a href="/product/<%= product._id %>" class="product-card">
+            <div class="img-container">
+              <img
+                src="<%= v.images[0] %>"
+                alt="<%= product.productName %>"
+              >
             </div>
-        </section>
+
+            <div class="product-info">
+              <h4><%= product.productName %></h4>
+              <p>
+                ₹ <%= v.salesPrice > 0 ? v.salesPrice : v.price %>
+              </p>
+            </div>
+          </a>
+
+        <% }) %>
+
+      <% } else { %>
+        <p style="text-align:center;">No featured watches available</p>
+      <% } %>
+
+    </div>
+  </div>
+</section>
+
 
         <section class="collections">
-            <div class="container">
-                <div class="section-title">
-                    <h2>Our Collections</h2>
-                    <p>Explore our curated inventory</p>
-                </div>
-                <div class="collection-grid">
-                    <div class="collection-card col-1">
-                        <div class="card-content">
-                            <h3>Classic Collection</h3>
-                            <p>Timeless designs for the discerning collector.</p>
-                            <a href="#" class="btn-card">Explore</a>
-                        </div>
-                    </div>
-                    <div class="collection-card col-2">
-                        <div class="card-content">
-                            <h3>Sport Collection</h3>
-                            <p>Performance meets sophistication.</p>
-                            <a href="#" class="btn-card">Explore</a>
-                        </div>
-                    </div>
-                    <div class="collection-card col-3">
-                        <div class="card-content">
-                            <h3>Limited Edition</h3>
-                            <p>Exclusive pieces for the rare few.</p>
-                            <a href="#" class="btn-card">Explore</a>
-                        </div>
-                    </div>
-                </div>
+  <div class="container">
+    <div class="section-title">
+      <h2>Our Collections</h2>
+      <p>Explore our curated inventory</p>
+    </div>
+
+    <div class="collection-grid">
+
+      <% if (categories && categories.length > 0) { %>
+        <% categories.forEach((category, index) => { %>
+
+          <div class="collection-card col-<%= index + 1 %>"
+               style="background-image: url('<%= category.categoryImage %>');">
+
+            <div class="card-content">
+              <h3><%= category.name %></h3>
+              <p><%= category.description %></p>
+
+              <a href="/shop?category=<%= category._id %>" class="btn-card">
+                Explore
+              </a>
             </div>
-        </section>
+
+          </div>
+
+        <% }) %>
+      <% } else { %>
+        <p style="text-align:center;">No collections available</p>
+      <% } %>
+
+    </div>
+  </div>
+</section>
+
 
         <section class="newsletter">
             <div class="container newsletter-wrapper">
@@ -138,5 +131,27 @@
         <%-include("../partials/user/footer")%>
 
     </body>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const nav = document.querySelector('nav');
+            if (!nav) return;
+            nav.classList.add('glass-nav');
+        });
+    </script>
+<!-- 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <% if (success) { %>
+    <script>
+    Swal.fire({
+    icon: 'success',
+    title: 'Login Successful!',
+    text: 'Welcome back!',
+    customClass: { popup: 'glass-popup' }
+    });
+    </script>
+    <% } %> -->
+
 
     </html>

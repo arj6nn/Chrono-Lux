@@ -1,0 +1,140 @@
+:root {
+    --primary-green: #2E4235;
+    --bg-dark: #000;
+    --bg-light: #1a1a1a;
+    --text-light: #e0e0e0;
+    --text-gray: #666666;
+    --border-color: #333333;
+    --white: #ffffff;
+}
+
+html, body {
+    height: 100%;
+}
+
+.sidebar {
+    background: var(--bg-dark);
+    width: 335px;
+    flex-shrink: 0;
+    margin: 0;
+    padding-right: 44px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh;
+    border-right: 1px solid var(--border-color);
+}
+
+.filter-section {
+    background: transparent;
+    padding: 20px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.filter-section h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--white);
+}
+
+/* Filter buttons */
+.filter-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.filter-btn {
+    flex: 1;
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.filter-btn.active {
+    background: var(--primary-green);
+    color: #fff;
+    border-color: var(--primary-green);
+}
+
+.filter-btn:hover {
+    border-color: var(--primary-green);
+}
+
+/* Checkbox */
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.checkbox-group label {
+    font-size: 14px;
+    color: var(--text-light);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.checkbox-group input {
+    accent-color: var(--primary-green);
+    cursor: pointer;
+}
+
+.filter-section {
+    margin-top: 10px;
+}
+
+.filter-section label {
+    color: var(--text-light);
+}
+
+.range-slider-single {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-light);
+    font-size: 12px;
+}
+
+/* base track */
+.range-slider-single input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: transparent;
+    border-radius: 2px;
+}
+
+/* dynamic colored track */
+.range-slider-single input[type="range"]::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+}
+
+/* round thumb */
+.range-slider-single input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 14px;
+    width: 14px;
+    background: var(--primary-green);
+    border-radius: 50%;
+    cursor: pointer;
+    margin-top: -5px;
+}
+
+/* Firefox thumb */
+.range-slider-single input[type="range"]::-moz-range-thumb {
+    height: 14px;
+    width: 14px;
+    background: var(--primary-green);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+}

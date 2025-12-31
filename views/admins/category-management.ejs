@@ -207,7 +207,7 @@
     <!-- JS -->
     <script>
 
-        /* ----------------------- ADD CATEGORY MODAL ----------------------- */
+        /*ADD CATEGORY MODAL*/
         function openAddCategoryModal() {
             document.getElementById("addCategoryModal").style.display = "flex";
         }
@@ -217,7 +217,7 @@
         }
 
 
-        /* ----------------------- EDIT CATEGORY MODAL ----------------------- */
+        /*EDIT CATEGORY MODAL*/
         function openEditCategoryModal(id, name, desc, offer) {
             document.getElementById("editCategoryModal").style.display = "flex";
 
@@ -233,7 +233,7 @@
         }
 
 
-        /* ----------------------- TOGGLE ACTIVE / INACTIVE ----------------------- */
+        /*TOGGLE ACTIVE / INACTIVE*/
         function toggleCategoryStatus(id) {
             fetch(`/admin/categories/toggle/${id}`, {
                 method: "PATCH"
@@ -242,14 +242,14 @@
         }
 
 
-        /* ----------------------- FILE NAME UPDATE (ADD MODAL) ----------------------- */
+        /*FILE NAME UPDATE (ADD MODAL)*/
         document.getElementById("editCatImage").addEventListener("change", function () {
             const fileName = this.files[0] ? this.files[0].name : "No file chosen";
             document.getElementById("editFileName").textContent = fileName;
         });
 
 
-        /* ----------------------- FILE NAME UPDATE (EDIT MODAL) ----------------------- */
+        /*FILE NAME UPDATE (EDIT MODAL)*/
         document.getElementById("editImageInput").addEventListener("change", function () {
             const fileName = this.files[0] ? this.files[0].name : "No file chosen";
             document.getElementById("editImageFileName").textContent = fileName;

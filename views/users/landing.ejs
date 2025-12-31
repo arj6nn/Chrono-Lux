@@ -1,519 +1,140 @@
 <%-include("../partials/user/header")%>
-<body>
-    <section class="hero">
-        <div class="container hero-wrapper">
-            <div class="hero-text">
-                <h1>Timeless Elegance,<br>Exceptional Craftsmanship</h1>
-                <p>Discover our curated collection of luxury timepieces where precision meets artistry.</p>
-                <div class="hero-buttons">
-                    <a href="#" class="btn btn-primary">Shop Now</a>
-                    <a href="#" class="btn btn-outline">View Collections</a>
+
+    <link rel="stylesheet" href="/styles/user/header.css">
+    <link rel="stylesheet" href="/styles/user/home.css">
+
+    <body>
+        <section class="hero-video-section">
+            <div class="video-frame">
+                <video autoplay muted loop playsinline>
+                    <source src="/videos/watch.mp4" type="video/mp4">
+                </video>
+            </div>
+
+            <h1 class="hero-brand">CHRONO</h1>
+
+            <a href="/shop" class="hero-discover">Discover The Collection</a>
+        </section>
+
+        <section class="features">
+            <div class="container features-wrapper">
+                <div class="feature-box">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <h3>Authenticity Guaranteed</h3>
+                    <p>Every timepiece is verified authentic by our expert curators.</p>
+                </div>
+                <div class="feature-box">
+                    <i class="fa-solid fa-truck-fast"></i>
+                    <h3>Free Shipping</h3>
+                    <p>Complimentary worldwide shipping on all orders over $500.</p>
+                </div>
+                <div class="feature-box">
+                    <i class="fa-solid fa-medal"></i>
+                    <h3>Lifetime Warranty</h3>
+                    <p>Comprehensive coverage for your peace of mind.</p>
                 </div>
             </div>
-            <div class="hero-image">
-                <img src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?q=80&w=1780&auto=format&fit=crop" alt="Luxury Rolex Watch">
+        </section>
+
+        <section class="products">
+  <div class="container">
+    <div class="section-title">
+      <h2>New Arrivals</h2>
+      <p>Handpicked selections from our master collection</p>
+    </div>
+
+    <div class="product-grid">
+
+      <% if (featuredProducts && featuredProducts.length > 0) { %>
+
+        <% featuredProducts.forEach(product => { 
+          const v = product.variants[0];
+        %>
+
+          <a href="/product/<%= product._id %>" class="product-card">
+            <div class="img-container">
+              <img
+                src="<%= v.images[0] %>"
+                alt="<%= product.productName %>"
+              >
             </div>
-        </div>
-    </section>
 
-    <section class="features">
-        <div class="container features-wrapper">
-            <div class="feature-box">
-                <i class="fa-solid fa-shield-halved"></i>
-                <h3>Authenticity Guaranteed</h3>
-                <p>Every timepiece is verified authentic by our expert curators.</p>
+            <div class="product-info">
+              <h4><%= product.productName %></h4>
+              <p>
+                ₹ <%= v.salesPrice > 0 ? v.salesPrice : v.price %>
+              </p>
             </div>
-            <div class="feature-box">
-                <i class="fa-solid fa-truck-fast"></i>
-                <h3>Free Shipping</h3>
-                <p>Complimentary worldwide shipping on all orders over $500.</p>
-            </div>
-            <div class="feature-box">
-                <i class="fa-solid fa-medal"></i>
-                <h3>Lifetime Warranty</h3>
-                <p>Comprehensive coverage for your peace of mind.</p>
-            </div>
-        </div>
-    </section>
+          </a>
 
-    <section class="products">
-        <div class="container">
-            <div class="section-title">
-                <h2>Featured Timepieces</h2>
-                <p>Handpicked selections from our master collection</p>
-            </div>
-            <div class="product-grid">
-                <div class="product-card">
-                    <div class="img-container">
-                        <img src="https://images.unsplash.com/photo-1614164185128-e4899ca56160?auto=format&fit=crop&w=800&q=80" alt="Watch 1">
-                    </div>
-                    <div class="product-info">
-                        <h4>Heritage Chronograph</h4>
-                        <p>$12,500</p>
-                    </div>
-                </div>
-                <div class="product-card">
-                    <div class="img-container">
-                        <img src="https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=800&q=80" alt="Watch 2">
-                    </div>
-                    <div class="product-info">
-                        <h4>Classic Elegance</h4>
-                        <p>$8,900</p>
-                    </div>
-                </div>
-                <div class="product-card">
-                    <div class="img-container">
-                        <img src="https://images.unsplash.com/photo-1622434641406-a158123450f9?auto=format&fit=crop&w=800&q=80" alt="Watch 3">
-                    </div>
-                    <div class="product-info">
-                        <h4>Sport Master</h4>
-                        <p>$15,200</p>
-                    </div>
-                </div>
-                <div class="product-card">
-                    <div class="img-container">
-                        <img src="https://images.unsplash.com/photo-1539874754764-5a96559165b0?auto=format&fit=crop&w=800&q=80" alt="Watch 4">
-                    </div>
-                    <div class="product-info">
-                        <h4>Moonphase Elite</h4>
-                        <p>$18,750</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+        <% }) %>
 
-    <section class="collections">
-        <div class="container">
-            <div class="section-title">
-                <h2>Our Collections</h2>
-                <p>Explore our curated inventory</p>
-            </div>
-            <div class="collection-grid">
-                <div class="collection-card col-1">
-                    <div class="card-content">
-                        <h3>Classic Collection</h3>
-                        <p>Timeless designs for the discerning collector.</p>
-                        <a href="#" class="btn-card">Explore</a>
-                    </div>
-                </div>
-                <div class="collection-card col-2">
-                    <div class="card-content">
-                        <h3>Sport Collection</h3>
-                        <p>Performance meets sophistication.</p>
-                        <a href="#" class="btn-card">Explore</a>
-                    </div>
-                </div>
-                <div class="collection-card col-3">
-                    <div class="card-content">
-                        <h3>Limited Edition</h3>
-                        <p>Exclusive pieces for the rare few.</p>
-                        <a href="#" class="btn-card">Explore</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+      <% } else { %>
+        <p style="text-align:center;">No featured watches available</p>
+      <% } %>
 
-    <section class="newsletter">
-        <div class="container newsletter-wrapper">
-            <div class="section-title">
-                <h2>Join Our Newsletter</h2>
-                <p>Be the first to know about new arrivals, exclusive offers, and horological insights.</p>
-            </div>
-            <form class="newsletter-form">
-                <input type="email" placeholder="Enter your email">
-                <button type="submit" class="btn btn-primary">Subscribe</button>
-            </form>
-        </div>
-    </section>
-    <%-include("../partials/user/footer")%>
+    </div>
+  </div>
+</section>
 
-</body>
-</html>
-
-    <style>
-        /* --- CSS VARIABLES & RESET --- */
-        :root {
-            --primary-green: #2E4235; /* The dark moss green from the image */
-            --text-dark: #111111;
-            --text-gray: #666666;
-            --bg-light: #F9F9F9;
-            --white: #ffffff;
-            --accent-gold: #D4AF37;
-            --border-color: #E5E5E5;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
-
-        body {
-            color: var(--text-dark);
-            line-height: 1.6;
-            background-color: var(--white);
-        }
-
-        a { text-decoration: none; color: inherit; transition: 0.3s; }
-        ul { list-style: none; }
-        img { max-width: 100%; display: block; }
-
-        /* --- UTILITIES --- */
-        .container {
-            max-width: 1240px;
-            margin: 0 auto;
-            padding: 0 24px;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 14px 32px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-radius: 2px;
-            text-align: center;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-green);
-            color: var(--white);
-            border: 1px solid var(--primary-green);
-        }
-        .btn-primary:hover {
-            background-color: #1f2e24;
-        }
-
-        .btn-outline {
-            background-color: transparent;
-            border: 1px solid #cccccc;
-            color: var(--text-dark);
-        }
-        .btn-outline:hover {
-            border-color: var(--text-dark);
-            background-color: #f5f5f5;
-        }
-
-        /* Button for Collection Cards */
-        .btn-card {
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white;
-            padding: 10px 24px;
-            font-size: 0.85rem;
-            margin-top: 15px;
-            display: inline-block;
-        }
-        .btn-card:hover {
-            background: white;
-            color: var(--text-dark);
-        }
-
-        /* --- NAVBAR --- */
-        nav {
-            padding: 24px 0;
-            background: var(--white);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .nav-wrapper {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.1rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-        .logo span { color: var(--accent-gold); }
-
-        .nav-links {
-            display: flex;
-            gap: 40px;
-        }
-        .nav-links a {
-            font-size: 0.9rem;
-            color: var(--text-dark);
-            font-weight: 500;
-        }
-        .nav-links a:hover { color: var(--primary-green); }
-
-        .nav-icons {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        .nav-icons i {
-            font-size: 1rem;
-            cursor: pointer;
-            color: var(--text-dark);
-        }
-        .nav-btn {
-            padding: 8px 20px;
-            font-size: 0.85rem;
-        }
-
-        /* --- HERO SECTION --- */
-        .hero {
-            padding: 80px 0 100px;
-            overflow: hidden;
-        }
-        .hero-wrapper {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            align-items: center;
-            gap: 60px;
-        }
-        .hero-text h1 {
-            font-size: 3.5rem;
-            line-height: 1.1;
-            font-weight: 600;
-            margin-bottom: 24px;
-            letter-spacing: -1px;
-        }
-        .hero-text p {
-            color: var(--text-gray);
-            margin-bottom: 40px;
-            font-size: 1.05rem;
-            max-width: 450px;
-        }
-        .hero-buttons {
-            display: flex;
-            gap: 16px;
-        }
-        .hero-image img {
-            width: 100%;
-            border-radius: 4px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        }
-
-        /* --- FEATURES --- */
-        .features {
-            padding: 60px 0;
-            background-color: #FAFAFA; /* Very light gray background */
-        }
-        .features-wrapper {
-            display: flex;
-            justify-content: space-between;
-            text-align: center;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        .feature-box {
-            flex: 1;
-            padding: 20px;
-        }
-        .feature-box i {
-            font-size: 1.2rem;
-            margin-bottom: 16px;
-            color: var(--text-dark);
-        }
-        .feature-box h3 {
-            font-size: 0.95rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        .feature-box p {
-            font-size: 0.8rem;
-            color: var(--text-gray);
-            max-width: 200px;
-            margin: 0 auto;
-        }
-
-        /* --- FEATURED PRODUCTS --- */
-        .section-title {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-        .section-title h2 {
-            font-size: 1.75rem;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-        .section-title p {
-            color: var(--text-gray);
-            font-size: 0.95rem;
-        }
-
-        .products { padding: 100px 0; }
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 30px;
-        }
-        .product-card {
-            transition: transform 0.3s ease;
-            cursor: pointer;
-        }
-        .img-container {
-            background-color: #F4F4F4;
-            height: 320px;
-            width: 100%;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border-radius: 4px;
-        }
-        .img-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-        .product-card:hover .img-container img {
-            transform: scale(1.05);
-        }
-        .product-info h4 {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-        .product-info p {
-            color: var(--text-gray);
-            font-size: 0.9rem;
-        }
-
-        /* --- COLLECTIONS --- */
-        .collections { padding: 40px 0 100px; }
-        .collection-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-        }
-        .collection-card {
-            height: 450px;
-            position: relative;
-            overflow: hidden;
-            border-radius: 4px;
-            background-color: #1a2520; 
-            display: flex;
-            align-items: flex-end;
-        }
-        /* Background Images for cards */
-        .col-1 {
-            background: linear-gradient(to top, rgba(20,30,20,0.9), rgba(0,0,0,0)), url('https://images.unsplash.com/photo-1547996160-81dfa63595aa?auto=format&fit=crop&w=800&q=80');
-            background-size: cover;
-            background-position: center;
-        }
-        .col-2 {
-            background: linear-gradient(to top, rgba(20,30,20,0.9), rgba(0,0,0,0)), url('https://images.unsplash.com/photo-1619134778706-7015533a6150?auto=format&fit=crop&w=800&q=80');
-            background-size: cover;
-            background-position: center;
-        }
-        .col-3 {
-            background: linear-gradient(to top, rgba(20,30,20,0.9), rgba(0,0,0,0)), url('https://images.unsplash.com/photo-1623998021446-45cd96e35f5a?auto=format&fit=crop&w=800&q=80');
-            background-size: cover;
-            background-position: center;
-        }
-
-        .card-content {
-            padding: 40px;
-            color: white;
-            width: 100%;
-        }
-        .card-content h3 {
-            font-size: 1.4rem;
-            margin-bottom: 8px;
-        }
-        .card-content p {
-            font-size: 0.85rem;
-            opacity: 0.8;
-            margin-bottom: 10px;
-        }
-
-        /* --- NEWSLETTER --- */
-        .newsletter {
-            padding: 80px 0;
-            text-align: center;
-        }
-        .newsletter-wrapper {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        .newsletter-form {
-            display: flex;
-            gap: 10px;
-            margin-top: 30px;
-        }
-        .newsletter-form input {
-            flex: 1;
-            padding: 14px;
-            border: 1px solid #ddd;
-            border-radius: 2px;
-            outline: none;
-        }
-        .newsletter-form input:focus {
-            border-color: var(--primary-green);
-        }
-
-        /* --- FOOTER --- */
-        footer {
-            background-color: #F9F9F9;
-            padding: 80px 0 30px;
-            border-top: 1px solid var(--border-color);
-        }
-        .footer-grid {
-            display: grid;
-            grid-template-columns: 1.5fr 1fr 1fr 1fr;
-            gap: 40px;
-            margin-bottom: 80px;
-        }
-        .footer-col h4 {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 24px;
-            font-weight: 600;
-        }
-        .footer-col ul li { margin-bottom: 12px; }
-        .footer-col ul li a {
-            font-size: 0.85rem;
-            color: var(--text-gray);
-        }
-        .footer-col ul li a:hover { color: var(--text-dark); }
         
-        .footer-brand p {
-            font-size: 0.85rem;
-            color: var(--text-gray);
-            margin-top: 10px;
-        }
+        <section class="collections">
+  <div class="container">
+    <div class="section-title">
+      <h2>Our Collections</h2>
+      <p>Explore our curated inventory</p>
+    </div>
 
-        .footer-bottom {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 30px;
-            border-top: 1px solid #eee;
-            color: var(--text-gray);
-            font-size: 0.8rem;
-        }
-        .social-icons {
-            display: flex;
-            gap: 20px;
-        }
+    <div class="collection-grid">
 
-        /* --- RESPONSIVE --- */
-        @media (max-width: 1024px) {
-            .product-grid { grid-template-columns: repeat(2, 1fr); }
-            .collection-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 768px) {
-            .nav-links { display: none; }
-            .hero-wrapper { grid-template-columns: 1fr; text-align: center; }
-            .hero-text p { margin: 0 auto 30px; }
-            .hero-buttons { justify-content: center; }
-            .features-wrapper { flex-direction: column; gap: 30px; }
-            .collection-grid { grid-template-columns: 1fr; }
-            .footer-grid { grid-template-columns: 1fr 1fr; }
-        }
-    </style>
+      <% if (categories && categories.length > 0) { %>
+        <% categories.forEach((category, index) => { %>
+
+          <div class="collection-card col-<%= index + 1 %>"
+               style="background-image: url('<%= category.categoryImage %>');">
+
+            <div class="card-content">
+              <h3><%= category.name %></h3>
+              <p><%= category.description %></p>
+
+              <a href="/shop?category=<%= category._id %>" class="btn-card">
+                Explore
+              </a>
+            </div>
+
+          </div>
+
+        <% }) %>
+      <% } else { %>
+        <p style="text-align:center;">No collections available</p>
+      <% } %>
+
+    </div>
+  </div>
+</section>
+
+        <section class="newsletter">
+            <div class="container newsletter-wrapper">
+                <div class="section-title">
+                    <h2>Join Our Newsletter</h2>
+                    <p>Be the first to know about new arrivals, exclusive offers, and horological insights.</p>
+                </div>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Enter your email">
+                    <button type="submit" class="btn btn-primary">Subscribe</button>
+                </form>
+            </div>
+        </section>
+        <%-include("../partials/user/footer")%>
+
+    </body>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const nav = document.querySelector('nav');
+            if (!nav) return;
+            nav.classList.add('glass-nav');
+        });
+    </script>
+
+    </html>

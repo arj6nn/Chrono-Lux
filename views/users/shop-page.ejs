@@ -1,0 +1,386 @@
+<%-include("../partials/user/header")%>
+
+    <link rel="stylesheet" href="/styles/user/shop-page.css">
+
+    <!-- MAIN LAYOUT -->
+    <div class="shop-main">
+
+    <!-- FILTER SIDEBAR (OFF-CANVAS) -->
+    <div id="filterSidebar" class="filter-sidebar">
+        <%-include("../partials/user/shop-sidebar")%>
+    </div>
+
+    <!-- OVERLAY -->
+    <div id="filterOverlay" class="filter-overlay"></div>
+
+
+        <!-- RIGHT SIDE CONTENT -->
+        <div class="shop-content">
+            <!-- Page Header (full width) -->
+            <div class="page-header">
+                <h2>Where the Time Becomes Legacy</h2>
+                <p>Discover iconic watches built to endure generations.</p>
+            </div>
+
+            <!-- Search and Sort Bar -->
+            <div class="search-sort-bar">
+                <div class="search-box">
+                    <input
+                        type="text"
+                        class="search-input"
+                        placeholder="Search watches"
+                        autocomplete="off"
+                    >
+
+                    <i class="fa-solid fa-magnifying-glass" onclick="applyFilters()"></i>
+                </div>
+
+            </div>
+
+            <section class="products-section">
+
+                <div class="products-grid">
+
+                    <% products.forEach(product=> { %>
+
+                        <a href="/product/<%= product.id %>" class="product-card">
+                            <div class="product-image-wrapper">
+                              <button class="wishlist-btn" onclick="toggleWishlist(event, '<%= product.id %>')"><i class="fa-regular fa-heart"></i></button>
+                                <img src="<%= product.image %>" class="product-image" loading="lazy" decoding="async" width="260" height="320" style="object-fit: contain;"> 
+                            </div>
+
+                            <div class="product-info">
+                                <div class="product-name">
+                                    <%= product.productName %>
+                                </div>
+                                <div class="product-price">
+                                    <% if (product.salesPrice > 0) { %>
+                                        <span class="selling-price">₹ <%= product.salesPrice %></span>
+                                        <span class="original-price" style="text-decoration: line-through; color:#888; margin-left:6px;">
+                                            ₹ <%= product.price %>
+                                        </span>
+                                    <% } else { %>
+                                        <span class="selling-price">₹ <%= product.price %></span>
+                                    <% } %>
+
+                                </div>
+                            </div>
+
+                        </a>
+
+                        <% }) %>
+
+                </div>
+
+                <div class="pagination">
+
+  <!-- PREV -->
+  <a class="page-item <%= currentPage === 1 ? 'disabled' : '' %>"
+     href="<%= currentPage === 1 
+       ? '#' 
+       : `/shop?${new URLSearchParams({ ...(filters || {}), page: currentPage - 1 }).toString()}` %>">
+    Prev
+  </a>
+
+  <!-- PAGE NUMBERS -->
+  <% for (let i = 1; i <= totalPages; i++) { %>
+    <a class="page-item <%= i === currentPage ? 'active' : '' %>"
+       href="/shop?<%= new URLSearchParams({ ...(filters || {}), page: i }).toString() %>">
+      <%= i %>
+    </a>
+  <% } %>
+
+  <!-- NEXT -->
+  <a class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>"
+     href="<%= currentPage === totalPages 
+       ? '#' 
+       : `/shop?${new URLSearchParams({ ...(filters || {}), page: currentPage + 1 }).toString()}` %>">
+    Next
+  </a>
+
+</div>
+
+
+            </section>
+
+        </div>
+
+    </div> <!-- END shop-main -->
+
+    <script>
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const nav = document.querySelector('nav');
+            if (!nav) return;
+            nav.classList.add('glass-nav');
+        });
+    </script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const searchInput = document.querySelector(".search-input");
+    const grid = document.querySelector(".products-grid");
+
+    if (!searchInput || !grid) return;
+
+    //Cache initial products HTML (important)
+    let originalGridHTML = grid.innerHTML;
+
+    let debounceTimer = null;
+
+    searchInput.addEventListener("input", () => {
+      clearTimeout(debounceTimer);
+
+      const query = searchInput.value.trim();
+
+      debounceTimer = setTimeout(() => {
+
+        //If search box cleared → restore products (NO reload)
+        if (query.length === 0) {
+          grid.innerHTML = originalGridHTML;
+          history.replaceState({}, "", "/shop");
+          return;
+        }
+
+
+        fetch(`/shop/live-search?q=${encodeURIComponent(query)}`)
+  .then(res => res.json())
+  .then(products => {
+    renderProducts(products);
+
+    //keep search in URL for pagination
+    history.replaceState({}, "", `/shop?search=${encodeURIComponent(query)}`);
+  })
+  .catch(err => {
+    console.error("Live search error:", err);
+  });
+
+
+      }, 300); // debounce delay
+    });
+
+    function renderProducts(products) {
+      grid.innerHTML = "";
+
+      if (!products || products.length === 0) {
+        grid.innerHTML = `
+          <p class="no-products" style="grid-column: 1 / -1; text-align: center;">
+            No results found
+          </p>`;
+        return;
+      }
+
+      products.forEach(p => {
+        const priceHTML =
+          p.salesPrice > 0
+            ? `
+              <span class="selling-price">₹ ${p.salesPrice}</span>
+              <span class="original-price" style="text-decoration: line-through; color:#888; margin-left:6px;">
+                ₹ ${p.price}
+              </span>
+            `
+            : `<span class="selling-price">₹ ${p.price}</span>`;
+
+        grid.insertAdjacentHTML(
+          "beforeend",
+          `
+          <a href="/product/${p.id}" class="product-card">
+            <div class="product-image-wrapper"> 
+              <img
+                src="${p.image}"
+                class="product-image"
+                loading="lazy"
+                decoding="async"
+                style="object-fit: contain;"
+              />
+            </div>
+            <div class="product-info">
+              <div class="product-name">${p.productName}</div>
+              <div class="product-price">${priceHTML}</div>
+            </div>
+          </a>
+        `
+        );
+      });
+    }
+  });
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const grid = document.querySelector(".products-grid");
+  const pagination = document.querySelector(".pagination");
+
+  if (!grid || !pagination) return;
+
+  // Intercept pagination clicks
+  pagination.addEventListener("click", async (e) => {
+    const link = e.target.closest("a");
+    if (!link || link.classList.contains("disabled")) return;
+
+    e.preventDefault();
+    const url = link.getAttribute("href");
+    if (!url) return;
+
+    loadPage(url, true);
+  });
+
+  // Browser back / forward support
+  window.addEventListener("popstate", () => {
+    loadPage(location.href, false);
+  });
+
+  async function loadPage(url, pushState) {
+    try {
+      grid.classList.add("loading");
+
+      const res = await fetch(url, {
+        headers: { Accept: "application/json" }
+      });
+
+      const data = await res.json();
+
+      renderPaginatedProducts(data.products);
+      renderPagination(data.currentPage, data.totalPages, url);
+
+      if (pushState) history.pushState({}, "", url);
+
+    } catch (err) {
+      console.error("Pagination error:", err);
+    } finally {
+      grid.classList.remove("loading");
+    }
+  }
+
+  function renderPaginatedProducts(products) {
+    if (!products.length) {
+      grid.innerHTML = `
+        <p style="grid-column:1/-1;text-align:center">
+          No products found
+        </p>`;
+      return;
+    }
+
+    grid.innerHTML = products.map(p => {
+      const price =
+        p.salesPrice > 0
+          ? `<span class="selling-price">₹ ${p.salesPrice}</span>
+             <span class="original-price" style="text-decoration:line-through;color:#888;margin-left:6px">
+               ₹ ${p.price}
+             </span>`
+          : `<span class="selling-price">₹ ${p.price}</span>`;
+
+      return `
+        <a href="/product/${p.id}" class="product-card">
+          <div class="product-image-wrapper">
+            <img src="${p.image}" class="product-image" loading="lazy" style="object-fit:contain">
+          </div>
+          <div class="product-info">
+            <div class="product-name">${p.productName}</div>
+            <div class="product-price">${price}</div>
+          </div>
+        </a>`;
+    }).join("");
+  }
+
+  function renderPagination(currentPage, totalPages, baseUrl) {
+    const url = new URL(baseUrl, location.origin);
+    const params = Object.fromEntries(url.searchParams.entries());
+
+    pagination.innerHTML = "";
+
+    // Prev
+    pagination.innerHTML += `
+      <a class="page-item ${currentPage === 1 ? "disabled" : ""}"
+         href="/shop?${new URLSearchParams({ ...params, page: currentPage - 1 })}">
+        Prev
+      </a>`;
+
+    for (let i = 1; i <= totalPages; i++) {
+      pagination.innerHTML += `
+        <a class="page-item ${i === currentPage ? "active" : ""}"
+           href="/shop?${new URLSearchParams({ ...params, page: i })}">
+          ${i}
+        </a>`;
+    }
+
+    // Next
+    pagination.innerHTML += `
+      <a class="page-item ${currentPage === totalPages ? "disabled" : ""}"
+         href="/shop?${new URLSearchParams({ ...params, page: currentPage + 1 })}">
+        Next
+      </a>`;
+  }
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const filterBtn = document.getElementById("filterToggle");
+  const sidebar = document.getElementById("filterSidebar");
+  const overlay = document.getElementById("filterOverlay");
+
+  if (!filterBtn || !sidebar || !overlay) return;
+
+  function openFilter() {
+    sidebar.classList.add("active");
+    overlay.classList.add("active");
+    filterBtn.classList.add("hidden");
+  }
+
+  function closeFilter() {
+    sidebar.classList.remove("active");
+    overlay.classList.remove("active");
+    filterBtn.classList.remove("hidden");
+  }
+
+  filterBtn.addEventListener("click", openFilter);
+
+  overlay.addEventListener("click", closeFilter);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && sidebar.classList.contains("active")) {
+      closeFilter();
+    }
+  });
+});
+</script>
+
+<script>
+function toggleWishlist(event, productId) {
+  event.preventDefault();   // stop link
+  event.stopPropagation();  // stop card click
+
+  const btn = event.currentTarget;
+  const icon = btn.querySelector("i");
+
+  btn.classList.toggle("active");
+
+  if (btn.classList.contains("active")) {
+    icon.classList.replace("fa-regular", "fa-solid");
+    // TODO: API call → add to wishlist
+  } else {
+    icon.classList.replace("fa-solid", "fa-regular");
+    // TODO: API call → remove from wishlist
+  }
+}
+</script>
+
+
+
+<button id="filterToggle" class="fixed-filter-btn">
+  <i class="fa-solid fa-sliders"></i>
+  Filters
+</button>
+
+
+
+
+    <%-include("../partials/user/footer")%>

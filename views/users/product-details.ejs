@@ -1,0 +1,471 @@
+<%- include("../partials/user/header") %>
+
+<link rel="stylesheet" href="/styles/user/header.css">
+<link rel="stylesheet" href="/styles/user/product-details.css">
+
+<body>
+
+
+<%
+  const hasVariants = product.variants && product.variants.length > 0;
+  const defaultVariant = hasVariants ? product.variants[0] : null;
+  const hasSale =
+    defaultVariant &&
+    defaultVariant.salesPrice > 0 &&
+    defaultVariant.salesPrice < defaultVariant.price;
+%>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <a href="/shop">Shop</a> /
+  <a href="#"><%= product.brand.brandName %></a> /
+  <span><%= product.productName %></span>
+</div>
+
+<!-- PRODUCT SECTION -->
+<div class="product-container">
+
+  <!-- IMAGES -->
+<div class="product-images">
+
+  <!-- VARIANT THUMBNAILS (LEFT) -->
+  <% if (product.variants.length > 1) { %>
+    <div class="thumbnail-list" id="variantThumbnails">
+      <% product.variants.forEach((v, index) => { %>
+        <div
+          class="thumbnail <%= index === 0 ? 'active' : '' %>"
+          data-variant-index="<%= index %>"
+        >
+          <img src="<%= v.images[0] %>" />
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+
+  <!-- IMAGE COLUMN (CENTER) - NEW WRAPPER -->
+  <div class="image-column">
+    <!-- MAIN IMAGE -->
+    <div class="main-image image-wrapper">
+
+      <button class="img-arrow left" id="prevImage">&#10094;</button>
+
+      <div class="image-zoom-container">
+        <img
+  id="mainProductImage"
+  class="click-zoom-image"
+  src="<%= defaultVariant.images[0] %>"
+  alt="<%= product.productName %>"
+/>
+
+      </div>
+
+      <button class="img-arrow right" id="nextImage">&#10095;</button>
+
+    </div>
+
+    <!-- IMAGE THUMBNAILS (BELOW MAIN IMAGE) -->
+    <div class="image-thumbnails" id="imageThumbnails">
+      <% defaultVariant.images.forEach((img, index) => { %>
+        <img
+          src="<%= img %>"
+          class="image-thumb <%= index === 0 ? 'active' : '' %>"
+          data-image-index="<%= index %>"
+        />
+      <% }) %>
+    </div>
+  </div>
+
+</div>
+
+
+  <!-- PRODUCT INFO -->
+  <div class="product-info">
+
+    <h1><%= product.productName %></h1>
+
+    <!-- SELECTED COLOR -->
+    <p id="selectedColor" class="selected-color">
+      Color: <strong><%= defaultVariant.color %></strong>
+    </p>
+
+    <!-- DIAL SIZE (DISPLAY ONLY) -->
+    <p class="dial-info">
+      Dial Size: <strong><%= defaultVariant.dialSize %></strong>
+    </p>
+
+    <!-- PRICE -->
+    <div class="price" id="priceBox">
+      <% if (hasSale) { %>
+        <span class="original-price">₹ <%= defaultVariant.price %></span>
+        <span class="sale-price">₹ <%= defaultVariant.salesPrice.toLocaleString() %></span>
+      <% } else { %>
+        <span class="sale-price">₹ <%= defaultVariant.price.toLocaleString() %></span>
+      <% } %>
+    </div>
+
+    <!-- QUANTITY -->
+    <div class="quantity-selector">
+      <label>Quantity:</label>
+      <div class="quantity-controls">
+        <button id="decrease">-</button>
+        <input type="number" id="quantity" value="1" min="1" readonly>
+        <button id="increase">+</button>
+      </div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="action-buttons">
+      <% if (defaultVariant.stock > 0) { %>
+        <button class="btn btn-add-cart">Add to Cart</button>
+        <button class="btn btn-buy-now">Buy it Now</button>
+      <% } else { %>
+        <button class="btn btn-disabled" disabled>Out of Stock</button>
+      <% } %>
+    </div>
+
+    <!-- DESCRIPTION -->
+    <div class="product-description">
+      <h3>Product Description</h3>
+      <p><%= product.description %></p>
+    </div>
+
+    <!-- FEATURES -->
+    <div class="features">
+      <div class="feature">
+        <div class="feature-title">Shipping & Returns</div>
+        <div class="feature-desc">
+          Free insured shipping worldwide. 30-day return policy.
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-title">Returns & Exchange</div>
+        <div class="feature-desc">
+          Easy returns within 30 days with original packaging.
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-title">Product Care</div>
+        <div class="feature-desc">
+          Professional servicing recommended every 5 years.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CUSTOMER REVIEWS -->
+<section class="customer-reviews">
+  <div class="reviews-container">
+
+    <h2 class="reviews-title">Customer Reviews</h2>
+
+    <!-- SUMMARY -->
+    <div class="review-summary">
+      <div class="rating-score">4.7</div>
+
+      <div>
+        <div class="rating-stars">★★★★★</div>
+        <span class="review-count">Based on 3 reviews</span>
+      </div>
+    </div>
+
+    <!-- REVIEW CARD -->
+    <div class="review-card">
+      <div class="review-top">
+        <div>
+          <strong>Michael Thompson</strong>
+          <div class="review-stars">★★★★★</div>
+        </div>
+
+        <div class="review-meta">
+          <span class="verified">Verified Purchase</span>
+          <span class="review-date">Jan 15, 2024</span>
+        </div>
+      </div>
+
+      <p class="review-title">Exceptional timepiece</p>
+      <p class="review-text">
+        The craftsmanship is outstanding. The watch feels solid and luxurious on
+        the wrist. The automatic movement keeps perfect time.
+      </p>
+    </div>
+
+    <div class="review-card">
+      <div class="review-top">
+        <div>
+          <strong>Sarah Chen</strong>
+          <div class="review-stars">★★★★★</div>
+        </div>
+
+        <div class="review-meta">
+          <span class="verified">Verified Purchase</span>
+          <span class="review-date">Jan 10, 2024</span>
+        </div>
+      </div>
+
+      <p class="review-title">Worth every penny</p>
+      <p class="review-text">
+        I have been looking for the perfect dive watch for months. This exceeded
+        all my expectations.
+      </p>
+    </div>
+
+    <div class="review-card">
+      <div class="review-top">
+        <div>
+          <strong>James Rodriguez</strong>
+          <div class="review-stars">★★★★☆</div>
+        </div>
+
+        <div class="review-meta">
+          <span class="verified">Verified Purchase</span>
+          <span class="review-date">Jan 5, 2024</span>
+        </div>
+      </div>
+
+      <p class="review-title">Beautiful watch, minor concerns</p>
+      <p class="review-text">
+        Stunning piece. Bracelet adjustment took time, but once fitted it’s
+        incredibly comfortable.
+      </p>
+    </div>
+
+    <button class="write-review-btn">Write a Review</button>
+
+  </div>
+</section>
+
+
+<!-- RELATED PRODUCTS -->
+<% if (relatedProducts && relatedProducts.length > 0) { %>
+  <div class="related-products">
+    <h2>You may also like</h2>
+
+    <div class="products-grid">
+      <% relatedProducts.forEach(p => { 
+           const v = p.variants?.[0];
+           if (!v) return; // safety
+      %>
+        <a href="/product/<%= p._id %>" class="product-card">
+          <div class="product-card-image">
+            <img 
+              src="<%= v.images?.[0] || '/images/placeholder.png' %>" 
+              alt="<%= p.productName %>"
+            >
+          </div>
+
+          <div class="product-card-category">
+            <%= p.brand?.brandName || "Brand" %>
+          </div>
+
+          <div class="product-card-name">
+            <%= p.productName %>
+          </div>
+
+          <div class="product-card-price">
+            ₹ <%= v.salesPrice > 0 ? v.salesPrice : v.price %>
+          </div>
+        </a>
+      <% }) %>
+    </div>
+  </div>
+<% } %>
+
+
+<!-- JS -->
+<!-- Replace ALL your script tags at the bottom with this: -->
+
+<!-- MAIN VARIANT & IMAGE NAVIGATION SCRIPT -->
+<script>
+let resetProductZoom; // Declare globally first
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const variants = <%- JSON.stringify(product.variants) %>;
+
+  let currentVariantIndex = 0;
+  let currentImageIndex = 0;
+
+  const mainImage = document.getElementById("mainProductImage");
+  const imageThumbContainer = document.getElementById("imageThumbnails");
+  const prevBtn = document.getElementById("prevImage");
+  const nextBtn = document.getElementById("nextImage");
+  const priceBox = document.getElementById("priceBox");
+  const colorLabel = document.getElementById("selectedColor");
+  const actionButtons = document.querySelector(".action-buttons");
+
+  // INIT / RENDER FUNCTION
+  function loadVariant(index) {
+    const v = variants[index];
+    currentVariantIndex = index;
+    currentImageIndex = 0;
+
+    // Reset zoom when changing variant
+    if (typeof resetProductZoom === 'function') {
+      resetProductZoom();
+    }
+
+    // Main image
+    mainImage.src = v.images[0];
+
+    // Thumbnails
+    imageThumbContainer.innerHTML = "";
+    v.images.forEach((img, i) => {
+      const thumb = document.createElement("img");
+      thumb.src = img;
+      thumb.className = "image-thumb" + (i === 0 ? " active" : "");
+      thumb.addEventListener("click", () => {
+        currentImageIndex = i;
+        updateMainImage();
+        if (typeof resetProductZoom === 'function') {
+          resetProductZoom();
+        }
+      });
+      imageThumbContainer.appendChild(thumb);
+    });
+
+    // Price
+    priceBox.innerHTML =
+      v.salesPrice > 0 && v.salesPrice < v.price
+        ? `<span class="original-price">₹ ${v.price}</span>
+           <span class="sale-price">₹ ${v.salesPrice}</span>`
+        : `<span class="sale-price">₹ ${v.price}</span>`;
+
+    // Color
+    colorLabel.innerHTML = `Color: <strong>${v.color}</strong>`;
+
+    // Stock buttons
+    actionButtons.innerHTML =
+      v.stock > 0
+        ? `<button class="btn btn-add-cart">Add to Cart</button>
+           <button class="btn btn-buy-now">Buy it Now</button>`
+        : `<button class="btn btn-disabled" disabled>Out of Stock</button>`;
+  }
+
+  function updateMainImage() {
+    const imgs = variants[currentVariantIndex].images;
+    mainImage.src = imgs[currentImageIndex];
+    document.querySelectorAll(".image-thumb").forEach((t, i) => {
+      t.classList.toggle("active", i === currentImageIndex);
+    });
+  }
+
+  // VARIANT CLICK
+  document.querySelectorAll("[data-variant-index]").forEach(el => {
+    el.addEventListener("click", () => {
+      document
+        .querySelectorAll("[data-variant-index]")
+        .forEach(t => t.classList.remove("active"));
+      el.classList.add("active");
+
+      loadVariant(Number(el.dataset.variantIndex));
+    });
+  });
+
+  // ARROWS
+  prevBtn.addEventListener("click", () => {
+    const imgs = variants[currentVariantIndex].images;
+    currentImageIndex = (currentImageIndex - 1 + imgs.length) % imgs.length;
+    updateMainImage();
+    if (typeof resetProductZoom === 'function') {
+      resetProductZoom();
+    }
+  });
+
+  nextBtn.addEventListener("click", () => {
+    const imgs = variants[currentVariantIndex].images;
+    currentImageIndex = (currentImageIndex + 1) % imgs.length;
+    updateMainImage();
+    if (typeof resetProductZoom === 'function') {
+      resetProductZoom();
+    }
+  });
+
+  loadVariant(0);
+
+});
+</script>
+
+<!-- NAV GLASS EFFECT -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const nav = document.querySelector('nav');
+    if (!nav) return;
+    nav.classList.add('glass-nav');
+  });
+</script>
+
+<!-- IMAGE ZOOM FUNCTIONALITY -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const zoomContainer = document.querySelector(".image-zoom-container");
+  const zoomImage = document.getElementById("mainProductImage");
+
+  if (!zoomContainer || !zoomImage) return;
+
+  let isZoomed = false;
+
+  // Define reset function and assign to global
+  resetProductZoom = function() {
+    isZoomed = false;
+    zoomImage.classList.remove("zoomed");
+    zoomImage.style.transform = "scale(1)";
+    zoomImage.style.transformOrigin = "center center";
+  };
+
+  // Click to toggle zoom
+  zoomContainer.addEventListener("click", (e) => {
+    isZoomed = !isZoomed;
+    zoomImage.classList.toggle("zoomed", isZoomed);
+
+    if (isZoomed) {
+      const rect = zoomContainer.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      zoomImage.style.transformOrigin = `${x}% ${y}%`;
+      zoomImage.style.transform = "scale(2.5)";
+    } else {
+      zoomImage.style.transformOrigin = "center center";
+      zoomImage.style.transform = "scale(1)";
+    }
+  });
+
+  // Optional: Hover zoom effect (only when zoomed)
+  zoomContainer.addEventListener("mousemove", (e) => {
+    if (!isZoomed) return;
+    
+    const rect = zoomContainer.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    zoomImage.style.transformOrigin = `${x}% ${y}%`;
+  });
+
+  // Reset on mouse leave
+  zoomContainer.addEventListener("mouseleave", () => {
+    if (isZoomed) {
+      resetProductZoom();
+    }
+  });
+});
+</script> 
+
+<script>
+  const decreaseBtn = document.getElementById("decrease");
+  const increaseBtn = document.getElementById("increase");
+  const quantityInput = document.getElementById("quantity");
+
+  increaseBtn.addEventListener("click", () => {
+    quantityInput.value = parseInt(quantityInput.value) + 1;
+  });
+
+  decreaseBtn.addEventListener("click", () => {  
+    const currentValue = parseInt(quantityInput.value);
+    if (currentValue > 1) {
+      quantityInput.value = currentValue - 1;
+    }
+  });
+</script> 
+
+</body>

@@ -7,57 +7,130 @@
         <p class="page-title">Brands</p>
         <p class="page-sub">Manage your product brands</p>
 
-        <div class="top-bar">
-            <button class="add-brand-btn" onclick="openAddBrandModal()">
-                <i class="ri-add-line"></i> Add Brand
-            </button>
-        </div>
+<div class="top-bar">
+
+    <!-- LEFT : SEARCH -->
+    <form method="GET" action="/admin/brands" class="brand-search">
+        <input
+            type="text"
+            name="search"
+            placeholder="Search brand..."
+            value="<%= search %>"
+        >
+        <button type="submit">Search</button>
+
+        <% if (search && search.trim() !== "") { %>
+            <a href="/admin/brands" class="reset-btn">Reset</a>
+        <% } %>
+    </form>
+
+    <!-- RIGHT : ADD BRAND -->
+    <button class="add-brand-btn" onclick="openAddBrandModal()">
+        <i class="ri-add-line"></i> Add Brand
+    </button>
+
+</div>
 
         <!-- TABLE -->
         <table class="brand-table">
             <thead>
-                <tr>
-                    <th>Logo</th>
-                    <th>Brand Name</th>
-                    <th>Products</th>
-                    <th>Actions</th>
-                </tr>
+             <tr>
+                <th>Logo</th>
+                <th>Brand Name</th>
+                <th>Products</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
             </thead>
 
-            <tbody>
-                <% brands.forEach(brand=> { %>
-                    <tr>
-                        <td class="brand-logo">
-                            <img src="<%= brand.brandImage[0] %>" alt="Brand Logo">
-                        </td>
 
-                        <td>
-                            <%= brand.brandName %>
-                        </td>
-                        <td>0 products</td>
+<tbody>
+  <% if (brands.length === 0) { %>
+    <tr>
+      <td colspan="5" style="text-align:center; padding:20px;">
+        No brands found
+      </td>
+    </tr>
+  <% } else { %>
+    <% brands.forEach(brand => { %>
+      <tr>
+        <td class="brand-logo">
+          <img src="<%= brand.brandImage[0] %>" alt="Brand Logo">
+        </td>
 
-                        <td class="actions">
+        <td><%= brand.brandName %></td>
 
-                            <!-- EDIT -->
-                            <i class="ri-edit-2-line edit"
-                                onclick="openEditModal('<%= brand._id %>', '<%= brand.brandName %>', '<%= brand.brandImage[0] %>')">
-                            </i>
+        <td><%= brand.productCount %> products</td>
 
-                            <!-- DELETE opens modal -->
-                            <button type="button" style="background:none;border:none;padding:0;margin:0;"
-                                onclick="openDeleteModal('<%= brand._id %>', '<%= brand.brandName %>')">
-                                <i class="ri-delete-bin-6-line delete"></i>
-                            </button>
+        <td>
+          <% if (brand.isBlocked) { %>
+            <span class="status blocked">Blocked</span>
+          <% } else { %>
+            <span class="status active">Active</span>
+          <% } %>
+        </td>
 
-                        </td>
-                    </tr>
-                    <% }) %>
-            </tbody>
+        <td class="actions">
+          <i class="ri-edit-2-line edit"
+             onclick="openEditModal('<%= brand._id %>', '<%= brand.brandName %>')">
+          </i>
+
+          <% if (!brand.isBlocked) { %>
+            <i class="ri-forbid-line delete"
+               title="Block Brand"
+               onclick="blockBrand('<%= brand._id %>', '<%= brand.brandName %>')">
+            </i>
+          <% } else { %>
+            <i class="ri-checkbox-circle-line edit"
+               title="Unblock Brand"
+               onclick="unblockBrand('<%= brand._id %>', '<%= brand.brandName %>')">
+            </i>
+          <% } %>
+        </td>
+      </tr>
+    <% }) %>
+  <% } %>
+</tbody>
+
+
         </table>
+        
+<% if (totalPages > 1) { %>
+<div class="pagination-wrapper">
+    <ul class="pagination">
+
+        <!-- PREV -->
+        <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+            <a href="?page=<%= currentPage - 1 %>&search=<%= search %>">
+                ‹ Prev
+            </a>
+        </li>
+
+        <!-- PAGE NUMBERS -->
+        <% for (let i = 1; i <= totalPages; i++) { %>
+            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                <a href="?page=<%= i %>&search=<%= search %>">
+                    <%= i %>
+                </a>
+            </li>
+        <% } %>
+
+        <!-- NEXT -->
+        <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+            <a href="?page=<%= currentPage + 1 %>&search=<%= search %>">
+                Next ›
+            </a>
+        </li>
+
+    </ul>
+</div>
+<% } %>
+
+
     </div>
 
 
-    <!-- ADD BRAND MODAL -->
+
     <!-- ADD BRAND MODAL -->
     <div id="addBrandModal" class="modal-overlay">
         <div class="modal-box brand-modal">
@@ -118,31 +191,6 @@
     </div>
 
 
-    <!-- DELETE BRAND MODAL -->
-    <div id="deleteBrandModal" class="modal-overlay">
-        <div class="modal-box" style="max-width:480px;">
-            <div class="modal-header">
-                <h2>Delete Brand</h2>
-                <span class="modal-close" onclick="closeDeleteModal()">×</span>
-            </div>
-
-            <div style="padding: 8px 0 18px; color:#444;">
-                <p>Are you sure you want to delete the brand <strong id="deleteBrandName"></strong>?</p>
-                <p style="font-size:13px;color:#777;margin-top:6px;">
-                    This action cannot be undone.
-                </p>
-            </div>
-
-            <form id="deleteBrandForm" method="POST">
-                <div class="modal-actions" style="justify-content:space-between;">
-                    <button type="button" class="cancel-btn" onclick="closeDeleteModal()">Cancel</button>
-                    <button type="submit" class="submit-btn" style="background:#d9534f;">Delete</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-
     <!-- CSS -->
     <style>
         .modal-overlay {
@@ -181,18 +229,44 @@
         function closeEditBrandModal() {
             document.getElementById("editBrandModal").style.display = "none";
         }
-
-        function openDeleteModal(id, name) {
-            document.getElementById("deleteBrandModal").style.display = "flex";
-            document.getElementById("deleteBrandName").textContent = name;
-            document.getElementById("deleteBrandForm").action = `/admin/brands/delete/${id}`;
-        }
-        function closeDeleteModal() {
-            document.getElementById("deleteBrandModal").style.display = "none";
-        }
+        
         function previewFileName(event, targetId) {
             const file = event.target.files[0];
             document.getElementById(targetId).textContent = file ? file.name : "Choose File";
         }
 
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  function blockBrand(id, name) {
+    Swal.fire({
+      title: `Block ${name}?`,
+      text: "Products under this brand will be hidden",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, block"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios.patch(`/admin/brands/${id}/block`)
+          .then(() => location.reload());
+      }
+    });
+  }
+
+  function unblockBrand(id, name) {
+    Swal.fire({
+      title: `Unblock ${name}?`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, unblock"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios.patch(`/admin/brands/${id}/unblock`)
+          .then(() => location.reload());
+      }
+    });
+  }
+</script>

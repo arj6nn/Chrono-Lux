@@ -23,10 +23,17 @@
           <a href="/admin/products" class="cancel-btn">Clear</a>
           <% } %>
       </form>
+      <div class="product-stats">
+  <div class="stat-box">
+    <div class="stat-title">Total Products</div>
+    <div class="stat-value"><%= totalProducts %></div>
+  </div>
 
-      <button class="add-product-btn" onclick="openAddProductModal()">
+  <button class="add-product-btn" onclick="openAddProductModal()">
         <i class="ri-add-line"></i> Add Product
       </button>
+</div>
+
     </div>
 
     <!-- PRODUCTS TABLE -->
@@ -211,7 +218,14 @@
 
       <div class="modal-actions">
         <button type="button" class="cancel-btn" onclick="closeAddProductModal()">Cancel</button>
-        <button type="button" class="submit-btn" onclick="submitAddProduct()">Add Product</button>
+        <button
+  type="button"
+  id="addProductSubmitBtn"
+  class="submit-btn"
+  onclick="submitAddProduct()">
+  Add Product
+</button>
+
       </div>
     </div>
   </div>
@@ -288,7 +302,14 @@
 
       <div class="modal-actions">
         <button type="button" class="cancel-btn" onclick="closeEditProductModal()">Cancel</button>
-        <button type="button" class="submit-btn" onclick="submitEditProduct()">Update Product</button>
+        <button
+  type="button"
+  id="editProductSubmitBtn"
+  class="submit-btn"
+  onclick="submitEditProduct()">
+  Update Product
+</button>
+
       </div>
     </div>
   </div>
@@ -315,6 +336,8 @@
 
 
   <script>
+    let isAddProductSubmitting = false;
+    let isEditProductSubmitting = false;
     let variantCounter = 0;
     let variantImages = {}; // key: mode_variantId -> [Blob,...]
 
@@ -402,30 +425,38 @@
     });
 
     function renderVariantPreview(key) {
-      if (!key) return;
+  if (!key) return;
 
-      const [mode, id] = key.split('_');
-      const previewId = `${mode}VariantPreview${id}`;
-      const preview = document.getElementById(previewId);
-      if (!preview) return;
+  const [mode, id] = key.split('_');
+  const previewId = `${mode}VariantPreview${id}`;
+  const preview = document.getElementById(previewId);
 
-      preview.innerHTML = '';
+  // SAFETY GUARD (THIS FIXES YOUR ERROR)
+  if (!preview) return;
 
-      const blobs = variantImages[key] || [];
-      blobs.forEach((blob, index) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const div = document.createElement('div');
-          div.className = 'image-preview-item';
-          div.innerHTML = `
-                    <img src="${e.target.result}" alt="Preview">
-                    <span class="remove-img" onclick="removeVariantImage(${index}, '${key}')">×</span>
-                `;
-          preview.appendChild(div);
-        };
-        reader.readAsDataURL(blob);
-      });
-    }
+  // remove only new images
+  preview.querySelectorAll('.new-image').forEach(el => el.remove());
+
+  const blobs = variantImages[key] || [];
+
+  blobs.forEach((blob, index) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const div = document.createElement('div');
+      div.className = 'image-preview-item new-image';
+
+      div.innerHTML = `
+        <img src="${e.target.result}" alt="New image">
+        <span class="remove-img"
+          onclick="removeVariantImage(${index}, '${key}')">×</span>
+      `;
+
+      preview.appendChild(div);
+    };
+    reader.readAsDataURL(blob);
+  });
+}
+
 
     function removeVariantImage(index, key) {
       const arr = variantImages[key];
@@ -463,6 +494,11 @@
           <label>Price <span class="required">*</span></label>
           <input type="number" name="variants[${currentIndex}][price]" required>
         </div>
+        <div class="form-group">
+          <label>Sales Price</label>
+          <input type="number" name="variants[${currentIndex}][salesPrice]" placeholder="Optional">
+        </div>
+
         <div class="form-group">
           <label>Stock <span class="required">*</span></label>
           <input type="number" name="variants[${currentIndex}][stock]" required>
@@ -517,53 +553,71 @@
     }
 
     // Submit Add Product
-    async function submitAddProduct() {
-      if (!validateForm('add')) return;
+async function submitAddProduct() {
+  if (isAddProductSubmitting) return;
+  if (!validateForm('add')) return;
 
-      const form = document.getElementById('addProductForm');
-      const formData = new FormData(form);
+  isAddProductSubmitting = true;
 
-      const variants = [];
-      const variantElements = document.querySelectorAll('#addVariantsContainer .variant-item');
+  const submitBtn = document.getElementById('addProductSubmitBtn');
+  submitBtn.disabled = true;
+  submitBtn.innerText = 'Adding...';
 
-      for (let i = 0; i < variantElements.length; i++) {
+  const form = document.getElementById('addProductForm');
+  const formData = new FormData(form);
 
-        const variantItem = variantElements[i];
-        const variantId = variantItem.dataset.variantId;
-        const key = `add_${variantId}`;
+  const variantElements = document.querySelectorAll('#addVariantsContainer .variant-item');
 
-        const variant = {
-          color: form.querySelector(`[name="variants[${variantId}][color]"]`).value,
-          dialSize: form.querySelector(`[name="variants[${variantId}][dialSize]"]`).value,
-          price: parseFloat(form.querySelector(`[name="variants[${variantId}][price]"]`).value),
-          stock: parseInt(form.querySelector(`[name="variants[${variantId}][stock]"]`).value)
-        };
+  for (let i = 0; i < variantElements.length; i++) {
+    const variantItem = variantElements[i];
+    const variantId = variantItem.dataset.variantId;
+    const key = `add_${variantId}`;
 
-        const files = variantImages[key] || [];
-        files.forEach(file => {
-          formData.append(`variant_${variantId}_images`, file);
-        });
+    const files = variantImages[key] || [];
+    files.forEach(file => {
+      formData.append(`variant_${variantId}_images`, file);
+    });
+  }
 
-        variants.push(variant);
-      }
+  try {
+    const response = await axios.post('/admin/products/add', formData);
 
-      // ❗ DO NOT append JSON anymore
-      // formData.append('variants', JSON.stringify(variants)); ❌ remove
+    if (response.data.success) {
+      await Swal.fire({
+        title: 'Success',
+        icon: 'success',
+        text: 'Product added successfully',
+        timer: 1500,
+        showConfirmButton: false
+      });
 
-      try {
-        const response = await axios.post('/admin/products/add', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
-
-        if (response.data.success) {
-          await Swal.fire({ title: 'Success', icon: 'success', timer: 1500 });
-          location.reload();
-        }
-      } catch (err) {
-        console.log(err);
-        Swal.fire('Error', 'Something went wrong', 'error');
-      }
+      location.reload();
+      return;
     }
+
+    // fallback (should rarely hit)
+    throw new Error(response.data.message || 'Failed to add product');
+
+  } catch (err) {
+    console.error(err);
+
+    const message =
+      err.response?.data?.message ||
+      err.message ||
+      'Something went wrong';
+
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: message
+    });
+
+    // Re-enable button on failure
+    isAddProductSubmitting = false;
+    submitBtn.disabled = false;
+    submitBtn.innerText = 'Add Product';
+  }
+} 
 
     // Open Edit Modal
     async function openEditProductModal(productId) {
@@ -610,6 +664,12 @@
                 <input type="number" name="variants[${currentIndex}][price]" min="0" value="${variant.price || 0}" required>
               </div>
               <div class="form-group">
+                <label>Sales Price</label>
+                <input type="number" name="variants[${currentIndex}][salesPrice]" 
+                      value="${variant.salesPrice || ''}">
+              </div>
+
+              <div class="form-group">
                 <label>Stock Quantity <span class="required">*</span></label>
                 <input type="number" name="variants[${currentIndex}][stock]" min="0" value="${variant.stock || 0}" required>
               </div>
@@ -644,16 +704,28 @@
 
             variantsContainer.insertAdjacentHTML('beforeend', variantHtml);
 
-            // Show OLD images (just for preview)
-            const preview = document.getElementById(`editVariantPreview${currentIndex}`);
-            if (variant.images && variant.images.length > 0) {
-              variant.images.forEach((img) => {
-                const div = document.createElement('div');
-                div.className = 'image-preview-item';
-                div.innerHTML = `<img src="${img}" alt="Variant image">`;
-                preview.appendChild(div);
-              });
-            }
+            // Show OLD images (with delete)
+const preview = document.getElementById(`editVariantPreview${currentIndex}`);
+if (variant.images && variant.images.length > 0) {
+  variant.images.forEach((img, imageIndex) => {
+    const div = document.createElement('div');
+    div.className = 'image-preview-item';
+
+    div.innerHTML = `
+      <img src="${img}" alt="Variant image">
+      <span class="remove-img"
+        onclick="deleteExistingVariantImage(
+          '${product._id}',
+          '${variant._id}',
+          ${imageIndex},
+          this
+        )">×</span>
+    `;
+
+    preview.appendChild(div);
+  });
+}
+
           });
 
           // for new variants added after existing
@@ -667,82 +739,105 @@
 
 
     // Submit Edit Product
-    async function submitEditProduct() {
-      if (!validateForm('edit')) return;
+async function submitEditProduct() {
+  //Prevent multiple clicks
+  if (isEditProductSubmitting) return;
+  if (!validateForm('edit')) return;
 
-      const form = document.getElementById('editProductForm');
-      const formData = new FormData(form);
-      const productId = document.getElementById('editProductId').value;
+  isEditProductSubmitting = true;
 
-      const variants = [];
-      const variantElements = document.querySelectorAll('#editVariantsContainer .variant-item');
+  const submitBtn = document.getElementById('editProductSubmitBtn');
+  submitBtn.disabled = true;
+  submitBtn.innerText = 'Updating...';
 
-      for (let i = 0; i < variantElements.length; i++) {
-        const variantItem = variantElements[i];
-        const variantId = variantItem.dataset.variantId;    // "0", "1", ...
-        const key = `edit_${variantId}`;
+  const form = document.getElementById('editProductForm');
+  const formData = new FormData(form);
+  const productId = document.getElementById('editProductId').value;
 
-        const color = form.querySelector(`[name="variants[${variantId}][color]"]`).value;
-        const dialSize = form.querySelector(`[name="variants[${variantId}][dialSize]"]`).value;
-        const price = parseFloat(form.querySelector(`[name="variants[${variantId}][price]"]`).value);
-        const stock = parseInt(form.querySelector(`[name="variants[${variantId}][stock]"]`).value);
+  const variants = [];
+  const variantElements = document.querySelectorAll('#editVariantsContainer .variant-item');
 
-        const variantDbIdInput = form.querySelector(`[name="variants[${variantId}][_id]"]`);
-        const variantDbId = variantDbIdInput ? variantDbIdInput.value : null;
+  for (let i = 0; i < variantElements.length; i++) {
+    const variantItem = variantElements[i];
+    const variantId = variantItem.dataset.variantId;
+    const key = `edit_${variantId}`;
 
-        const variant = {
-          id: variantId,         // frontend index
-          _id: variantDbId,      // mongo subdoc
-          color,
-          dialSize,
-          price,
-          stock
-        };
+    const color = form.querySelector(`[name="variants[${variantId}][color]"]`).value;
+    const dialSize = form.querySelector(`[name="variants[${variantId}][dialSize]"]`).value;
+    const price = parseFloat(form.querySelector(`[name="variants[${variantId}][price]"]`).value);
+    const salesPrice = parseFloat(
+      form.querySelector(`[name="variants[${variantId}][salesPrice]"]`)?.value || 0
+    );
+    const stock = parseInt(form.querySelector(`[name="variants[${variantId}][stock]"]`).value);
 
-        // NEW (cropped) images only
-        const files = variantImages[key] || [];
-        files.forEach(file => {
-          formData.append(`variant_${variantId}_images`, file);
-        });
+    const variantDbIdInput = form.querySelector(
+      `[name="variants[${variantId}][_id]"]`
+    );
+    const variantDbId = variantDbIdInput ? variantDbIdInput.value : null;
 
-        variants.push(variant);
-      }
+    variants.push({
+      id: variantId,
+      _id: variantDbId,
+      color,
+      dialSize,
+      price,
+      salesPrice,
+      stock
+    });
 
+    // NEW images only
+    const files = variantImages[key] || [];
+    files.forEach(file => {
+      formData.append(`variant_${variantId}_images`, file);
+    });
+  }
 
-      // ⭐ remove auto-sent variant fields
-      for (let key of Array.from(formData.keys())) {
-        if (key.startsWith("variants[")) {
-          formData.delete(key);
-        }
-      }
-
-      // send clean variant JSON
-      formData.append("variants", JSON.stringify(variants));
-
-
-      try {
-        const response = await axios.patch(`/admin/products/edit/${productId}`, formData, {
-          headers: { "Content-Type": "multipart/form-data" }
-        });
-
-        if (response.data.success) {
-          await Swal.fire({
-            title: "Success!",
-            text: "Product updated successfully",
-            icon: "success",
-            timer: 1500,
-            showConfirmButton: false
-          });
-          window.location.reload();
-        } else {
-          Swal.fire("Error", response.data.message || "Failed to update product", "error");
-        }
-
-      } catch (error) {
-        console.error("Error:", error);
-        Swal.fire("Error", error.response?.data?.message || "Something went wrong!", "error");
-      }
+  // remove auto form variant fields
+  for (let key of Array.from(formData.keys())) {
+    if (key.startsWith('variants[')) {
+      formData.delete(key);
     }
+  }
+
+  // send clean variants JSON
+  formData.append('variants', JSON.stringify(variants));
+
+  try {
+    const response = await axios.patch(
+      `/admin/products/edit/${productId}`,
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    );
+
+    if (response.data.success) {
+      await Swal.fire({
+        title: 'Success!',
+        text: 'Product updated successfully',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false
+      });
+
+      window.location.reload();
+    } else {
+      throw new Error(response.data.message);
+    }
+
+  } catch (error) {
+    console.error('Error:', error);
+
+    Swal.fire(
+      'Error',
+      error.response?.data?.message || 'Something went wrong!',
+      'error'
+    );
+
+    
+    isEditProductSubmitting = false;
+    submitBtn.disabled = false;
+    submitBtn.innerText = 'Update Product';
+  }
+}
 
 
 
@@ -823,4 +918,34 @@
         currentFilesQueue = [];
       }
     }
+
+    async function deleteExistingVariantImage(productId, variantId, imageIndex, el) {
+  const result = await Swal.fire({
+    title: 'Delete image?',
+    text: 'This image will be permanently removed',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Delete',
+    cancelButtonText: 'Cancel',
+    confirmButtonColor: '#e74c3c'
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    const res = await axios.delete('/admin/products/delete-variant-image', {
+      data: { productId, variantId, imageIndex }
+    });
+
+    if (res.data.success) {
+      el.closest('.image-preview-item').remove();
+    } else {
+      Swal.fire('Error', res.data.message || 'Failed to delete image', 'error');
+    }
+  } catch (err) {
+    console.error(err);
+    Swal.fire('Error', 'Something went wrong', 'error');
+  }
+}
+
   </script>

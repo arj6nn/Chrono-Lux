@@ -80,7 +80,7 @@
             }
         }
 
-        // 🔥 RESEND OTP BUTTON CLICK
+        // RESEND OTP BUTTON CLICK
         resendBtn.addEventListener("click", () => {
             if (!resendBtn.classList.contains("disabled")) {
 
@@ -90,9 +90,23 @@
                     url: "/resend-otp",
                     success: function (response) {
                         if (response.success) {
-                            Swal.fire("OTP Sent!", "A new OTP has been sent to your email.", "success");
+                            Swal.fire({
+                                icon: "success",
+                                title: "OTP Sent!",
+                                text: "A new OTP has been sent to your email.",
+                                customClass: {
+                                    popup: 'glass-popup'
+                                }
+                            });
+
                         } else {
-                            Swal.fire("Error", response.message, "error");
+                            Swal.fire({
+                                icon: "error",
+                                title: "Error",
+                                text: response.message,
+                                customClass: { popup: 'glass-popup' }
+                            });
+
                             return;
                         }
                     },
@@ -139,7 +153,10 @@
                             icon: "success",
                             title: "OTP verified successfully!",
                             showConfirmButton: false,
-                            timer: 1500
+                            timer: 1500,
+                            customClass: {
+                                popup: 'glass-popup'
+                            }
                         }).then(() => {
                             window.location.href = response.redirectUrl;
                         });
@@ -147,7 +164,10 @@
                         Swal.fire({
                             icon: "error",
                             title: "Error",
-                            text: response.message
+                            text: response.message,
+                            customClass: {
+                                popup: 'glass-popup'
+                            }
                         });
                     }
                 },
@@ -155,7 +175,10 @@
                     Swal.fire({
                         icon: "error",
                         title: "Invalid OTP",
-                        text: "Please try again"
+                        text: "Please try again",
+                        customClass: {
+                            popup: 'glass-popup'
+                        }
                     });
                 }
             });

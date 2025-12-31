@@ -16,85 +16,93 @@
 
 <body>
 
-    <div class="login-container">
-        <h1>Welcome back!</h1>
-        <p class="subtitle">Enter your Credentials to access your account</p>
+    <section class="hero-video-section">
+        <div class="video-frame">
+            <video autoplay muted loop playsinline>
+                <source src="/videos/watch2.mp4" type="video/mp4">
+            </video>
+        </div>
 
-        <form action="/login" method="POST">
-            <div class="form-group">
-                <div class="label-row">
-                    <label>Email address</label>
-                </div>
-                <input type="email" name="email" placeholder="Enter your email" required>
-            </div>
+        <div class="glass-card login-container">
+            <h1>Welcome back!</h1>
+            <p class="subtitle">Enter your Credentials to access your account</p>
 
-            <div class="form-group">
-                <div class="label-row">
-                    <label>Password</label>
-                    <a href="/forgot-password" class="forgot-password-link">forgot password</a>
-                </div>
-                <!-- <input type="password" name="password" placeholder="Enter your password" required> -->
-                <div class="input-group">
-                    <input type="password" name="password" id="password" placeholder="Enter your password">
-                    <span class="toggle-password" onclick="togglePassword()">
-                        <i id="eyeIcon" class="fa-solid fa-eye"></i>
-                    </span>
+            <form action="/login" method="POST">
+                <div class="form-group">
+                    <div class="label-row">
+                        <label>Email address</label>
+                    </div>
+                    <input type="email" name="email" placeholder="Enter your email" required>
                 </div>
 
-            </div>
+                <div class="form-group">
+                    <div class="label-row">
+                        <label>Password</label>
+                        <a href="/forgot-password" class="forgot-password-link">forgot password</a>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" name="password" id="password" placeholder="Enter your password">
+                        <span class="toggle-password" onclick="togglePassword()">
+                            <i id="eyeIcon" class="fa-solid fa-eye"></i>
+                        </span>
+                    </div>
+                </div>
 
-            <% if (message) { %>
+                <% if (message) { %>
                 <div class="alert alert-danger text-center">
                     <%= message %>
                 </div>
                 <% } %>
 
+                <button type="submit" class="btn-login">Login</button>
+            </form>
 
-                    <button type="submit" class="btn-login">Login</button>
-        </form>
+            <div class="divider">Or</div>
 
+            <a href="/auth/google" class="btn-google">
+                <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo" class="google-icon">
+                Sign in with Google
+            </a>
 
-        <div class="divider">Or</div>
+            <p class="footer-link">
+                Don't have an account? <a href="/signup">Sign Up</a>
+            </p>
+        </div>
+    </section>
 
-        <a href="/auth/google" class="btn-google">
-            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Logo" class="google-icon">
-            Sign in with Google
-        </a>
-
-        <p class="footer-link">
-            Don't have an account? <a href="/signup">Sign Up</a>
-        </p>
-    </div>
     <% if (blocked) { %>
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Account Blocked',
-                text: 'Your account has been blocked by the admin.',
-                confirmButtonText: 'OK'
-            });
-        </script>
-        <% } %>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Account Blocked',
+            text: 'Your account has been blocked by the admin.',
+            confirmButtonText: 'OK',
+            customClass: {
+                popup: 'glass-popup'
+            }
+        });
+    </script>
+    <% } %>
+
+    <script>
+        function togglePassword() {
+            const passwordField = document.getElementById("password");
+            const eyeIcon = document.getElementById("eyeIcon");
+
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                eyeIcon.classList.remove("fa-eye");
+                eyeIcon.classList.add("fa-eye-slash");
+            } else {
+                passwordField.type = "password";
+                eyeIcon.classList.remove("fa-eye-slash");
+                eyeIcon.classList.add("fa-eye");
+            }
+        }
+    </script>
 
 
 </body>
 
 </html>
-
-<script>
-    function togglePassword() {
-        const passwordField = document.getElementById("password");
-        const eyeIcon = document.getElementById("eyeIcon");
-
-        if (passwordField.type === "password") {
-            passwordField.type = "text";
-            eyeIcon.classList.remove("fa-eye");
-            eyeIcon.classList.add("fa-eye-slash");
-        } else {
-            passwordField.type = "password";
-            eyeIcon.classList.remove("fa-eye-slash");
-            eyeIcon.classList.add("fa-eye");
-        }
-    }
-</script>

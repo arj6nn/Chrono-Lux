@@ -1,0 +1,179 @@
+:root{
+    --white:#fff;
+    --primary-green:#2E4235;
+    --accent-gold:#D4AF37;
+    --text-dark:#333;
+}
+
+/* --- NAVBAR --- */
+nav {
+    padding: 24px 0;
+    background: var(--white);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+
+
+.logo{
+    font-size:1.1rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:1px;
+}
+
+.logo span{
+    color:var(--accent-gold);
+}
+
+.nav-links{
+    display:flex;
+    gap:40px;
+    list-style:none;
+}
+
+.nav-links a{
+    text-decoration:none;
+    color:var(--text-dark);
+    font-weight:500;
+}
+
+.nav-links a:hover{
+    color:var(--primary-green);
+}
+
+.nav-icons{
+    display:flex;
+    align-items:center;
+    gap:20px;
+}
+
+.nav-icons i{
+    cursor:pointer;
+    font-size:1rem;
+    color:var(--text-dark);
+}
+
+nav {
+  border-bottom: none !important;
+}
+
+/* Glassmorphism navbar (home only) */
+nav.glass-nav {
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 160px);
+  max-width: 1200px;
+  margin: 0 auto;
+  background: rgba(255,255,255,0.08);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  backdrop-filter: blur(8px) saturate(120%);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  z-index: 1001; /* above video (video uses z-index:0) */
+  padding: 8px 16px;
+}
+
+/* Slightly tighter inner padding for the glass variation */
+nav.glass-nav .nav-container {
+  padding: 6px 12px;
+}
+
+/* Make text/icons readable on top of the hero video */
+nav.glass-nav .logo,
+nav.glass-nav .nav-links a,
+nav.glass-nav .nav-icons i,
+nav.glass-nav .nav-signup-btn,
+nav.glass-nav .nav-login-btn {
+  color: #ffffff;
+}
+
+/* Accent color for the logo span */
+nav.glass-nav .logo span {
+  color: var(--accent-gold);
+}
+
+/* Button tweaks so they look good on the glass background */
+nav.glass-nav .nav-login-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #fff;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  nav.glass-nav {
+    width: calc(100% - 40px);
+    top: 18px;
+    padding: 8px 12px;
+  }
+
+  nav.glass-nav .nav-links { display: none; }
+}
+
+.glass-popup {
+  color: white;
+  backdrop-filter: blur(15px) saturate(180%);
+  -webkit-backdrop-filter: blur(15px) saturate(180%);
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.nav-login-btn {
+        padding: 8px 18px;
+        border-radius: 50px;
+        background: #2E4235;
+        color: white;
+        font-weight: 600;
+        text-decoration: none;
+        border: 2px solid #2E4235;
+        transition: 0.3s ease;
+}
+
+.nav-login-btn:hover {
+  opacity: 0.85;
+}
+
+nav {
+    width: 100%;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+}
+
+.nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 15px 30px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* Page transition */
+body {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+body.page-ready {
+  opacity: 1;
+}
+
+body.fade-out {
+  opacity: 0.4;
+}
+

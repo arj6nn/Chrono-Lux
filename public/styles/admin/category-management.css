@@ -43,7 +43,7 @@
 
 .search-btn {
     padding: 10px 20px;
-    background: #71851B;
+    background: #556b2f;
     color: white;
     border: none;
     border-radius: 6px;
@@ -53,11 +53,11 @@
 }
 
 .search-btn:hover {
-    background: #5e6d17;
+    background: #4b5f2a;
 }
 
 .add-category-btn {
-    background: #71851B;
+    background: #556b2f;
     color: white;
     padding: 10px 16px;
     border: none;

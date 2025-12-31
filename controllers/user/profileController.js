@@ -1,9 +1,8 @@
-const User = require("../../models/userSchema");
+const User = require("../../models/user.model");
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
 
-// ✅ Correct OTP generator
 function generateOtp() {
     let digits = "1234567890";
     let otp = "";
@@ -13,7 +12,6 @@ function generateOtp() {
     return otp;
 }
 
-// ✅ Correct email sender (accepts email + otp)
 async function sendVerificationEmail(email, otp) {
     try {
         const transporter = nodemailer.createTransport({
@@ -32,7 +30,6 @@ async function sendVerificationEmail(email, otp) {
         };
 
         const info = await transporter.sendMail(mailOptions);
-        console.log("Email sent:", info.messageId);
         return true;
 
     } catch (error) {
@@ -161,11 +158,53 @@ const updatePassword = async (req, res) => {
     }
 };
 
+const resendForgotOtp = async (req, res) => {
+    try {
+        const email = req.session.email;
+
+        if (!email) {
+            return res.json({
+                success: false,
+                message: "Session expired. Please restart the process."
+            });
+        }
+
+        const otp = generateOtp();
+        const emailSent = await sendVerificationEmail(email, otp);
+
+        if (!emailSent) {
+            return res.json({
+                success: false,
+                message: "Failed to resend OTP. Try again."
+            });
+        }
+
+        // Update OTP in session
+        req.session.userOtp = otp;
+
+        console.log("RESENT OTP:", otp);
+
+        return res.json({
+            success: true,
+            message: "OTP resent successfully"
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.json({
+            success: false,
+            message: "Server error. Try again."
+        });
+    }
+};
+
+
 
 module.exports = {
     getForgotPassPage,
     forgotEmailValid,
     verifyForgotOtp,
+    resendForgotOtp,
     getResetPasswordPage,
     updatePassword
 };

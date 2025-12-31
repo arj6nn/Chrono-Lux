@@ -1,127 +1,112 @@
-<!DOCTYPE html>
-<html lang="en">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="/styles/user/header.css">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chrono Luxe | Timeless Elegance</title>
+<nav>
+    <div class="nav-container nav-wrapper">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <!-- LOGO -->
+        <a href="/home"><div class="logo">Chrono <span style="color: #D4AF37;">Luxe</span></div></a>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <!-- LINKS -->
+        <ul class="nav-links">
+            <li><a href="/home">Home</a></li>
+            <li><a href="/shop">Shop</a></li>
+            <li><a href="#">Contact</a></li>
+            <li><a href="#">About Us</a></li>
+        </ul>
 
-    <!-- 🔥 PUT ALL BUTTON STYLES HERE INSIDE <head> -->
-    <style>
+        <!-- NAV ICONS + USER -->
+        <div class="nav-icons">
 
-        /* LOGIN BUTTON (green filled) */
-        .nav-login-btn {
-            padding: 8px 18px;
-            border-radius: 50px;
-            background: #2E4235;
-            color: white;
-            font-weight: 600;
-            text-decoration: none;
-            border: 2px solid #2E4235;
-            transition: 0.3s ease;
-        }
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <i class="fa-regular fa-heart"></i>
+            <i class="fa-solid fa-bag-shopping"></i>
 
-        .nav-login-btn:hover {
-            opacity: 0.85;
-        }
-    </style>
+            <% if (!user) { %>
+                <a href="/signup" class="nav-signup-btn">Sign Up</a>
+                <a href="/login" class="nav-login-btn">Login</a>
 
-</head>
+            <% } else { %>
+                <div style="display: flex; align-items: center; gap: 15px;">
 
-<body>
+                    <% const firstLetter = user.name ? user.name.charAt(0).toUpperCase() : "U"; %>
 
-    <nav>
-        <div class="container nav-wrapper">
-
-            <!-- LOGO -->
-            <div class="logo">Chrono <span style="color: #D4AF37;">Luxe</span></div>
-
-            <!-- LINKS -->
-            <ul class="nav-links">
-                <li><a href="#">Watches</a></li>
-                <li><a href="#">Brands</a></li>
-                <li><a href="#">New Arrivals</a></li>
-                <li><a href="#">About Us</a></li>
-            </ul>
-
-            <!-- NAV ICONS + USER -->
-            <div class="nav-icons">
-
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <i class="fa-regular fa-heart"></i>
-                <i class="fa-solid fa-bag-shopping"></i>
-
-                <% if (!user) { %>
-                    <!-- USER NOT LOGGED IN -->
-                    <a href="/signup" class="nav-signup-btn">Sign Up</a>
-                    <a href="/login" class="nav-login-btn">Login</a>
-
-                <% } else { %>
-                    <!-- USER LOGGED IN -->
-                    <div style="display: flex; align-items: center; gap: 15px;">
-
-                        <% const firstLetter = user.name ? user.name.charAt(0).toUpperCase() : "U"; %>
-
-                        <div class="user-avatar" style="
-                            width:32px;
-                            height:32px;
-                            border-radius:50%;
-                            background:#2E4235;
-                            border:2px solid #2E4235;
-                            display:flex;
-                            justify-content:center;
-                            align-items:center;
-                            color:white;
-                            font-weight:600;
-                            font-size:14px;">
-                            <%= firstLetter %>
-                        </div>
-
-                        <!-- SIMPLE LOGOUT BUTTON -->
-                        <a href="#" onclick="confirmLogout()" style="
-                            padding: 6px 12px;
-                            border-radius: 5px;
-                            background: #e74c3c;
-                            color: white;
-                            text-decoration: none;
-                            font-size: 14px;
-                            font-weight: 500;">
-                            Logout
-                        </a>
+                    <div class="user-avatar" style="
+                        width:32px;
+                        height:32px;
+                        border-radius:50%;
+                        background:#2E4235;
+                        border:2px solid #2E4235;
+                        display:flex;
+                        justify-content:center;
+                        align-items:center;
+                        color:white;
+                        font-weight:600;
+                        font-size:14px;">
+                        <%= firstLetter %>
                     </div>
-                <% } %>
 
-            </div>
+                    <a href="#" onclick="confirmLogout()" style="
+                        padding: 6px 12px;
+                        border-radius: 5px;
+                        background: #e74c3c;
+                        color: white;
+                        text-decoration: none;
+                        font-size: 14px;
+                        font-weight: 500;">
+                        Logout
+                    </a>
+                </div>
+            <% } %>
+
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script>
-        function confirmLogout() {
-            Swal.fire({
-                title: "Are you sure?",
-                text: "Do you want to logout from your account?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#e74c3c",
-                cancelButtonColor: "#3085d6",
-                confirmButtonText: "Yes, Logout",
-                cancelButtonText: "Cancel"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "/logout";
-                }
-            });
+<script>
+function confirmLogout() {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "Do you want to logout?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#e74c3c",
+        cancelButtonColor: "#3085d6",
+        customClass: {
+            popup: 'glass-popup'
         }
-    </script>
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = "/logout";
+        }
+    });
+}
+</script>
 
-</body>
+<script>
+/* Fade IN when page is ready */
+window.addEventListener("DOMContentLoaded", () => {
+  document.body.classList.add("page-ready");
+});
 
-</html>
+/* Fade OUT only when clicking a product */
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".product-card").forEach(card => {
+    card.addEventListener("click", () => {
+      document.body.classList.remove("page-ready");
+      document.body.classList.add("fade-out");
+    });
+  });
+});
+
+/* Safety: remove fade on back navigation */
+window.addEventListener("pageshow", () => {
+  document.body.classList.add("page-ready");
+  document.body.classList.remove("fade-out");
+});
+</script>

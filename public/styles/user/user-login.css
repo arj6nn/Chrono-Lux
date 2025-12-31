@@ -1,236 +1,323 @@
-        /* --- Reset & Variables --- */
-        :root {
-            --primary-green: #2E4235;
-            /* Dark Moss Green */
-            --text-dark: #111111;
-            --text-gray: #666666;
-            /* Subtitle gray */
-            --text-placeholder: #C4C4C4;
-            /* Light gray for placeholders */
-            --border-light: #E5E5E5;
-            --white: #ffffff;
-        }
+/* --- Reset & Variables --- */
+:root {
+    --primary-green: #2E4235;
+    /* Dark Moss Green */
+    --text-dark: #111111;
+    --text-gray: #666666;
+    /* Subtitle gray */
+    --text-placeholder: #C4C4C4;
+    /* Light gray for placeholders */
+    --border-light: #E5E5E5;
+    --white: #ffffff;
+}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
 
-        body {
-            background-color: var(--white);
-            color: var(--text-dark);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            /* Center vertically */
-            min-height: 100vh;
-        }
+body {
+    background-color: var(--white);
+    color: var(--text-dark);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Center vertically */
+    min-height: 100vh;
+}
 
-        /* --- Container --- */
-        .login-container {
-            width: 100%;
-            max-width: 450px;
-            padding: 20px;
-        }
+/* --- Container --- */
+.login-container {
+    width: 100%;
+    max-width: 450px;
+    padding: 20px;
+}
 
-        /* --- Headings --- */
-        h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-            color: var(--text-dark);
-        }
+/* --- Headings --- */
+h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #ffffff;
+}
 
-        .subtitle {
-            color: var(--text-gray);
-            font-size: 0.95rem;
-            margin-bottom: 40px;
-            font-weight: 400;
-        }
+.subtitle {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.95rem;
+    margin-bottom: 40px;
+    font-weight: 400;
+}
 
-        /* --- Form Structure --- */
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
+/* --- Form Structure --- */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
 
-        /* Flex container for Password Label + Forgot Link */
-        .label-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
+/* Flex container for Password Label + Forgot Link */
+.label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
 
-        label {
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: var(--text-dark);
-        }
+label {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.95);
+}
 
-        .forgot-link {
-            font-size: 0.9rem;
-            color: var(--primary-green);
-            text-decoration: none;
-            font-weight: 500;
-        }
+.forgot-password-link {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
 
-        .forgot-link:hover {
-            text-decoration: underline;
-        }
+.forgot-password-link:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
 
-        /* --- Inputs --- */
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 14px 0;
-            /* No side padding to match the clean look in image, or small padding */
-            padding-left: 16px;
-            border: 1px solid transparent;
-            background-color: #FAFAFA;
-            border-radius: 6px;
-            font-size: 1rem;
-            outline: none;
-            color: var(--text-dark);
-            transition: 0.2s;
-        }
+.forgot-link {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-weight: 500;
+}
 
-        /* Clean border style */
-        input[type="email"],
-        input[type="password"] {
-            background-color: white;
-            border: 1px solid #EEEEEE;
-        }
+.forgot-link:hover {
+    text-decoration: underline;
+}
 
-        input::placeholder {
-            color: var(--text-placeholder);
-            font-weight: 400;
-        }
+/* --- Inputs --- */
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    font-size: 1rem;
+    outline: none;
+    color: rgba(255, 255, 255, 0.95);
+    transition: all 0.3s;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
 
-        input:focus {
-            border-color: var(--primary-green);
-        }
+input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 400;
+}
 
-        /* --- Login Button --- */
-        .btn-login {
-            width: 100%;
-            padding: 16px;
-            background-color: var(--primary-green);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            /* Slightly rounder than inputs */
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: background 0.3s;
-        }
+input:focus {
+    border-color: rgba(255, 255, 255, 0.6);
+    background-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
+}
 
-        .btn-login:hover {
-            background-color: #1f2e24;
-        }
+/* --- Login Button --- */
+.btn-login {
+    width: 100%;
+    padding: 14px 16px;
+    background-color: #ffffff;
+    color: var(--primary-green);
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
 
-        /* --- Divider --- */
-        .divider {
-            text-align: center;
-            color: var(--text-gray);
-            font-size: 0.9rem;
-            margin: 24px 0;
-        }
+.btn-login:hover {
+    background-color: rgba(255, 255, 255, 0.95);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
+}
 
-        /* --- Google Button --- */
-        .btn-google {
-            width: 100%;
-            padding: 14px;
-            background-color: white;
-            border: 1px solid #f0f0f0;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 500;
-            color: var(--text-dark);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            /* Box Shadow exactly like the image */
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            transition: all 0.2s;
-        }
+/* --- Divider --- */
+.divider {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    margin: 24px 0;
+}
 
-        .btn-google:hover {
-            background-color: #fafafa;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-        }
+/* --- Google Button --- */
+.btn-google {
+    width: 60px;
+    height: 60px;
+    padding: 0;
+    background-color: rgba(255, 255, 255, 0.95);
+    border: none;
+    border-radius: 50%;
+    font-size: 0;
+    font-weight: 500;
+    color: var(--text-dark);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s;
+    margin: 0 auto;
+}
 
-        .google-icon {
-            width: 20px;
-            height: 20px;
-        }
+.btn-google:hover {
+    background-color: #ffffff;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    transform: scale(1.1);
+}
 
-        /* --- Footer --- */
-        .footer-link {
-            text-align: center;
-            margin-top: 40px;
-            font-size: 0.95rem;
-            color: var(--text-gray);
-        }
+.google-icon {
+    width: 32px;
+    height: 32px;
+}
 
-        .footer-link a {
-            color: var(--primary-green);
-            text-decoration: none;
-            font-weight: 600;
-            margin-left: 5px;
-        }
+/* --- Footer --- */
+.footer-link {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.8);
+}
 
-        .footer-link a:hover {
-            text-decoration: underline;
-        }
+.footer-link a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 600;
+    margin-left: 5px;
+    transition: color 0.2s;
+}
 
-        .input-group {
-            position: relative;
-            width: 100%;
-        }
+.footer-link a:hover {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: underline;
+}
 
-        .input-group input {
-            width: 100%;
-            padding-right: 40px;
-        }
+.input-group {
+    position: relative;
+    width: 100%;
+}
 
-        .toggle-password {
-            position: absolute;
-            top: 50%;
-            right: 10px;
-            transform: translateY(-50%);
-            cursor: pointer;
-            font-size: 18px;
-            color: #555;
-        }
+.input-group input {
+    width: 100%;
+    padding-right: 40px;
+}
 
-        /* Apply same style when toggled to text type */
-        input[type="text"] {
-            width: 100%;
-            padding: 14px 0;
-            padding-left: 16px;
-            padding-right: 40px;
-            border: 1px solid #EEEEEE;
-            background-color: white;
-            border-radius: 6px;
-            font-size: 1rem;
-            outline: none;
-            color: var(--text-dark);
-            transition: 0.2s;
-        }
+.toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.7);
+    transition: color 0.2s;
+}
 
-        input[type="text"]:focus {
-            border-color: var(--primary-green);
-        }
+.toggle-password:hover {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+/* --- Hero video background + frosted glass card --- */
+.hero-video-section {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #000;
+    padding: 60px 20px;
+}
+
+.video-frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.video-frame video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.05);
+}
+
+.video-frame::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.5));
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Glass card for the login form (frosted effect) */
+.glass-card {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 480px;
+    background: rgba(30, 30, 30, 0.45);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(1px) saturate(120%);
+    -webkit-backdrop-filter: blur(15px) saturate(120%);
+}
+
+/* reduce mobile padding */
+@media (max-width: 480px) {
+    .glass-card {
+        padding: 24px;
+        border-radius: 16px;
+    }
+
+    .hero-video-section {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 1.75rem;
+    }
+}
+
+#password {
+    border-top-right-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+}
+
+.glass-popup {
+    color: white;
+    backdrop-filter: blur(15px) saturate(180%);
+    -webkit-backdrop-filter: blur(15px) saturate(180%);
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}

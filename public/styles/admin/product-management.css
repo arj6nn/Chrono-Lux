@@ -714,3 +714,40 @@
   opacity:0.4;
   pointer-events:none;
 }
+
+.product-stats {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+  gap: 20px;
+}
+
+.stat-box {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 14px 22px;
+  min-width: 180px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  text-align: center;
+}
+
+.stat-title {
+  font-size: 13px;
+  color: #777;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #4f6f2f; /* matches your green theme */
+}
+
+.stat-box {
+  padding: 6px 10px;
+  min-width: 100px;
+}
+.stat-value {
+  font-size: 18px;
+}
