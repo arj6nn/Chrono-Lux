@@ -1,5 +1,4 @@
-
-const authRedirect = (req,res,next) => {
+const authRedirect = (req, res, next) => {
 
     if (req.session.user) {
         return res.redirect("/home");
@@ -8,4 +7,4 @@ const authRedirect = (req,res,next) => {
 
 }
 
-module.exports = authRedirect;
+export default authRedirect;

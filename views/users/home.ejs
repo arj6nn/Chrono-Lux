@@ -1,144 +1,168 @@
-<%-include("../partials/user/header")%>
+<!DOCTYPE html>
+<html lang="en">
 
-    <link rel="stylesheet" href="/styles/user/header.css">
-    <link rel="stylesheet" href="/styles/user/home.css">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chrono Luxe - Premium Luxury Watches</title>
 
-    <body>
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="/styles/user/header.css">
+  <link rel="stylesheet" href="/styles/user/home.css">
+</head>
 
-        <section class="hero-video-section">
-            <div class="video-frame">
-                <video autoplay muted playsinline>
-                    <source src="/videos/watch3.mp4" type="video/mp4">
-                </video>
-            </div>
+<body>
 
-            <h1 class="hero-brand">CHRONO</h1>
+  <%- include("../partials/user/header")%>
 
-            <a href="/shop" class="hero-discover">Discover The Collection</a>
-        </section>
+    <section class="hero-video-section">
+      <div class="video-frame">
+        <video autoplay muted playsinline>
+          <source src="/videos/watch3.mp4" type="video/mp4">
+        </video>
+      </div>
+
+      <h1 class="hero-brand">CHRONO</h1>
+
+      <a href="/shop" class="hero-discover">Discover The Collection</a>
+    </section>
 
 
-        <section class="features">
-            <div class="container features-wrapper">
-                <div class="feature-box">
-                    <i class="fa-solid fa-shield-halved"></i>
-                    <h3>Authenticity Guaranteed</h3>
-                    <p>Every timepiece is verified authentic by our expert curators.</p>
+    <section class="features">
+      <div class="container features-wrapper">
+        <div class="feature-box">
+          <i class="fa-solid fa-shield-halved"></i>
+          <h3>Authenticity Guaranteed</h3>
+          <p>Every timepiece is verified authentic by our expert curators.</p>
+        </div>
+        <div class="feature-box">
+          <i class="fa-solid fa-truck-fast"></i>
+          <h3>Free Shipping</h3>
+          <p>Complimentary worldwide shipping on all orders over $500.</p>
+        </div>
+        <div class="feature-box">
+          <i class="fa-solid fa-medal"></i>
+          <h3>Lifetime Warranty</h3>
+          <p>Comprehensive coverage for your peace of mind.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="products">
+      <div class="container">
+        <div class="section-title">
+          <h2>New Arrivals</h2>
+          <p>Handpicked selections from our master collection</p>
+        </div>
+
+        <div class="product-grid">
+
+          <% if (featuredProducts && featuredProducts.length> 0) { %>
+
+            <% featuredProducts.forEach(product=> {
+              const v = product.variants[0];
+              %>
+
+              <a href="/product/<%= product._id %>" class="product-card">
+                <div class="img-container">
+                  <img src="<%= v.images[0] %>" alt="<%= product.productName %>">
                 </div>
-                <div class="feature-box">
-                    <i class="fa-solid fa-truck-fast"></i>
-                    <h3>Free Shipping</h3>
-                    <p>Complimentary worldwide shipping on all orders over $500.</p>
+
+                <div class="product-info">
+                  <h4>
+                    <%= product.productName %>
+                  </h4>
+                  <p>
+                    <span style="color: var(--accent-gold); font-weight: 600;">₹ <%= v.salesPrice> 0 ? v.salesPrice :
+                        v.price %></span>
+                    <% if (v.salesPrice> 0) { %>
+                      <span style="text-decoration: line-through; color: #888; font-size: 0.8rem; margin-left: 8px;">₹
+                        <%= v.price %>
+                      </span>
+                      <% } %>
+                  </p>
+                  <% if (v.appliedOffer) { %>
+                    <div class="offer-badge">
+                      <%= v.appliedOffer.discountValue %>% OFF
+                    </div>
+                    <% } %>
                 </div>
-                <div class="feature-box">
-                    <i class="fa-solid fa-medal"></i>
-                    <h3>Lifetime Warranty</h3>
-                    <p>Comprehensive coverage for your peace of mind.</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="products">
-  <div class="container">
-    <div class="section-title">
-      <h2>New Arrivals</h2>
-      <p>Handpicked selections from our master collection</p>
-    </div>
-
-    <div class="product-grid">
-
-      <% if (featuredProducts && featuredProducts.length > 0) { %>
-
-        <% featuredProducts.forEach(product => { 
-          const v = product.variants[0];
-        %>
-
-          <a href="/product/<%= product._id %>" class="product-card">
-            <div class="img-container">
-              <img
-                src="<%= v.images[0] %>"
-                alt="<%= product.productName %>"
-              >
-            </div>
-
-            <div class="product-info">
-              <h4><%= product.productName %></h4>
-              <p>
-                ₹ <%= v.salesPrice > 0 ? v.salesPrice : v.price %>
-              </p>
-            </div>
-          </a>
-
-        <% }) %>
-
-      <% } else { %>
-        <p style="text-align:center;">No featured watches available</p>
-      <% } %>
-
-    </div>
-  </div>
-</section>
-
-
-        <section class="collections">
-  <div class="container">
-    <div class="section-title">
-      <h2>Our Collections</h2>
-      <p>Explore our curated inventory</p>
-    </div>
-
-    <div class="collection-grid">
-
-      <% if (categories && categories.length > 0) { %>
-        <% categories.forEach((category, index) => { %>
-
-          <div class="collection-card col-<%= index + 1 %>"
-               style="background-image: url('<%= category.categoryImage %>');">
-
-            <div class="card-content">
-              <h3><%= category.name %></h3>
-              <p><%= category.description %></p>
-
-              <a href="/shop?category=<%= category._id %>" class="btn-card">
-                Explore
               </a>
-            </div>
 
-          </div>
+              <% }) %>
 
-        <% }) %>
-      <% } else { %>
-        <p style="text-align:center;">No collections available</p>
-      <% } %>
+                <% } else { %>
+                  <p style="text-align:center;">No featured watches available</p>
+                  <% } %>
 
-    </div>
-  </div>
-</section>
+        </div>
+      </div>
+    </section>
 
 
-        <section class="newsletter">
-            <div class="container newsletter-wrapper">
-                <div class="section-title">
-                    <h2>Join Our Newsletter</h2>
-                    <p>Be the first to know about new arrivals, exclusive offers, and horological insights.</p>
+    <section class="collections">
+      <div class="container">
+        <div class="section-title">
+          <h2>Our Collections</h2>
+          <p>Explore our curated inventory</p>
+        </div>
+
+        <div class="collection-grid">
+
+          <% if (categories && categories.length> 0) { %>
+            <% categories.forEach((category, index)=> { %>
+
+              <div class="collection-card col-<%= index + 1 %>"
+                style="background-image: url('<%= category.categoryImage %>');">
+
+                <div class="card-content">
+                  <h3>
+                    <%= category.name %>
+                  </h3>
+                  <p>
+                    <%= category.description %>
+                  </p>
+
+                  <a href="/shop?category=<%= category._id %>" class="btn-card">
+                    Explore
+                  </a>
                 </div>
-                <form class="newsletter-form">
-                    <input type="email" placeholder="Enter your email">
-                    <button type="submit" class="btn btn-primary">Subscribe</button>
-                </form>
-            </div>
-        </section>
-        <%-include("../partials/user/footer")%>
 
-    </body>
+              </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const nav = document.querySelector('nav');
-            if (!nav) return;
-            nav.classList.add('glass-nav');
-        });
-    </script>
+              <% }) %>
+                <% } else { %>
+                  <p style="text-align:center;">No collections available</p>
+                  <% } %>
+
+        </div>
+      </div>
+    </section>
+
+
+    <section class="newsletter">
+      <div class="container newsletter-wrapper">
+        <div class="section-title">
+          <h2>Join Our Newsletter</h2>
+          <p>Be the first to know about new arrivals, exclusive offers, and horological insights.</p>
+        </div>
+        <form class="newsletter-form">
+          <input type="email" placeholder="Enter your email">
+          <button type="submit" class="btn btn-primary">Subscribe</button>
+        </form>
+      </div>
+    </section>
+    <%- include("../partials/user/footer")%>
+
+</body>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const nav = document.querySelector('nav');
+    if (!nav) return;
+    nav.classList.add('glass-nav');
+  });
+</script>
 <!-- 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -154,4 +178,4 @@
     <% } %> -->
 
 
-    </html>
+</html>

@@ -1,54 +1,73 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 
-const addressSchema = new Schema({
-    userId: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-        required: true
+const addressSchema = new mongoose.Schema(
+  {
+    user_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "users",
+      required: true,
     },
-    address: [{
-        addressType: {
-            type: String,
-            required: true
-        },
-        name: {
-            type: String,
-            required: true,
-            trim: true
-        },
-        city: {
-            type: String,
-            required: true,
-            trim: true
-        },
-        landMark: {
-            type: String,
-            required: true,
-            trim: true
-        },
-        state: {
-            type: String,
-            required: true,
-            trim: true
-        },
-        pincode: {
-            type: String, // Changed from Number to String to handle leading zeros
-            required: true,
-            trim: true
-        },
-        phone: {
-            type: String,
-            required: true,
-            trim: true
-        },
-        altPhone: {       // Added field: Useful for delivery agents
-            type: String,
-            trim: true
-        }
-    }]
-})
+
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    addressType: {
+      type: String,
+      enum: ["Home", "Work", "Other"],
+      default: "Home",
+      required: true,
+    },
+
+    line1: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    line2: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
+    city: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    state: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    pin_code: {
+      type: Number,
+      required: true,
+      min: 100000,
+      max: 999999,
+    },
+
+    phone: {
+      type: Number,
+      required: true,
+      min: 6000000000,
+      max: 9999999999,
+    },
+
+    isDefault: {
+      type: Boolean,
+      default: false
+    }
+  },
+  { timestamps: true }
+);
 
 const Address = mongoose.model("Address", addressSchema);
 
-module.exports = Address;
+export default Address;

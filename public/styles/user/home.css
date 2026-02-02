@@ -344,6 +344,20 @@ img {
     font-size: 0.9rem;
 }
 
+.offer-badge {
+    display: inline-block;
+    background: #ff0000;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-top: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 10px rgba(255, 0, 0, 0.2);
+}
+
 /* --- COLLECTIONS --- */
 .collections {
     padding: 40px 0 100px;
@@ -480,30 +494,33 @@ img {
 }
 
 .glass-popup {
-  backdrop-filter: blur(15px) saturate(180%);
-  -webkit-backdrop-filter: blur(15px) saturate(180%);
-  background: rgba(255, 255, 255, 0.15) !important;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(15px) saturate(180%);
+    -webkit-backdrop-filter: blur(15px) saturate(180%);
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 .collection-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
 }
 
 .collection-card {
-  position: relative;
-  height: 400px;                 /* IMPORTANT */
-  border-radius: 14px;
-  overflow: hidden;
+    position: relative;
+    height: 400px;
+    /* IMPORTANT */
+    border-radius: 14px;
+    overflow: hidden;
 
-  background-size: cover;        /* 🔑 fills entire container */
-  background-position: center;   /* 🔑 centers image */
-  background-repeat: no-repeat;
+    background-size: cover;
+    /* 🔑 fills entire container */
+    background-position: center;
+    /* 🔑 centers image */
+    background-repeat: no-repeat;
 
-  display: flex;
-  align-items: flex-end;
+    display: flex;
+    align-items: flex-end;
 }

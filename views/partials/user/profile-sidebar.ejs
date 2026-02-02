@@ -1,0 +1,80 @@
+<link rel="stylesheet" href="/styles/user/profile-sidebar.css">
+<aside class="sidebar">
+    <div class="profile-header">
+        <div class="avatar-wrapper">
+            <a href="/profile/edit" class="avatar-circle">
+                <% if (user && user.profileImage) { %>
+                    <img src="<%= user.profileImage %>" alt="Profile">
+                    <% } else { %>
+                        <i class="bx bx-user"></i>
+                        <% } %>
+                            <div class="avatar-edit-overlay">
+                                <i class="bx bx-camera"></i>
+                            </div>
+            </a>
+        </div>
+
+        <h3>
+            <%= user?.name || "" %>
+        </h3>
+        <p class="user-email">
+            <%= user?.email || "" %>
+        </p>
+    </div>
+
+    <nav class="nav-menu">
+
+        <a href="/profile" class="nav-item <%= active === 'profile' ? 'active' : '' %>">
+            <i class="bx bx-user-circle"></i> Personal Information
+        </a>
+
+        <a href="/profile/edit" class="nav-item <%= active === 'edit' ? 'active' : '' %>">
+            <i class="bx bx-edit"></i> Update Information
+        </a>
+
+        <a href="/profile/addresses" class="nav-item <%= active === 'addresses' ? 'active' : '' %>">
+            <i class="bx bx-map-pin"></i> Addresses
+        </a>
+
+        <a href="/profile/wallet" class="nav-item <%= active === 'wallet' ? 'active' : '' %>">
+            <i class="bx bx-wallet"></i> My Wallet
+        </a>
+
+        <a href="/profile/orders" class="nav-item <%= active === 'orders' ? 'active' : '' %>">
+            <i class="bx bx-history"></i> Order History
+        </a>
+
+        <a href="/profile/refer" class="nav-item <%= active === 'refer' ? 'active' : '' %>">
+            <i class="bx bx-gift"></i> Refer & Earn
+        </a>
+
+        <a href="/logout" onclick="confirmLogout()" class="nav-item logout">
+            <i class="bx bx-log-out"></i> Logout
+        </a>
+
+    </nav>
+</aside>
+
+<script>
+    function confirmLogout() {
+        event.preventDefault();
+        event.stopPropagation();
+
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Do you want to logout?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#e74c3c",
+            cancelButtonColor: "#3085d6",
+            customClass: {
+                popup: 'glass-popup'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "/logout";
+            }
+        });
+    }
+</script>

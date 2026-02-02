@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders - Chrono Luxe</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="/styles/user/header.css">
+  <link rel="stylesheet" href="/styles/user/profile-layout.css">
+  <link rel="stylesheet" href="/styles/user/profile-sidebar.css">
+  <link rel="stylesheet" href="/styles/user/order-history.css">
+</head>
+
+<body>
+
+  <%- include("../partials/user/header") %>
+
+    <div class="dashboard-container">
+      <%- include("../partials/user/profile-sidebar", { active: "orders" }) %>
+
+        <main class="main-content">
+          <h1 class="page-title">My Orders</h1>
+          <p class="page-subtitle">Track and manage your orders</p>
+
+          <div class="filter-row">
+            <input type="text" id="orderSearch" placeholder="Search orders..." class="user-search"
+              onkeyup="filterOrders()">
+            <button class="black-btn" onclick="clearSearch()">Clear</button>
+          </div>
+
+          <% if (!orders || orders.length===0) { %>
+            <p class="empty-text">You have not placed any orders yet.</p>
+            <% } else { %>
+
+              <% orders.forEach(order=> { %>
+                <div class="order-container">
+
+                  <!-- HEADER -->
+                  <div class="order-header-row">
+                    <div class="order-meta">
+                      <strong>
+                        <%= order.orderId || order._id %>
+                      </strong>
+                      <span>
+                        <%= new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric" , month: "long" ,
+                          year: "numeric" }) %>
+                      </span>
+                    </div>
+
+                    <span class="status-badge status-<%= order.orderStatus.toLowerCase() %>">
+                      <%= order.orderStatus %>
+                    </span>
+                  </div>
+
+                  <!-- ITEMS -->
+                  <% order.orderedItems.forEach(item=> { %>
+                    <div class="order-body product-row">
+
+                      <!-- IMAGE -->
+                      <div class="product-image">
+                        <% const variant=item.variantId ? item.product?.variants.find(v=> v._id.toString() ===
+                          item.variantId.toString())
+                          : item.product?.variants[0];
+                          %>
+                          <img src="<%= variant?.images?.[0] || '/images/no-image.png' %>"
+                            alt="<%= item.product?.productName || 'Product' %>">
+                      </div>
+
+                      <!-- INFO -->
+                      <div class="product-info">
+                        <span class="product-name">
+                          <%= item.product?.productName || "Product unavailable" %>
+                        </span>
+                        <span class="product-qty">
+                          Qty: <%= item.quantity %> × ₹<%= item.price %>
+                        </span>
+                      </div>
+
+                      <!-- STATUS + ACTIONS -->
+                      <div class="product-status">
+
+                        <% if (item.status==="Cancelled" ) { %>
+                          <span class="status-badge status-cancelled">Cancelled</span>
+
+                          <% } else if (item.returnStatus==="Refunded" ) { %>
+                            <span class="status-badge status-refunded">Refunded</span>
+
+                            <% } else if (item.returnStatus==="Rejected" ) { %>
+                              <span class="status-badge status-rejected">Return Rejected</span>
+
+                              <% } else if (item.returnStatus==="Requested" ) { %>
+                                <span class="status-badge status-processing">Return Requested</span>
+
+                                <% } else if (item.returnStatus==="Approved" ) { %>
+                                  <span class="status-badge status-approved">Return Approved</span>
+
+                                  <% } else { %>
+                                    <span class="status-badge status-<%= item.status.toLowerCase() %>">
+                                      <%= item.status %>
+                                    </span>
+                                    <% } %>
+
+                                      <!-- CANCEL ITEM -->
+                                      <% if ( ["Pending", "Processing" ].includes(item.status) &&
+                                        !["Cancelled", "Cancellation Requested" ].includes(item.status) &&
+                                        order.orderStatus !=="Cancelled" ) { %>
+                                        <button class="cancel-btn"
+                                          onclick="openCancelModal('<%= order._id %>', '<%= item._id %>')">
+                                          Cancel Item
+                                        </button>
+                                        <% } %>
+
+                                          <!-- RETURN -->
+                                          <% if ( item.status==="Delivered" && !item.returnStatus && order.orderStatus
+                                            !=="Cancelled" ) { %>
+                                            <button class="return-btn"
+                                              onclick="openReturnModal('<%= order._id %>', '<%= item._id %>')">
+                                              Request Return
+                                            </button>
+                                            <% } %>
+
+                      </div>
+                    </div>
+                    <% }) %>
+
+                      <!-- FOOTER -->
+                      <div class="order-footer-row">
+                        <span class="price-tag">₹ <%= order.finalAmount %></span>
+
+                        <a href="/profile/orders/<%= order._id %>" class="details-outline-btn">
+                          <i class="fa-solid fa-circle-info"></i> Details
+                        </a>
+
+                        <% const cancellableCount=order.orderedItems.filter( i=> ["Pending",
+                          "Processing"].includes(i.status)
+                          ).length;
+                          %>
+
+                          <% if (cancellableCount> 1) { %>
+                            <button class="cancel-order-btn" onclick="cancelWholeOrder('<%= order._id %>')">
+                              Cancel Order
+                            </button>
+                            <% } %>
+
+                      </div>
+                </div>
+                <% }) %>
+
+                  <% } %>
+        </main>
+    </div>
+
+    <% if (totalPages> 1) { %>
+      <div class="pagination">
+        <% if (currentPage> 1) { %>
+          <a class="page-btn" href="/profile/orders?page=<%= currentPage - 1 %>">Prev</a>
+          <% } else { %>
+            <span class="page-btn disabled">Prev</span>
+            <% } %>
+
+              <% for (let i=1; i <=totalPages; i++) { %>
+                <a href="/profile/orders?page=<%= i %>" class="page-btn <%= i === currentPage ? 'active' : '' %>">
+                  <%= i %>
+                </a>
+                <% } %>
+
+                  <% if (currentPage < totalPages) { %>
+                    <a class="page-btn" href="/profile/orders?page=<%= currentPage + 1 %>">Next</a>
+                    <% } else { %>
+                      <span class="page-btn disabled">Next</span>
+                      <% } %>
+      </div>
+      <% } %>
+
+        <%- include("../partials/user/footer") %>
+
+          <!-- RETURN MODAL -->
+          <div id="returnModal" class="return-modal-overlay">
+            <div class="return-modal">
+              <div class="modal-header">
+                <h3>Request Return</h3>
+                <button class="close-btn" onclick="closeReturnModal()">×</button>
+              </div>
+
+              <form id="returnForm">
+                <input type="hidden" id="modalOrderId">
+                <input type="hidden" id="modalItemId">
+
+                <label>Reason for return</label>
+                <select id="returnReason" required>
+                  <option value="">Select a reason</option>
+                  <option>Item not as described</option>
+                  <option>Damaged product</option>
+                  <option>Wrong item delivered</option>
+                  <option>Size / variant issue</option>
+                  <option>Quality not satisfactory</option>
+                  <option>Other</option>
+                </select>
+
+                <label>Additional note (optional)</label>
+                <textarea id="returnNote"></textarea>
+
+                <div class="modal-actions">
+                  <button type="button" class="cancel-btn" onclick="closeReturnModal()">Cancel</button>
+                  <button type="submit" class="submit-btn">Submit Request</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- CANCEL MODAL -->
+          <div id="cancelModal" class="return-modal-overlay">
+            <div class="return-modal">
+
+              <div class="modal-header">
+                <h3>Cancel Order Item</h3>
+                <button class="close-btn" onclick="closeCancelModal()">×</button>
+              </div>
+
+              <form id="cancelForm">
+                <input type="hidden" id="cancelOrderId">
+                <input type="hidden" id="cancelItemId">
+
+                <label>Reason for cancellation</label>
+                <select id="cancelReason" required>
+                  <option value="">Select a reason</option>
+                  <option>Changed my mind</option>
+                  <option>Ordered by mistake</option>
+                  <option>Found better price elsewhere</option>
+                  <option>Delivery taking too long</option>
+                  <option>Other</option>
+                </select>
+
+                <div class="modal-actions">
+                  <button type="button" class="cancel-btn" onclick="closeCancelModal()">Back</button>
+                  <button type="submit" class="submit-btn">Confirm Cancel</button>
+                </div>
+              </form>
+
+            </div>
+          </div>
+
+          <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+          <script>
+            function glassAlert(options) {
+              return Swal.fire({
+                ...options,
+                customClass: {
+                  popup: "glass-alert"
+                }
+              });
+            }
+          </script>
+
+
+
+          <script>
+            function openReturnModal(orderId, itemId) {
+              document.getElementById("modalOrderId").value = orderId;
+              document.getElementById("modalItemId").value = itemId;
+              document.getElementById("returnModal").style.display = "flex";
+            }
+
+            function closeReturnModal() {
+              document.getElementById("returnModal").style.display = "none";
+              document.getElementById("returnForm").reset();
+            }
+
+            document.getElementById("returnForm").addEventListener("submit", async e => {
+              e.preventDefault();
+
+              const orderId = modalOrderId.value;
+              const itemId = modalItemId.value;
+              const reason = returnReason.value;
+
+              const res = await fetch(`/profile/orders/${orderId}/return/${itemId}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ reason })
+              });
+
+              const data = await res.json();
+
+              if (!res.ok) {
+                glassAlert({
+                  icon: "error",
+                  title: "Error",
+                  text: data.message || "Something went wrong"
+                });
+                return;
+              }
+
+              glassAlert({
+                icon: "success",
+                title: "Request Submitted",
+                text: "Your return request has been sent",
+                confirmButtonColor: "#000"
+              }).then(() => location.reload());
+            });
+
+            async function cancelSingleItem(orderId, itemId) {
+              const result = await glassAlert({
+                title: "Cancel item?",
+                text: "This action cannot be undone",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, cancel",
+                cancelButtonText: "No"
+              });
+
+              if (!result.isConfirmed) return;
+
+              const res = await fetch(`/profile/orders/${orderId}/items/${itemId}/cancel`, { method: "POST" });
+              const data = await res.json();
+              if (!res.ok) {
+                glassAlert({
+                  icon: "error",
+                  title: "Error",
+                  text: data.message || "Unable to cancel item"
+                });
+                return;
+              }
+
+              location.reload();
+            }
+
+            async function cancelWholeOrder(orderId) {
+              const { value: reason } = await glassAlert({
+                title: "Cancel entire order?",
+                text: "Please provide a reason for cancellation",
+                icon: "warning",
+                input: "select",
+                inputOptions: {
+                  "Changed my mind": "Changed my mind",
+                  "Ordered by mistake": "Ordered by mistake",
+                  "Found better price elsewhere": "Found better price elsewhere",
+                  "Delivery taking too long": "Delivery taking too long",
+                  "Other": "Other"
+                },
+                inputPlaceholder: "Select a reason",
+                showCancelButton: true,
+                confirmButtonText: "Yes, cancel order",
+                cancelButtonText: "No",
+                inputValidator: (value) => {
+                  if (!value) return "You need to select a reason!";
+                }
+              });
+
+              if (!reason) return;
+
+              const res = await fetch(`/profile/orders/${orderId}/cancel`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ reason })
+              });
+
+              const data = await res.json();
+
+              if (!res.ok) {
+                glassAlert({
+                  icon: "error",
+                  title: "Error",
+                  text: data.message || "Unable to cancel order"
+                });
+                return;
+              }
+
+              glassAlert({
+                icon: "success",
+                title: data.immediate ? "Order Cancelled" : "Cancellation Requested",
+                text: data.message || "Action processed successfully"
+              }).then(() => location.reload());
+            }
+
+
+            function filterOrders() {
+              const q = orderSearch.value.toLowerCase();
+              document.querySelectorAll(".order-container").forEach(o => {
+                o.style.display = o.innerText.toLowerCase().includes(q) ? "block" : "none";
+              });
+            }
+
+            function clearSearch() {
+              orderSearch.value = "";
+              filterOrders();
+            }
+          </script>
+          <script>
+            document.addEventListener('DOMContentLoaded', function () {
+              const nav = document.querySelector('nav');
+              if (nav) nav.classList.add('glass-nav');
+            });
+          </script>
+          <script>
+            function openCancelModal(orderId, itemId) {
+              document.getElementById("cancelOrderId").value = orderId;
+              document.getElementById("cancelItemId").value = itemId;
+              document.getElementById("cancelModal").style.display = "flex";
+            }
+
+            function closeCancelModal() {
+              document.getElementById("cancelModal").style.display = "none";
+              document.getElementById("cancelForm").reset();
+            }
+
+            document.getElementById("cancelForm").addEventListener("submit", async function (e) {
+              e.preventDefault();
+
+              const orderId = cancelOrderId.value;
+              const itemId = cancelItemId.value;
+              const reason = cancelReason.value;
+
+              if (!reason) {
+                glassAlert({
+                  icon: "info",
+                  title: "Required",
+                  text: "Please select a reason"
+                });
+                return;
+              }
+
+              try {
+                const res = await fetch(
+                  `/profile/orders/${orderId}/items/${itemId}/cancel`,
+                  {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ reason })
+                  }
+                );
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                  glassAlert({
+                    icon: "error",
+                    title: "Error",
+                    text: data.message || "Unable to cancel item"
+                  });
+                  return;
+                }
+
+                glassAlert({
+                  icon: "success",
+                  title: data.immediate ? "Item Cancelled" : "Cancellation Requested",
+                  text: data.message || "Action processed successfully"
+                }).then(() => window.location.reload());
+
+              } catch (err) {
+                console.error(err);
+                glassAlert({
+                  icon: "error",
+                  title: "Server Error",
+                  text: "Please try again later"
+                });
+              }
+            });
+
+          </script>
+
+</body>
+
+</html>

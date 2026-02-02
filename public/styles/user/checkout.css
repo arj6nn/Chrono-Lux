@@ -1,0 +1,743 @@
+:root {
+  --bg-dark: #0a0a0a;
+  --card-bg: #141414;
+  --accent-gold: #d4af37;
+  --text-main: #ffffff;
+  --text-dim: #a0a0a0;
+  --border-color: #2a2a2a;
+  --blue-select: #3b82f6;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: black;
+  color: var(--text-main);
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  margin: 0;
+}
+
+/* Header & Navbar Icons */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 8%;
+  background: #000;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Main Layout */
+.checkout-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 30px;
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+  margin-top: 150px;
+}
+
+.checkout-section {
+  background: var(--card-bg);
+  border-radius: 15px;
+  padding: 25px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border-color);
+}
+
+/* Section Icons (Circles) */
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.icon-circle {
+  border: 1px solid var(--accent-gold);
+  color: var(--accent-gold);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin-right: 15px;
+  font-size: 0.8rem;
+}
+
+/* Address Card Icons */
+.address-card {
+  border: 1px solid var(--border-color);
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.address-card.selected {
+  border-color: var(--accent-gold);
+}
+
+.address-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.badge {
+  background: #6366f1;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: bold;
+}
+
+.edit-icon {
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: var(--text-dim);
+}
+
+.edit-icon:hover {
+  color: var(--text-main);
+}
+
+/* Item Section */
+.item-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border: 1px solid var(--border-color);
+  padding: 15px;
+  border-radius: 12px;
+}
+
+.item-card img {
+  border-radius: 8px;
+  width: 80px;
+}
+
+.item-price {
+  margin-left: auto;
+  font-weight: bold;
+}
+
+.old-price {
+  text-decoration: line-through;
+  color: #888;
+  font-size: 0.85rem;
+  margin-left: 8px;
+}
+
+.offer-badge {
+  display: inline-block;
+  background: #ff0000;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 10px rgba(255, 0, 0, 0.2);
+}
+
+/* Summary */
+.order-summary {
+  background: var(--card-bg);
+  padding: 30px;
+  border-radius: 15px;
+  border: 1px solid var(--border-color);
+  height: fit-content;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  color: var(--text-dim);
+}
+
+.discount {
+  color: #4ade80;
+}
+
+.free-text {
+  color: #4ade80;
+}
+
+.divider {
+  border: 0;
+  border-top: 1px solid var(--border-color);
+  margin: 20px 0;
+}
+
+.total {
+  color: var(--text-main);
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.coupon-input {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.coupon-input input {
+  background: #000;
+  border: 1px solid var(--border-color);
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  flex: 1;
+}
+
+.coupon-input button,
+.place-order-btn {
+  background: var(--accent-gold);
+  color: #000;
+  border: none;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.place-order-btn {
+  width: 100%;
+  margin-top: 25px;
+  padding: 18px;
+  font-size: 1rem;
+}
+
+.add-new-btn {
+  background: transparent;
+  border: 1px dashed var(--accent-gold);
+  color: var(--accent-gold);
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.text-dim {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+/* Payment Section Styling */
+.payment-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.payment-option {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Selected state - Gold border and highlight */
+.payment-option.selected {
+  border-color: var(--accent-gold);
+  background: rgba(212, 175, 55, 0.05);
+}
+
+/* Selection Indicators (Checkmarks/Circles) */
+.selection-indicator {
+  margin-right: 15px;
+  font-size: 1.2rem;
+  color: var(--text-dim);
+}
+
+.selected .selection-indicator {
+  color: var(--text-main);
+  /* Or use #000 if you want the dark check inside white */
+}
+
+/* Brand styling for Razorpay */
+.pay-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.pay-logo {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.pay-title {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-main);
+}
+
+/* Razorpay specific branding color */
+.selected .pay-title {
+  color: #2b83ea;
+  /* Razorpay Blue */
+  font-style: italic;
+}
+
+.pay-desc {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+/* ===============================
+   ADDRESS SECTION ALIGNMENT FIX
+================================ */
+
+/* Stack addresses neatly */
+.checkout-section .address-card {
+  display: block;
+  margin-bottom: 16px;
+  /* spacing between cards */
+  cursor: pointer;
+  transition: border-color 0.25s ease, background 0.25s ease;
+}
+
+/* Hover effect for clarity */
+.checkout-section .address-card:hover {
+  border-color: var(--accent-gold);
+  background: rgba(212, 175, 55, 0.03);
+}
+
+/* Selected address highlight */
+.checkout-section .address-card.selected {
+  border-color: var(--accent-gold);
+  background: rgba(212, 175, 55, 0.06);
+}
+
+/* Address header alignment */
+.address-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+/* Badge consistency */
+.badge {
+  background: #4f46e5;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+}
+
+/* Text spacing inside address */
+.address-card strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.address-card p {
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+/* Default address text */
+.address-card .default-text {
+  margin-top: 6px;
+  font-size: 0.75rem;
+  color: #4ade80;
+}
+
+/* Add new address button spacing */
+.checkout-section .add-new-btn {
+  margin-top: 10px;
+  display: block;
+}
+
+.default-text {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.75rem;
+  color: #4ade80;
+}
+
+/* Address header row alignment */
+.address-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Default badge (right side) */
+.default-badge {
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(74, 222, 128, 0.4);
+  padding: 3px 8px;
+  font-size: 0.65rem;
+  border-radius: 6px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* Edit icon */
+.edit-icon {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.edit-icon:hover {
+  color: var(--accent-gold);
+  transform: scale(1.05);
+}
+
+/* Address Edit Modal */
+.address-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+
+.address-modal.hidden {
+  display: none;
+}
+
+.address-modal-box {
+  background: #111;
+  padding: 25px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.close-modal {
+  float: right;
+  cursor: pointer;
+  font-size: 1.4rem;
+  color: #aaa;
+}
+
+.close-modal:hover {
+  color: #fff;
+}
+
+/* ===============================
+   ORDER ITEM PRICE DISPLAY
+================================ */
+
+.price-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+/* SALE PRICE (highlight) */
+.sale-price {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--accent-gold);
+}
+
+/* MRP / ORIGINAL PRICE */
+.old-price {
+  text-decoration: line-through;
+  color: #ff4d4d;
+  font-size: 0.85rem;
+}
+
+/* Item total (right aligned) */
+.item-total {
+  margin-left: auto;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--accent-gold);
+}
+
+/* ===============================
+   MODAL OVERLAY (for address form)
+================================ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 5000;
+}
+
+.modal-overlay.show {
+  display: flex;
+}
+
+.modal-box {
+  background: var(--card-bg);
+  padding: 40px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close:hover {
+  color: var(--accent-gold);
+}
+
+.modal-box .address-page {
+  display: block !important;
+}
+
+/* ==============================
+   SWEETALERT GLASSMORPHISM
+============================== */
+.swal2-popup.glass-alert {
+  background: rgba(20, 20, 20, 0.55) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 215, 0, 0.25);
+  border-radius: 18px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65);
+  color: #fff;
+}
+
+.swal2-title {
+  color: #fff !important;
+  letter-spacing: 1px;
+}
+
+.swal2-html-container {
+  color: #cfcfcf !important;
+}
+
+.swal2-confirm {
+  background: linear-gradient(135deg, #d4af37, #f5e6a1) !important;
+  color: #000 !important;
+  border-radius: 999px !important;
+  padding: 10px 26px !important;
+}
+
+.swal2-cancel {
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  color: #fff !important;
+  border-radius: 999px !important;
+}
+
+.address-card {
+  cursor: pointer;
+}
+
+.address-card input {
+  pointer-events: none;
+}
+
+.payment-option {
+  cursor: pointer;
+}
+
+.payment-option input {
+  pointer-events: none;
+}
+
+/* ===============================
+   COUPON SECTION STYLING
+=============================== */
+
+.coupon-section {
+  margin-top: 25px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 20px;
+}
+
+.coupon-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--text-main);
+}
+
+.coupon-input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.input-with-icon {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-icon i {
+  position: absolute;
+  left: 12px;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+.input-with-icon input {
+  width: 100%;
+  background: #000;
+  border: 1px solid var(--border-color);
+  color: white;
+  padding: 12px 12px 12px 35px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+}
+
+.input-with-icon input:focus {
+  border-color: var(--accent-gold);
+  outline: none;
+}
+
+.apply-btn {
+  background: #222;
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 0 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.apply-btn:hover {
+  background: var(--accent-gold);
+  color: #000;
+  border-color: var(--accent-gold);
+}
+
+/* Applied Coupon Box */
+.applied-coupon-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  padding: 12px 16px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+.applied-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.coupon-applied-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #4ade80;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.saved-text {
+  font-size: 0.8rem;
+  color: #a0a0a0;
+  margin-top: 2px;
+}
+
+.remove-coupon-btn {
+  background: none;
+  border: none;
+  color: #a0a0a0;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 5px;
+  transition: color 0.2s;
+}
+
+.remove-coupon-btn:hover {
+  color: #ef4444;
+}
+
+/* Available Coupons List */
+.available-coupons {
+  margin-top: 15px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.av-title {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.coupon-item {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px dashed rgba(212, 175, 55, 0.3);
+  font-size: 0.8rem;
+  color: #ccc;
+  cursor: pointer;
+  margin-bottom: 6px;
+  transition: background 0.2s;
+}
+
+.coupon-item:hover {
+  background: rgba(212, 175, 55, 0.1);
+}
+
+.coupon-item strong {
+  color: var(--accent-gold);
+}
+
+.text-success {
+  color: #4ade80 !important;
+}

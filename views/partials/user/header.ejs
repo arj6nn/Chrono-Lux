@@ -22,71 +22,59 @@
         <div class="nav-icons">
 
             <i class="fa-solid fa-magnifying-glass"></i>
-            <i class="fa-regular fa-heart"></i>
-            <i class="fa-solid fa-bag-shopping"></i>
+            <a href="<%= user ? '/wishlist' : '/login' %>"
+   class="nav-wishlist-btn"
+   title="Wishlist">
 
-            <% if (!user) { %>
-                <a href="/signup" class="nav-signup-btn">Sign Up</a>
-                <a href="/login" class="nav-login-btn">Login</a>
+  <i class="fa-regular fa-heart"></i>
 
+</a>
+
+            <a href="/cart" class="nav-cart-btn" title="Cart">
+              <i class="fa-solid fa-bag-shopping"></i>
+
+              <% if (cartCount && cartCount > 0) { %>
+                <span class="cart-count"><%= cartCount %></span>
+              <% } %>
+            </a>
+
+
+            <% if (!user || !user._id) { %>
+
+    <a href="/signup" class="nav-signup-btn">Sign Up</a>
+    <a href="/login" class="nav-login-btn">Login</a>
+
+<% } else { %>
+
+    <div style="display: flex; align-items: center; gap: 15px;">
+
+        <a href="/profile" title="My Profile" style="text-decoration:none;">
+
+            <% if (user.profileImage && user.profileImage.trim() !== "") { %>
+                <!-- GOOGLE / UPLOADED PROFILE IMAGE -->
+                <img
+                    src="<%= user.profileImage %>"
+                    alt="Profile"
+                    class="nav-profile-img"
+                >
             <% } else { %>
-                <div style="display: flex; align-items: center; gap: 15px;">
-
-                    <% const firstLetter = user.name ? user.name.charAt(0).toUpperCase() : "U"; %>
-
-                    <div class="user-avatar" style="
-                        width:32px;
-                        height:32px;
-                        border-radius:50%;
-                        background:#2E4235;
-                        border:2px solid #2E4235;
-                        display:flex;
-                        justify-content:center;
-                        align-items:center;
-                        color:white;
-                        font-weight:600;
-                        font-size:14px;">
-                        <%= firstLetter %>
-                    </div>
-
-                    <a href="#" onclick="confirmLogout()" style="
-                        padding: 6px 12px;
-                        border-radius: 5px;
-                        background: #e74c3c;
-                        color: white;
-                        text-decoration: none;
-                        font-size: 14px;
-                        font-weight: 500;">
-                        Logout
-                    </a>
+                <!-- LETTER AVATAR FALLBACK -->
+                <% const firstLetter = user.name?.charAt(0).toUpperCase() || "U"; %>
+                <div class="nav-letter-avatar">
+                    <%= firstLetter %>
                 </div>
             <% } %>
 
+        </a>
+
+    </div>
+
+<% } %>
         </div>
     </div>
 </nav>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<script>
-function confirmLogout() {
-    Swal.fire({
-        title: "Are you sure?",
-        text: "Do you want to logout?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#e74c3c",
-        cancelButtonColor: "#3085d6",
-        customClass: {
-            popup: 'glass-popup'
-        }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = "/logout";
-        }
-    });
-}
-</script>
 
 <script>
 /* Fade IN when page is ready */

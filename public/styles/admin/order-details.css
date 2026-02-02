@@ -1,0 +1,390 @@
+:root {
+  --bg: #f8fafc;
+  --card-bg: #ffffff;
+  --border: #e5e7eb;
+
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+
+  --primary: #1e293b;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #3b82f6;
+}
+
+/* RESET */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background-color: var(--bg);
+  color: var(--text-main);
+}
+
+/* LAYOUT */
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.content {
+  flex: 1;
+  padding: 32px;
+  max-width: none;
+  margin: 0;
+}
+
+.grid-layout {
+  display: grid;
+  grid-template-columns: 4.5fr 1.2fr;
+  gap: 24px;
+}
+
+
+
+/* HEADER */
+.header {
+  margin-bottom: 24px;
+}
+
+.header h1 {
+  margin: 6px 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.order-id {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* CARD */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+/* CARD HEADER */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card h3,
+.card h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* ORDER STATUS PILL */
+.status-pill {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* ORDER STATUS COLORS */
+.status-pill.pending {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.status-pill.processing {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.status-pill.shipped {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+.status-pill.delivered {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-pill.partially-delivered {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-pill.cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-pill.cancellation-requested {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-pill.refunded {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+/* DATE */
+.date-text {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* PRODUCT ITEM */
+.product-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid #f1f5f9;
+  border-radius: 12px;
+  margin-top: 14px;
+}
+
+.prod-img {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.prod-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.prod-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.prod-meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ITEM STATUS */
+.item-status {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+.item-status.processing {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.item-status.shipped {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+.item-status.delivered {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.item-status.cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.item-status.cancellation-requested {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* ITEM STATUS FORM */
+.item-status-form {
+  margin-top: 6px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.item-status-form select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  font-size: 0.8rem;
+}
+
+.item-status-form button {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  border: none;
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
+}
+
+.item-status-form button:hover {
+  opacity: 0.9;
+}
+
+/* PRICE */
+.prod-price {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* RETURN BADGE */
+.return-badge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-requested {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-approved {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-rejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-refunded {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+/* RETURN BOX */
+.return-box {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.return-product {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.reason {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+/* ACTION BUTTONS */
+.actions-group {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: #fff;
+}
+
+.btn-approve {
+  background: var(--success);
+}
+
+.btn-reject {
+  background: var(--danger);
+}
+
+.btn-primary {
+  background: var(--info);
+}
+
+/* INFO CARDS */
+.info-card h4 {
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.info-card p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* SUMMARY */
+.summary-card .row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+
+.summary-card .total {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-top: 10px;
+}
+
+/* PAYMENT BADGE */
+.badge-paid {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #dcfce7;
+  color: #166534;
+}
+
+.auto-badge {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+}
+
+.muted-text {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #9ca3af;
+}

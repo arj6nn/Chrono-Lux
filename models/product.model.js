@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const variantSchema = new mongoose.Schema(
   {
@@ -19,8 +19,13 @@ const variantSchema = new mongoose.Schema(
     },
     salesPrice: {
       type: Number,
-      default: 0,
       min: 0,
+      validate: {
+        validator: function (v) {
+          return v === undefined || v <= this.price;
+        },
+        message: "Sales price cannot be greater than MRP",
+      },
     },
     stock: {
       type: Number,
@@ -91,4 +96,4 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Product", productSchema);
+export default mongoose.model("Product", productSchema);

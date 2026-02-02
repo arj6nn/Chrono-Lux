@@ -1,38 +1,62 @@
-const express = require('express');
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+dotenv.config();
+import session from 'express-session';
+import passport from './config/passport.js';
+import db from './config/db.js';
+import userSession from "./middlewares/userSession.js";
+import adminRoute from './routes/admin.route.js';
+import userRouter from './routes/user.route.js';
+import cartCount from "./middlewares/cartCount.js";
+import flash from 'connect-flash';
+import noCacheMiddleware from "./middlewares/noCache.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
-const path = require('path');
-const env = require('dotenv').config();
-const session = require('express-session');
-const passport = require('./config/passport');
-const db = require('./config/db');
-const userSession = require("./middlewares/userSession");
-const adminRoute = require('./routes/admin.route.js');
-const userRouter = require('./routes/user.route.js');
-const flash = require('connect-flash');
 
 db();
 
-app.use(session({
+
+
+const adminSessionConfig = session({
+    name: 'admin_sid',
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
         secure: false,
         httpOnly: true,
-        maxAge: 72 * 60 * 60 * 1000
+        maxAge: 24 * 60 * 60 * 1000,
+        path: '/admin'
     }
-}));
-
-app.use((req, res, next) => {
-  res.setHeader(
-    "Cache-Control",
-    "no-store, no-cache, must-revalidate, private"
-  );
-  res.setHeader("Pragma", "no-cache");
-  res.setHeader("Expires", "0");
-  next();
 });
 
+const userSessionConfig = session({
+    name: 'user_sid',
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: false,
+        httpOnly: true,
+        maxAge: 72 * 60 * 60 * 1000,
+        path: '/'
+    }
+});
+
+app.use((req, res, next) => {
+    if (req.path.startsWith('/admin')) {
+        adminSessionConfig(req, res, next);
+    } else {
+        userSessionConfig(req, res, next);
+    }
+});
+
+app.use(noCacheMiddleware);
 
 app.use(flash());
 
@@ -51,13 +75,14 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 app.use(userSession);   //res.locals.user always available in navbar
+app.use(cartCount);
 
 // ROUTES
 app.use('/', userRouter);
 app.use('/admin', adminRoute);
 
 app.use((req, res) => {
-  res.status(404).render("users/page-404");
+    res.status(404).render("users/page-404");
 });
 
 const PORT = process.env.PORT || 7777;
@@ -65,4 +90,5 @@ app.listen(PORT, () => {
     console.log(`http://localhost:${PORT}`);
 });
 
-module.exports = app;
+export default app;
+// touch

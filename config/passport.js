@@ -1,9 +1,10 @@
-const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const User = require('../models/user.model');
-require('dotenv').config();
+import passport from 'passport';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import User from '../models/user.model.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
-passport.use( 
+passport.use(
     new GoogleStrategy(
         {
             clientID: process.env.GOOGLE_CLIENT_ID,
@@ -13,34 +14,48 @@ passport.use(
 
         async (accessToken, refreshToken, profile, done) => {
             try {
-                // Google sometimes does not provide email (very rare)
-                const email = profile.emails && profile.emails.length > 0 
-                    ? profile.emails[0].value 
-                    : null;
+                const email = profile.emails?.[0]?.value || null;
+                const profileImage = profile.photos?.[0]?.value || "";
 
-                let user = await User.findOne({ googleId: profile.id });
+                if (!email) {
+                    return done(new Error("Google account has no email"), null);
+                }
 
-                // USER EXISTS
+                // 🔍 STEP 1: Find user by EMAIL
+                let user = await User.findOne({ email });
+
                 if (user) {
+                    // 🔗 Link Google account if not linked
+                    if (!user.googleId) {
+                        user.googleId = profile.id;
+                    }
+
+                    // 🖼️ Update profile image if missing
+                    if (!user.profileImage && profileImage) {
+                        user.profileImage = profileImage;
+                    }
+
+                    await user.save();
                     return done(null, user);
                 }
 
-                // NEW USER
-                user = new User({
+                // 🆕 STEP 2: Create new Google user
+                user = await User.create({
                     name: profile.displayName || "Google User",
-                    email: email,
+                    email,
                     googleId: profile.id,
-                    phone: null,
-                    password: null
+                    profileImage,
+                    password: null,
+                    phone: null
                 });
 
-                await user.save();
                 return done(null, user);
 
             } catch (error) {
                 return done(error, null);
             }
         }
+
     )
 );
 
@@ -56,4 +71,4 @@ passport.deserializeUser((id, done) => {
         .catch(err => done(err, null));
 });
 
-module.exports = passport;
+export default passport;

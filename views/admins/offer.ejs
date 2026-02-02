@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/styles/admin/offer.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>Offers Management | Chrono-Lux</title>
+</head>
+
+<body>
+
+  <%- include("../partials/admin/sidebar") %>
+
+    <div class="main-content">
+      <header class="page-header">
+        <div>
+          <h1 style="font-size: 1.875rem; font-weight: 700; margin-bottom: 0.25rem;">Offers Management</h1>
+          <p style="color: var(--text-muted); font-size: 0.875rem;">Create and manage product and category offers for
+            your marketplace.</p>
+        </div>
+        <button class="btn-add" onclick="toggleModal(true)"
+          style="background: var(--primary); color: white; padding: 0.75rem 1.5rem; border-radius: 0.75rem; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M12 4v16m8-8H4"></path>
+          </svg>
+          Add New Offer
+        </button>
+      </header>
+
+      <!-- Summary Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon" style="background: #eef2ff; color: #4f46e5;">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M7 7h.01M7 11h.01M7 15h.01M13 7h.01M13 11h.01M13 15h.01M17 7h.01M17 11h.01M17 15h.01"></path>
+              <rect width="18" height="18" x="3" y="3" rx="2"></rect>
+            </svg>
+          </div>
+          <div class="stat-details">
+            <h3>Total Offers</h3>
+            <p>
+              <%= stats.total %>
+            </p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: #ecfdf5; color: #10b981;">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div class="stat-details">
+            <h3>Active Offers</h3>
+            <p>
+              <%= stats.active %>
+            </p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: #f0f9ff; color: #0ea5e9;">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+            </svg>
+          </div>
+          <div class="stat-details">
+            <h3>Product Offers</h3>
+            <p>
+              <%= stats.productOffers %>
+            </p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background: #fff7ed; color: #f97316;">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M7 7h.01M7 11h.01M7 15h.01M13 7h.01M13 11h.01M13 15h.01M17 7h.01M17 11h.01M17 15h.01"></path>
+              <path d="M3 21h18"></path>
+            </svg>
+          </div>
+          <div class="stat-details">
+            <h3>Category Offers</h3>
+            <p>
+              <%= stats.categoryOffers %>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-container">
+        <div class="tabs">
+          <div class="tab active" onclick="filterByPage('ALL')">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+            </svg>
+            All Offers
+          </div>
+          <div class="tab" onclick="filterByPage('PRODUCT')">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+            </svg>
+            Product Offers
+          </div>
+          <div class="tab" onclick="filterByPage('CATEGORY')">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path
+                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+              </path>
+            </svg>
+            Category Offers
+          </div>
+        </div>
+
+        <div class="search-filter-row">
+          <div class="search-wrapper">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <input type="text" id="tableSearch" placeholder="Search offers..." onkeyup="handleTableSearch()">
+          </div>
+          <div class="status-filter">
+            <select id="statusFilter" onchange="handleTableSearch()">
+              <option value="all">Status: All</option>
+              <option value="active">Active</option>
+              <option value="expired">Expired</option>
+              <option value="upcoming">Upcoming</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <table id="offersTable">
+          <thead>
+            <tr>
+              <th style="width: 280px;">APPLICABLE TO</th>
+              <th>OFFER NAME</th>
+              <th>DISCOUNT</th>
+              <th>VALID FROM</th>
+              <th>VALID UNTIL</th>
+              <th>STATUS</th>
+              <th style="width: 120px;">ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (offers.length===0) { %>
+              <tr>
+                <td colspan="7" style="text-align:center; padding: 60px; color: var(--text-muted);">
+                  <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                    <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5"
+                      viewBox="0 0 24 24">
+                      <path
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                      </path>
+                    </svg>
+                    <span>No offers found. Create your first offer to get started.</span>
+                  </div>
+                </td>
+              </tr>
+              <% } %>
+
+                <% offers.forEach(offer=> {
+                  const now = new Date();
+                  const start = new Date(offer.startDate);
+                  const end = new Date(offer.endDate);
+                  let statusText = 'active';
+                  let statusClass = 'active';
+
+                  if (!offer.isActive) {
+                  statusText = 'inactive';
+                  statusClass = 'expired';
+                  } else if (now < start) { statusText='upcoming' ; statusClass='upcoming' ; } else if (now> end) {
+                    statusText = 'expired';
+                    statusClass = 'expired';
+                    }
+                    %>
+                    <tr data-type="<%= offer.type %>" data-status="<%= statusText %>">
+                      <td>
+                        <div class="product-cell">
+                          <% if (offer.type==="PRODUCT" ) { %>
+                            <% const p=offer.applicableProducts[0]; %>
+                              <img
+                                src="<%= (p && p.variants && p.variants[0] && p.variants[0].images[0]) ? p.variants[0].images[0] : '/images/placeholder.png' %>"
+                                class="product-img" alt="">
+                              <div class="product-info">
+                                <h4>
+                                  <%= p ? p.productName : 'Unknown Product' %>
+                                </h4>
+                                <p>
+                                  <%= p && p.brand ? p.brand.brandName : 'No Brand' %>
+                                    <%= offer.applicableProducts.length> 1 ? '+ ' + (offer.applicableProducts.length -
+                                      1) + ' more' : '' %>
+                                </p>
+                              </div>
+                              <% } else { %>
+                                <div class="stat-icon"
+                                  style="background: #f1f5f9; width: 48px; height: 48px; min-width: 48px;"><svg
+                                    width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                                    viewBox="0 0 24 24">
+                                    <path
+                                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                                    </path>
+                                  </svg></div>
+                                <div class="product-info">
+                                  <h4>
+                                    <%= offer.applicableCategory ? offer.applicableCategory.name : 'Unknown Category' %>
+                                  </h4>
+                                  <p>All products in Category</p>
+                                </div>
+                                <% } %>
+                        </div>
+                      </td>
+                      <td><span style="font-weight: 500;">
+                          <%= offer.name %>
+                        </span></td>
+                      <td><span class="discount-badge">
+                          <%= offer.discountValue %>% OFF
+                        </span></td>
+                      <td style="color: var(--text-muted);">
+                        <%= start.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) %>
+                      </td>
+                      <td style="color: var(--text-muted);">
+                        <%= end.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) %>
+                      </td>
+                      <td><span class="status-badge <%= statusClass %>">
+                          <%= statusText %>
+                        </span></td>
+                      <td>
+                        <div class="actions-cell">
+                          <button class="btn-icon open-edit-btn" data-offer='<%- JSON.stringify(offer) %>'>
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                              viewBox="0 0 24 24">
+                              <path
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                              </path>
+                            </svg>
+                          </button>
+                          <button class="btn-icon" onclick="toggleStatus('<%= offer._id %>')">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+                              viewBox="0 0 24 24">
+                              <path
+                                d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636">
+                              </path>
+                            </svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <% if (stats.total> 0) { %>
+        <div class="pagination">
+
+          <% if (totalPages> 1) { %>
+            <div class="page-controls">
+              <% if (currentPage> 1) { %>
+                <a href="?page=<%= currentPage - 1 %>" class="page-btn prev-next">
+                  &lt; Prev
+                </a>
+                <% } else { %>
+                  <button class="page-btn prev-next disabled" disabled>
+                    &lt; Prev
+                  </button>
+                  <% } %>
+
+                    <% for(let i=1; i <=totalPages; i++) { %>
+                      <a href="?page=<%= i %>" class="page-btn page-num <%= currentPage === i ? 'active' : '' %>">
+                        <%= i %>
+                      </a>
+                      <% } %>
+
+                        <% if (currentPage < totalPages) { %>
+                          <a href="?page=<%= currentPage + 1 %>" class="page-btn prev-next">
+                            Next &gt;
+                          </a>
+                          <% } else { %>
+                            <button class="page-btn prev-next disabled" disabled>
+                              Next &gt;
+                            </button>
+                            <% } %>
+            </div>
+            <% } %>
+        </div>
+        <% } %>
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="offerModal">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3 id="modalTitle" style="font-weight: 700; font-size: 1.25rem;">Add New Offer</h3>
+          <button class="btn-icon" onclick="toggleModal(false)" style="border:none; font-size: 1.5rem;">&times;</button>
+        </div>
+
+        <form id="offerForm" method="POST" action="/admin/offers/add">
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Offer Type *</label>
+              <select name="type" id="offerType" required onchange="handleOfferTypeChange()">
+                <option value="PRODUCT">Product Offer</option>
+                <option value="CATEGORY">Category Offer</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Offer Name *</label>
+              <input type="text" name="name" id="name" placeholder="e.g. Summer Sale 2025" required />
+            </div>
+
+            <div class="form-group full-col" id="productSearchBox">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <label style="margin:0;">Select Products *</label>
+                <span id="clearAllBtn" class="hidden" onclick="clearSelection()"
+                  style="font-size: 0.75rem; color: var(--danger); cursor: pointer; font-weight: 600;">Clear All</span>
+              </div>
+              <div class="search-wrapper">
+                <input type="text" id="productSearchInput" placeholder="Search and add products..." autocomplete="off">
+                <div class="search-results hidden" id="productSearchResults"></div>
+              </div>
+              <p id="selectionCount" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">0
+                products selected</p>
+              <div id="selectedProductsList"
+                style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                <!-- Selected items rendered here -->
+              </div>
+              <input type="hidden" name="applicableProducts" id="applicableProducts" />
+            </div>
+
+            <div class="form-group full-col hidden" id="categorySelectionBox">
+              <label>Select Category *</label>
+              <select name="applicableCategory" id="applicableCategory">
+                <option value="">Choose a category...</option>
+                <% categories.forEach(cat=> { %>
+                  <option value="<%= cat._id %>">
+                    <%= cat.name %>
+                  </option>
+                  <% }) %>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Discount Type *</label>
+              <select name="discountType" id="discountType" disabled>
+                <option value="PERCENTAGE">Select Discount Type</option>
+                <option value="PERCENTAGE" selected>Percentage (%)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Discount Value (%) *</label>
+              <div style="position: relative;">
+                <input type="number" name="discountValue" id="discountValue" min="1" max="99" placeholder="Enter value"
+                  required style="padding-right: 2rem;" />
+                <span
+                  style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.875rem;">%</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Start Date *</label>
+              <input type="date" name="startDate" id="startDate" required />
+            </div>
+
+            <div class="form-group">
+              <label>End Date *</label>
+              <input type="date" name="endDate" id="endDate" required />
+            </div>
+
+            <div class="form-group full-col">
+              <label>Status</label>
+              <select name="isActive" id="isActive">
+                <option value="on">Active</option>
+                <option value="off">Inactive</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="modal-header"
+            style="border-top: 1px solid var(--border-color); border-bottom: none; justify-content: flex-end; gap: 1rem;">
+            <button type="button" onclick="toggleModal(false)"
+              style="padding: 0.75rem 1.5rem; background: #64748b1a; border: none; border-radius: 0.75rem; color: #475569; font-weight: 600; cursor: pointer;">Cancel</button>
+            <button type="submit" id="submitBtn"
+              style="padding: 0.75rem 1.5rem; background: var(--primary); border: none; border-radius: 0.75rem; color: white; font-weight: 600; cursor: pointer;">Create
+              Offer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      let selectedProducts = [];
+
+      // Table Filtering logic
+      function filterByPage(type) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        handleTableSearch(type);
+      }
+
+      function handleTableSearch(tabType) {
+        const searchInput = document.getElementById('tableSearch');
+        const search = searchInput.value.toLowerCase().trim();
+        const status = document.getElementById('statusFilter').value;
+        const activeTab = tabType || document.querySelector('.tab.active').innerText.split(' ')[0].toUpperCase();
+
+        document.querySelectorAll('#offersTable tbody tr').forEach(row => {
+          // Check both "Applicable To" (cell 0) and "Offer Name" (cell 1)
+          const target = row.cells[0].textContent.toLowerCase().trim();
+          const name = row.cells[1].textContent.toLowerCase().trim();
+          const type = row.dataset.type;
+          const rowStatus = row.dataset.status;
+
+          const matchesSearch = target.includes(search) || name.includes(search);
+          const matchesStatus = status === 'all' || rowStatus === status;
+          const matchesTab = activeTab === 'ALL' || type === activeTab;
+
+          if (matchesSearch && matchesStatus && matchesTab) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      }
+
+      // Modal logic
+      function toggleModal(show) {
+        const modal = document.getElementById("offerModal");
+        modal.style.display = show ? "flex" : "none";
+        if (!show) {
+          document.getElementById("offerForm").reset();
+          document.getElementById("offerForm").action = "/admin/offers/add";
+          document.getElementById("modalTitle").innerText = "Add New Offer";
+          document.getElementById("submitBtn").innerText = "Create Offer";
+          clearSelection();
+          handleOfferTypeChange();
+        }
+      }
+
+      function handleOfferTypeChange() {
+        const type = document.getElementById("offerType").value;
+        const pBox = document.getElementById("productSearchBox");
+        const cBox = document.getElementById("categorySelectionBox");
+        if (type === "PRODUCT") {
+          pBox.classList.remove("hidden");
+          cBox.classList.add("hidden");
+        } else {
+          pBox.classList.add("hidden");
+          cBox.classList.remove("hidden");
+        }
+      }
+
+      // Real-time Search Logic
+      document.getElementById("productSearchInput").addEventListener("input", async function () {
+        const q = this.value.trim();
+        const resultsBox = document.getElementById("productSearchResults");
+
+        if (q.length < 2) {
+          resultsBox.innerHTML = "";
+          resultsBox.classList.add("hidden");
+          return;
+        }
+
+        try {
+          console.log(`Searching for "${q}"...`);
+          const res = await fetch(`/admin/products/search?q=${encodeURIComponent(q)}`);
+          if (!res.ok) throw new Error("Search failed with status " + res.status);
+
+          const products = await res.json();
+          console.log("Search results received:", products);
+
+          if (!products || products.length === 0) {
+            resultsBox.innerHTML = "<div class='search-item'>No products found</div>";
+          } else {
+            resultsBox.innerHTML = products.map(p => {
+              const img = (p.variants && p.variants[0] && p.variants[0].images[0]) ? p.variants[0].images[0] : '/images/placeholder.png';
+              const pData = {
+                id: p._id,
+                name: p.productName,
+                brand: p.brand?.brandName,
+                img: img,
+                price: p.variants?.[0]?.price
+              };
+              // Using double-quotes for attribute and escaping double-quotes in JSON
+              const pDataStr = JSON.stringify(pData).replace(/"/g, '&quot;');
+              return `
+                <div class="search-item" onclick="selectProduct(${pDataStr})">
+                  <div style="display:flex; align-items:center; gap:0.5rem;">
+                    <img src="${img}" style="width:32px; height:32px; border-radius:4px; object-fit:cover;">
+                    <div>
+                      <div style="font-weight:600;">${p.productName}</div>
+                      <div style="font-size:10px; color:gray;">${p.brand?.brandName || 'No Brand'}</div>
+                    </div>
+                  </div>
+                </div>`;
+            }).join("");
+          }
+          resultsBox.classList.remove("hidden");
+        } catch (err) {
+          console.error("Search error:", err);
+          resultsBox.innerHTML = `<div class='search-item'>Error: ${err.message}</div>`;
+          resultsBox.classList.remove("hidden");
+        }
+      });
+
+      function selectProduct(p) {
+        if (selectedProducts.some(item => item.id === p.id)) return;
+        selectedProducts.push(p);
+        updateSelectedProductsUI();
+        document.getElementById("productSearchInput").value = "";
+        document.getElementById("productSearchResults").classList.add("hidden");
+      }
+
+      function removeProduct(id) {
+        selectedProducts = selectedProducts.filter(p => p.id !== id);
+        updateSelectedProductsUI();
+      }
+
+      function clearSelection() {
+        selectedProducts = [];
+        updateSelectedProductsUI();
+      }
+
+      function updateSelectedProductsUI() {
+        const list = document.getElementById("selectedProductsList");
+        const count = document.getElementById("selectionCount");
+        const clear = document.getElementById("clearAllBtn");
+
+        count.innerText = `${selectedProducts.length} product${selectedProducts.length !== 1 ? 's' : ''} selected`;
+        clear.classList.toggle('hidden', selectedProducts.length === 0);
+
+        list.innerHTML = selectedProducts.map(p => `
+      <div class="selected-product-item">
+        <img src="${p.img}" alt="">
+        <div class="selected-product-info">
+          <h5>${p.name}</h5>
+          <p>${p.brand || 'No Brand'} • ₹${p.price || '--'}</p>
+        </div>
+        <div class="remove-btn-large" onclick="removeProduct('${p.id}')">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
+        </div>
+      </div>
+    `).join("");
+
+        document.getElementById("applicableProducts").value = JSON.stringify(selectedProducts.map(p => p.id));
+      }
+
+      // Action Logic
+      async function toggleStatus(offerId) {
+        try {
+          const res = await fetch(`/admin/offers/toggle/${offerId}`, { method: 'PATCH' });
+          if (res.ok) window.location.reload();
+        } catch (err) {
+          alert("Error toggling status");
+        }
+      }
+
+      // Edit Logic
+      document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.open-edit-btn');
+        if (btn) {
+          const offer = JSON.parse(btn.dataset.offer);
+          openEditModal(offer);
+        }
+      });
+
+      function openEditModal(offer) {
+        toggleModal(true);
+        document.getElementById("modalTitle").innerText = "Edit Offer";
+        document.getElementById("submitBtn").innerText = "Update Offer";
+        document.getElementById("offerForm").action = `/admin/offers/edit/${offer._id}`;
+
+        document.getElementById("name").value = offer.name;
+        document.getElementById("offerType").value = offer.type;
+        document.getElementById("discountValue").value = offer.discountValue;
+        document.getElementById("startDate").value = offer.startDate.slice(0, 10);
+        document.getElementById("endDate").value = offer.endDate.slice(0, 10);
+        document.getElementById("isActive").value = offer.isActive ? 'on' : 'off';
+
+        if (offer.type === "PRODUCT") {
+          selectedProducts = offer.applicableProducts.map(p => ({
+            id: p._id,
+            name: p.productName,
+            brand: p.brand?.brandName,
+            img: p.variants?.[0]?.images?.[0] || '/images/placeholder.png',
+            price: p.variants?.[0]?.price
+          }));
+          updateSelectedProductsUI();
+        } else {
+          document.getElementById("applicableCategory").value = offer.applicableCategory?._id || offer.applicableCategory || "";
+        }
+        handleOfferTypeChange();
+      }
+
+      // Close search on click outside
+      document.addEventListener("click", (e) => {
+        if (!document.getElementById("productSearchBox").contains(e.target)) {
+          document.getElementById("productSearchResults").classList.add("hidden");
+        }
+      });
+    </script>
+</body>
+
+</html>

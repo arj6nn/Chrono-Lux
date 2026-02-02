@@ -1,0 +1,194 @@
+import mongoose from "mongoose";
+import Product from "../../models/product.model.js";
+import Category from "../../models/category.model.js";
+import Brand from "../../models/brand.model.js";
+import { applyOffers } from "../../utils/offerUtils.js";
+
+export const loadShopPageService = async ({
+  page = 1,
+  limit = 12,
+  filters = {}
+}) => {
+  const skip = (page - 1) * limit;
+  const { category, brand, maxPrice, search } = filters;
+
+  /* ================= SIDEBAR DATA ================= */
+
+  const categories = await Category.find({
+    isListed: true,
+    isBlocked: false
+  }).select("_id name");
+
+  const brands = await Brand.find({
+    isBlocked: false
+  }).select("_id brandName");
+
+  const activeCategoryIds = categories.map(c => c._id);
+
+  /* ================= BASE FILTER ================= */
+
+  let baseFilter = {
+    isBlocked: false,
+    category: { $in: activeCategoryIds }
+  };
+
+  /* ================= SEARCH ================= */
+
+  if (search && search.trim()) {
+    baseFilter.productName = {
+      $regex: search.trim(),
+      $options: "i"
+    };
+  }
+
+  /* ================= CATEGORY FILTER ================= */
+
+  if (category) {
+    const categoryIds = category
+      .split(",")
+      .filter(id => mongoose.Types.ObjectId.isValid(id))
+      .map(id => new mongoose.Types.ObjectId(id));
+
+    if (categoryIds.length) {
+      baseFilter.category = { $in: categoryIds };
+    }
+  }
+
+  /* ================= BRAND FILTER ================= */
+
+  if (brand) {
+    const brandIds = brand
+      .split(",")
+      .filter(id => mongoose.Types.ObjectId.isValid(id))
+      .map(id => new mongoose.Types.ObjectId(id));
+
+    if (brandIds.length) {
+      baseFilter.brand = { $in: brandIds };
+    }
+  }
+
+  /* ================= PRODUCT FETCH ================= */
+
+  let products = [];
+  let totalProducts = 0;
+
+  const MAX_PRICE = 1_000_000;
+  const usePriceFilter =
+    maxPrice && !isNaN(maxPrice) && Number(maxPrice) < MAX_PRICE;
+
+  // CASE 1: PRICE FILTER (AGGREGATION)
+  if (usePriceFilter) {
+    const price = Number(maxPrice);
+
+    const pipeline = [
+      { $match: baseFilter },
+      {
+        $addFields: {
+          effectivePrice: {
+            $min: {
+              $map: {
+                input: "$variants",
+                as: "v",
+                in: {
+                  $cond: [
+                    { $gt: ["$$v.salesPrice", 0] },
+                    "$$v.salesPrice",
+                    "$$v.price"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      { $match: { effectivePrice: { $lte: price } } }
+    ];
+
+    const countResult = await Product.aggregate([
+      ...pipeline,
+      { $count: "count" }
+    ]);
+
+    totalProducts = countResult[0]?.count || 0;
+
+    products = await Product.aggregate([
+      ...pipeline,
+      { $skip: skip },
+      { $limit: limit }
+    ]);
+
+    products = await Product.populate(products, [
+      { path: "brand", select: "brandName" },
+      { path: "category", select: "name" }
+    ]);
+  }
+  // CASE 2: NORMAL FIND
+  else {
+    totalProducts = await Product.countDocuments(baseFilter);
+
+    products = await Product.find(baseFilter)
+      .populate("brand", "brandName")
+      .populate("category", "name")
+      .skip(skip)
+      .limit(limit)
+      .lean();
+  }
+
+  /* ================= APPLY OFFERS ================= */
+  const productsWithOffers = await applyOffers(products);
+
+  /* ================= FORMAT PRODUCTS ================= */
+
+  const formattedProducts = productsWithOffers.map(p => {
+    const v = p.variants?.[0] || {};
+    return {
+      id: p._id,
+      productName: p.productName,
+      category: p.category?.name,
+      brand: p.brand?.brandName,
+      price: v.price,
+      salesPrice: v.salesPrice,
+      appliedOffer: v.appliedOffer,
+      image: v.images?.[0]
+    };
+  });
+
+  return {
+    categories,
+    brands,
+    products: formattedProducts,
+    currentPage: page,
+    totalPages: Math.ceil(totalProducts / limit),
+    filters
+  };
+};
+
+export const liveSearchService = async ({ query, limit = 6 }) => {
+  if (!query || query.trim().length < 1) {
+    return [];
+  }
+
+  const q = query.trim();
+
+  const products = await Product.find({
+    isBlocked: false,
+    productName: { $regex: q, $options: "i" }
+  })
+    .limit(limit)
+    .select("productName variants")
+    .lean();
+
+  const productsWithOffers = await applyOffers(products);
+
+  return productsWithOffers.map(p => {
+    const v = p.variants?.[0] || {};
+    return {
+      id: p._id,
+      productName: p.productName,
+      price: v.price,
+      salesPrice: v.salesPrice,
+      appliedOffer: v.appliedOffer,
+      image: v.images?.[0]
+    };
+  });
+};

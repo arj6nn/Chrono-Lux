@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Order Management | Chrono Lux</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/styles/admin/order-management.css">
+
+  <!-- Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+
+<body>
+
+  <div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <%- include('../partials/admin/sidebar') %>
+
+      <!-- MAIN CONTENT -->
+      <main class="main">
+
+        <!-- HEADER -->
+        <div class="page-header">
+          <h1>Order Management</h1>
+          <p>Total Orders: <strong>
+              <%= totalOrders %>
+            </strong></p>
+        </div>
+
+        <!-- CONTROLS -->
+        <div class="page-controls">
+          <input type="text" placeholder="Search orders...">
+          <button class="clear-btn">Clear</button>
+        </div>
+
+        <!-- TABLE -->
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>ORDER ID</th>
+                <th>DATE</th>
+                <th>CUSTOMER</th>
+                <th>ITEMS</th>
+                <th>AMOUNT</th>
+                <th>STATUS</th>
+                <th>ACTIONS</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <% if (orders.length===0) { %>
+                <tr>
+                  <td colspan="7" class="empty-cell">No orders found</td>
+                </tr>
+                <% } %>
+
+                  <% orders.forEach(order=> { %>
+                    <tr>
+
+                      <td class="order-id">
+                        <%= order.orderId || order._id %>
+                      </td>
+
+                      <td>
+                        <%= new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric" , month: "short" ,
+                          year: "numeric" }) %>
+                      </td>
+
+                      <td class="customer-cell">
+                        <strong>
+                          <%= order.userId?.name %>
+                        </strong>
+                        <span>
+                          <%= order.userId?.email %>
+                        </span>
+                      </td>
+
+                      <td>
+                        <%= order.orderedItems.filter(i=> i.status !== 'Cancelled').length %>
+                      </td>
+
+                      <td>₹ <%= order.finalAmount %>
+                      </td>
+
+                      <td>
+                        <span class="status 
+    <%= order.orderStatus === 'Delivered' ? 'delivered' :
+        order.orderStatus === 'Cancelled' ? 'cancelled' :
+        order.orderStatus === 'Refunded' ? 'refunded' :
+        order.orderStatus === 'Return Requested' ? 'return-requested' :
+        order.orderStatus === 'Partially Delivered' ? 'partial' :
+        order.orderStatus === 'Shipped' ? 'shipped' :
+        order.orderStatus === 'Processing' ? 'processing' :
+        'pending' %>">
+                          <%= order.orderStatus %>
+                        </span>
+                      </td>
+
+
+
+                      <td>
+                        <a href="/admin/orders/<%= order._id %>" class="view-btn">
+                          <i class="ph ph-eye"></i>
+                        </a>
+                      </td>
+
+                    </tr>
+                    <% }) %>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- PAGINATION -->
+        <% if (totalPages> 1) { %>
+          <div class="pagination">
+
+            <% if (currentPage> 1) { %>
+              <a class="page-btn" href="?page=<%= currentPage - 1 %>">‹ Prev</a>
+              <% } else { %>
+                <span class="page-btn disabled">‹ Prev</span>
+                <% } %>
+
+                  <ul class="page-numbers">
+                    <% for (let p=1; p <=totalPages; p++) { %>
+                      <li>
+                        <a href="?page=<%= p %>" class="<%= p === currentPage ? 'active' : '' %>">
+                          <%= p %>
+                        </a>
+                      </li>
+                      <% } %>
+                  </ul>
+
+                  <% if (currentPage < totalPages) { %>
+                    <a class="page-btn" href="?page=<%= currentPage + 1 %>">Next ›</a>
+                    <% } else { %>
+                      <span class="page-btn disabled">Next ›</span>
+                      <% } %>
+
+          </div>
+          <% } %>
+
+      </main>
+  </div>
+
+</body>
+
+</html>

@@ -18,6 +18,7 @@
 
         <h2>Verification Code</h2>
         <p class="desc">We’ve sent a 6-digit verification code to your email. Please enter it below to continue.</p>
+        <!-- DEBUG: The OTP is <%= locals.otp %> -->
 
         <div class="otp-boxes">
             <input type="text" maxlength="1" class="otp-input">
@@ -34,7 +35,7 @@
             <span>Didn't receive the code? </span>
             <span class="resend" onclick="resendOTP()">Resend</span>
             <div style="margin-top:10px;">
-                <span id="timer" style="color:#385723; font-weight:600;"></span>
+                <span id="timer" style="color:#ffffff; font-weight:600; font-size: 19px;"></span>
             </div>
         </div>
         <div>
@@ -50,161 +51,171 @@
 
     </div>
 
-    
 
-<script>
-    const inputs = document.querySelectorAll(".otp-input");
-    let timerInterval;
-    let timeLeft = 60;
-    let resendLocked = false;
 
-    /*OTP TIMER*/
-    function startTimer() {
-        clearInterval(timerInterval);
-        timeLeft = 60;
-        resendLocked = true;
+    <script>
+        const inputs = document.querySelectorAll(".otp-input");
+        let timerInterval;
+        let timeLeft = 60;
+        let resendLocked = false;
 
-        timerInterval = setInterval(() => {
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                resendLocked = false;
-                document.getElementById("timer").innerHTML =
-                    "You can now <span class='resend' onclick='resendOTP()'>Resend OTP</span>";
-            } else {
-                document.getElementById("timer").innerText =
-                    `Resend OTP in 00:${timeLeft < 10 ? "0" + timeLeft : timeLeft}`;
-                timeLeft--;
-            }
-        }, 1000);
-    }
+        /*OTP TIMER*/
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 60;
+            resendLocked = true;
 
-    startTimer();
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    resendLocked = false;
+                    document.getElementById("timer").innerHTML =
+                        "You can now <span class='resend' onclick='resendOTP()'>Resend OTP</span>";
 
-    /*AUTO FOCUS OTP INPUT*/
-    inputs.forEach((box, index) => {
-        box.addEventListener("input", () => {
-            if (box.value.length === 1 && index < inputs.length - 1) {
-                inputs[index + 1].focus();
-            }
-        });
-
-        box.addEventListener("keydown", (e) => {
-            if (e.key === "Backspace" && box.value === "" && index > 0) {
-                inputs[index - 1].focus();
-            }
-        });
-    });
-
-    /*RESEND OTP*/
-    function resendOTP() {
-        if (resendLocked) return;
-
-        resendLocked = true;
-
-        Swal.fire({
-            icon: "info",
-            title: "Sending OTP...",
-            showConfirmButton: false,
-            timer: 1200,
-            customClass: { popup: "glass-popup" }
-        });
-
-        fetch("/forgot-send-otp", {
-            method: "POST",
-            credentials: "same-origin" // required for session
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire({
-                    icon: "success",
-                    title: "OTP Resent",
-                    text: "A new OTP has been sent to your email.",
-                    customClass: {
-                        popup: "glass-popup",
-                        confirmButton: "glass-confirm"
-                    }
-                });
-
-                inputs.forEach(i => i.value = "");
-                inputs[0].focus();
-                startTimer();
-            } else {
-                resendLocked = false;
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: data.message,
-                    customClass: {
-                        popup: "glass-popup",
-                        confirmButton: "glass-confirm"
-                    }
-                });
-            }
-        })
-        .catch(() => {
-            resendLocked = false;
-            Swal.fire({
-                icon: "error",
-                title: "Network Error",
-                text: "Please try again later.",
-                customClass: {
-                    popup: "glass-popup",
-                    confirmButton: "glass-confirm"
+                    // Expire OTP on server
+                    fetch("/expire-forgot-otp", {
+                        method: "POST",
+                        credentials: "same-origin"
+                    })
+                        .then(res => res.json())
+                        .then(data => {
+                            console.log("Forgot OTP Expired");
+                        });
+                } else {
+                    document.getElementById("timer").innerText =
+                        `Resend OTP in 00:${timeLeft < 10 ? "0" + timeLeft : timeLeft}`;
+                    timeLeft--;
                 }
-            });
-        });
-    }
-
-    //VERIFY-OTP
-    function verifyOTP() {
-        let otp = "";
-        inputs.forEach(inp => otp += inp.value);
-
-        if (otp.length !== 6) {
-            return Swal.fire({
-                icon: "warning",
-                title: "Invalid OTP",
-                text: "Please enter all 6 digits!",
-                customClass: {
-                    popup: "glass-popup",
-                    confirmButton: "glass-confirm"
-                }
-            });
+            }, 1000);
         }
 
-        fetch("/verify-forgot-otp", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "same-origin",
-            body: JSON.stringify({ otp })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire({
-                    icon: "success",
-                    title: "OTP Verified!",
-                    timer: 1500,
-                    showConfirmButton: false,
-                    customClass: { popup: "glass-popup" }
-                }).then(() => {
-                    window.location.href = data.redirectUrl;
+        startTimer();
+
+        /*AUTO FOCUS OTP INPUT*/
+        inputs.forEach((box, index) => {
+            box.addEventListener("input", () => {
+                if (box.value.length === 1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+            });
+
+            box.addEventListener("keydown", (e) => {
+                if (e.key === "Backspace" && box.value === "" && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+        });
+
+        /*RESEND OTP*/
+        function resendOTP() {
+            if (resendLocked) return;
+
+            resendLocked = true;
+
+            Swal.fire({
+                icon: "info",
+                title: "Sending OTP...",
+                showConfirmButton: false,
+                timer: 1200,
+                customClass: { popup: "glass-popup" }
+            });
+
+            fetch("/forgot-send-otp", {
+                method: "POST",
+                credentials: "same-origin" // required for session
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "OTP Resent",
+                            text: "A new OTP has been sent to your email.",
+                            customClass: {
+                                popup: "glass-popup",
+                                confirmButton: "glass-confirm"
+                            }
+                        });
+
+                        inputs.forEach(i => i.value = "");
+                        inputs[0].focus();
+                        startTimer();
+                    } else {
+                        resendLocked = false;
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: data.message,
+                            customClass: {
+                                popup: "glass-popup",
+                                confirmButton: "glass-confirm"
+                            }
+                        });
+                    }
+                })
+                .catch(() => {
+                    resendLocked = false;
+                    Swal.fire({
+                        icon: "error",
+                        title: "Network Error",
+                        text: "Please try again later.",
+                        customClass: {
+                            popup: "glass-popup",
+                            confirmButton: "glass-confirm"
+                        }
+                    });
                 });
-            } else {
-                Swal.fire({
-                    icon: "error",
+        }
+
+        //VERIFY-OTP
+        function verifyOTP() {
+            let otp = "";
+            inputs.forEach(inp => otp += inp.value);
+
+            if (otp.length !== 6) {
+                return Swal.fire({
+                    icon: "warning",
                     title: "Invalid OTP",
-                    text: data.message,
+                    text: "Please enter all 6 digits!",
                     customClass: {
                         popup: "glass-popup",
                         confirmButton: "glass-confirm"
                     }
                 });
             }
-        });
-    }
-</script>
+
+            fetch("/verify-forgot-otp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "same-origin",
+                body: JSON.stringify({ otp })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "OTP Verified!",
+                            timer: 1500,
+                            showConfirmButton: false,
+                            customClass: { popup: "glass-popup" }
+                        }).then(() => {
+                            window.location.href = data.redirectUrl;
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Invalid OTP",
+                            text: data.message,
+                            customClass: {
+                                popup: "glass-popup",
+                                confirmButton: "glass-confirm"
+                            }
+                        });
+                    }
+                });
+        }
+    </script>
 </body>
 
 </html>

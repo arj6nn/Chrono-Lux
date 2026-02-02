@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - Chrono Luxe</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles/user/header.css">
+    <link rel="stylesheet" href="/styles/user/profile-layout.css">
+    <link rel="stylesheet" href="/styles/user/profile-sidebar.css">
+    <link rel="stylesheet" href="/styles/user/profile-content.css">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <%- include("../partials/user/header") %>
+
+        <% if (!user) { %>
+            <script>window.location.href = "/login";</script>
+            <% } %>
+
+                <div class="dashboard-container">
+                    <%- include("../partials/user/profile-sidebar", { active: "profile" }) %>
+
+                        <main class="main-content">
+                            <!-- rest of content -->
+
+                            <section class="premium-card">
+                                <div class="card-header">
+                                    <h2>PERSONAL <span class="gold-text">INFORMATION</span></h2>
+                                    <button class="edit-btn" id="editBtn"
+                                        onclick="window.location.href='/profile/edit'">
+                                        <i class="bx bx-edit"></i> Edit
+                                    </button>
+                                </div>
+
+                                <div class="info-grid">
+
+                                    <div class="info-item">
+                                        <label>Full Name</label>
+                                        <p id="nameText">
+                                            <%= user.name %>
+                                        </p>
+                                        <input id="nameInput" type="text" value="<%= user.name %>" hidden>
+                                    </div>
+
+                                    <div class="info-item">
+                                        <label>Email Address</label>
+                                        <p>
+                                            <%= user.email %>
+                                        </p>
+                                    </div>
+
+                                    <div class="info-item">
+                                        <label>Phone Number</label>
+                                        <p id="phoneText">
+                                            <%= user.phone || "Not Provided" %>
+                                        </p>
+                                        <input id="phoneInput" type="text" value="<%= user.phone || "" %>" hidden>
+                                    </div>
+
+                                    <div class="info-item">
+                                        <label>Member Since</label>
+                                        <p>
+                                            <%= new Date(user.createdAt).toLocaleDateString("en-IN", { day: "2-digit" ,
+                                                month: "short" , year: "numeric" }) %>
+                                        </p>
+                                    </div>
+
+                                    <div class="info-item">
+                                        <label>Last Login</label>
+                                        <p>
+                                            <%= user.lastLogin ? new Date(user.lastLogin).toLocaleString("en-IN")
+                                                : "First Login" %>
+                                        </p>
+                                    </div>
+
+                                </div>
+
+                                <div class="edit-actions" id="editActions" style="display: none;">
+                                    <button class="btn-outline" type="button" onclick="cancelEdit()">Cancel</button>
+                                    <button class="btn-gold" type="button" onclick="updateProfile()">Save
+                                        Changes</button>
+                                </div>
+                            </section>
+
+                            <div class="stats-row">
+                                <div class="mini-card">
+                                    <div class="stat-icon"><i class="bx bx-wallet"></i></div>
+                                    <div>
+                                        <label>Wallet Balance</label>
+                                        <div class="value">₹<%= user.wallet || 0 %>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mini-card">
+                                    <div class="stat-icon"><i class="bx bx-group"></i></div>
+                                    <div>
+                                        <label>Total Referrals</label>
+                                        <div class="value">
+                                            <%= user.redeemedUsers?.length || 0 %>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <section class="premium-card">
+                                <div class="card-header">
+                                    <h2>SECURITY</h2>
+                                    <% if (!user.googleId) { %>
+                                        <button class="btn-outline-gold" onclick="togglePasswordBox()">Change
+                                            Password</button>
+                                        <% } %>
+                                </div>
+
+                                <% if (user.googleId) { %>
+                                    <div class="google-sync-notice single-line">
+                                        <i class="bx bx-lock-alt"></i>
+                                        <p>
+                                            Password changes are managed through your <strong>Google account</strong>.
+                                        </p>
+                                    </div>
+                                    <% } else { %>
+                                        <form id="passwordBox" class="luxe-form" style="display:none; margin-top:20px;">
+                                            <div class="form-row">
+                                                <div class="input-group">
+                                                    <label>Current Password</label>
+                                                    <input type="password" id="currentPassword" required>
+                                                    <small class="field-error" id="currentPasswordError"></small>
+                                                </div>
+
+
+                                                <div class="input-group">
+                                                    <label>New Password</label>
+                                                    <input type="password" id="newPassword" required>
+                                                </div>
+
+                                                <div class="input-group">
+                                                    <label>Confirm Password</label>
+                                                    <input type="password" id="confirmPassword" required>
+                                                </div>
+                                            </div>
+
+                                            <button type="submit" class="btn-gold">Update Password</button>
+                                        </form>
+                                        <% } %>
+                            </section>
+                        </main>
+
+                </div>
+                <%-include("../partials/user/footer")%>
+
+                    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+                    <script>
+                        const glassAlert = (icon, title, text) => {
+                            Swal.fire({
+                                icon,
+                                title,
+                                text,
+                                customClass: {
+                                    popup: 'glass-alert'
+                                },
+                                confirmButtonText: 'OK'
+                            });
+                        };
+                    </script>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const nav = document.querySelector('nav');
+                            if (!nav) return;
+                            nav.classList.add('glass-nav');
+                        });
+                    </script>
+
+                    <script>
+                        function showFieldError(inputId, message) {
+                            const input = document.getElementById(inputId);
+                            const error = document.getElementById(inputId + "Error");
+
+                            input.classList.add("input-error");
+                            error.innerText = message;
+                            error.style.display = "block";
+                        }
+
+                        function clearFieldError(inputId) {
+                            const input = document.getElementById(inputId);
+                            const error = document.getElementById(inputId + "Error");
+
+                            input.classList.remove("input-error");
+                            error.innerText = "";
+                            error.style.display = "none";
+                        }
+                    </script>
+
+
+                    <script>
+                        const passwordBox = document.getElementById("passwordBox");
+
+                        function togglePasswordBox() {
+                            passwordBox.style.display =
+                                passwordBox.style.display === "none" ? "block" : "none";
+                        }
+
+                        passwordBox.addEventListener("submit", async (e) => {
+                            e.preventDefault();
+
+                            clearFieldError("currentPassword");
+
+                            const currentPassword = document.getElementById("currentPassword").value;
+                            const newPassword = document.getElementById("newPassword").value;
+                            const confirmPassword = document.getElementById("confirmPassword").value;
+
+                            if (!currentPassword || !newPassword || !confirmPassword) {
+                                return glassAlert("warning", "Missing Information", "All fields are required");
+                            }
+
+                            if (newPassword !== confirmPassword) {
+                                return glassAlert("error", "Password Mismatch", "Passwords do not match");
+                            }
+
+                            const res = await fetch("/change-password", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ currentPassword, newPassword })
+                            });
+
+                            const data = await res.json();
+
+                            if (data.success) {
+                                glassAlert("success", "Password Updated", "Your password has been changed successfully");
+                                passwordBox.reset();
+                                passwordBox.style.display = "none";
+                            }
+                            else if (data.code === "INVALID_PASSWORD") {
+                                showFieldError("currentPassword", "Incorrect current password");
+                            }
+                            else {
+                                glassAlert("error", "Error", "Something went wrong");
+                            }
+                        });
+
+                    </script>

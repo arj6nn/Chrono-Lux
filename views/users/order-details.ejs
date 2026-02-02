@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Common Styles -->
+  <link rel="stylesheet" href="/styles/user/header.css">
+  <link rel="stylesheet" href="/styles/user/profile-layout.css">
+  <link rel="stylesheet" href="/styles/user/profile-sidebar.css">
+
+  <!-- Order UI -->
+  <link rel="stylesheet" href="/styles/user/order-history.css">
+  <link rel="stylesheet" href="/styles/user/order-details-fix.css">
+</head>
+
+<body>
+
+  <%- include("../partials/user/header") %>
+
+    <div class="dashboard-container">
+      <%- include("../partials/user/profile-sidebar", { active: "orders" }) %>
+
+        <main class="main-content">
+
+          <h1 class="page-title">Order Details</h1>
+          <p class="page-subtitle">View complete information about your order</p>
+
+          <a href="/profile/orders" class="details-outline-btn" style="margin-bottom:20px;display:inline-flex;">
+            <i class="fa-solid fa-arrow-left"></i>&nbsp; Back to Orders
+          </a>
+
+          <!-- ================= ORDER HEADER ================= -->
+          <div class="order-header-row">
+            <div class="order-meta">
+              <strong>
+                <%= order.orderId || order._id %>
+              </strong>
+              <span>
+                Placed on
+                <%= new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric" , month: "long" ,
+                  year: "numeric" }) %>
+              </span>
+            </div>
+
+            <span class="
+        <% if (order.orderStatus === 'Cancelled') { %>status-pill-canceled
+        <% } else if (order.orderStatus === 'Delivered') { %>status-pill-delivered
+        <% } else { %>status-pill-processing<% } %>
+      ">
+              <%= order.orderStatus %>
+            </span>
+          </div>
+
+          <!-- ================= GLOBAL ALERT ================= -->
+          <% if (order.orderStatus==="Cancelled" ) { %>
+            <div class="order-alert danger">
+              <i class="fa-solid fa-circle-xmark"></i>
+              <div>
+                <strong>Order Cancelled</strong>
+                <p>This order has been cancelled and the payment has been refunded.</p>
+              </div>
+            </div>
+            <% } %>
+
+              <!-- ================= PRICE CALCULATION ================= -->
+              <% let totalMRP=0; let totalPaid=0; order.orderedItems.forEach(item=> {
+                totalMRP += (item.mrp || item.price) * item.quantity;
+                totalPaid += item.price * item.quantity;
+                });
+
+                const productDiscount = order.discount || (totalMRP - totalPaid);
+                const couponDiscount = order.couponDiscount || 0;
+                const deliveryFee = order.finalAmount - (totalPaid - couponDiscount);
+                %>
+
+                <!-- ================= ITEMS ================= -->
+                <div class="order-container">
+                  <% order.orderedItems.forEach(item=> { %>
+                    <div class="order-body product-row">
+
+                      <!-- IMAGE -->
+                      <div class="product-image">
+                        <% const variant=item.variantId ? item.product?.variants.find(v=> v._id.toString() ===
+                          item.variantId.toString())
+                          : item.product?.variants[0];
+                          %>
+                          <img src="<%= variant?.images?.[0] || '/images/no-image.png' %>">
+                      </div>
+
+                      <!-- INFO -->
+                      <div class="product-info">
+                        <span class="product-name">
+                          <%= item.product?.productName || "Product unavailable" %>
+                        </span>
+                        <span class="product-qty">
+                          Qty: <%= item.quantity %> × ₹<%= item.price.toLocaleString("en-IN") %>
+                              <% if (item.appliedOffer) { %>
+                                <span class="offer-badge"
+                                  style="font-size: 8px; vertical-align: middle; margin-top: -2px;">
+                                  <%= item.appliedOffer.discountValue %>% OFF
+                                </span>
+                                <% } %>
+                        </span>
+                      </div>
+
+                      <!-- STATUS -->
+                      <div class="product-status">
+                        <% if (item.status==="Cancelled" ) { %>
+                          <span class="status-dot-red">• Cancelled</span>
+                          <% if (order.paymentStatus==="Refunded" ) { %>
+                            <p class="wallet-text">
+                              Amount credited to wallet<br>
+                              <small>
+                                <%= new Date(item.cancelledAt || order.updatedAt).toLocaleString("en-IN") %>
+                              </small>
+                            </p>
+                            <% } %>
+
+                              <% } else if (item.returnStatus==="Requested" ) { %>
+                                <span class="status-dot-orange">• Return Requested</span>
+
+                                <% } else if (item.returnStatus==="Approved" ) { %>
+                                  <span class="status-dot-green">• Return Approved</span>
+
+                                  <% } else if (item.returnStatus==="Rejected" ) { %>
+                                    <span class="status-dot-red">• Return Rejected</span>
+
+                                    <% } else if (item.returnStatus==="Refunded" ) { %>
+                                      <span class="status-dot-green">• Refunded</span>
+
+                                      <% } else if (item.status==="Delivered" ) { %>
+                                        <span class="status-dot-green">• Delivered</span>
+
+                                        <% } else { %>
+                                          <span class="status-dot-orange">• <%= item.status %></span>
+                                          <% } %>
+                      </div>
+                    </div>
+                    <% }) %>
+
+                      <div class="order-footer-row">
+                        <span class="price-tag">₹ <%= order.finalAmount.toLocaleString("en-IN") %></span>
+                        <button class="details-outline-btn">
+                          <i class="fa-solid fa-download"></i> Download Invoice
+                        </button>
+                      </div>
+                </div>
+
+                <!-- ================= ORDER SUMMARY ================= -->
+                <div class="order-container summary-box">
+                  <h3>Order Summary</h3>
+
+                  <div class="summary-row">
+                    <span>Subtotal (MRP)</span>
+                    <span>₹ <%= totalMRP.toLocaleString("en-IN") %></span>
+                  </div>
+
+                  <% if (productDiscount> 0) { %>
+                    <div class="summary-row discount">
+                      <span>Product Discount</span>
+                      <span>- ₹ <%= productDiscount.toLocaleString("en-IN") %></span>
+                    </div>
+                    <% } %>
+
+                      <% if (couponDiscount> 0) { %>
+                        <div class="summary-row discount">
+                          <span>Coupon Discount</span>
+                          <span>- ₹ <%= couponDiscount.toLocaleString("en-IN") %></span>
+                        </div>
+                        <% } %>
+
+                          <div class="summary-row">
+                            <span>Delivery</span>
+                            <span>
+                              <%= deliveryFee> 0 ? '₹ ' + deliveryFee.toLocaleString("en-IN") : 'Free' %>
+                            </span>
+                          </div>
+
+                          <div class="summary-total">
+                            <span>Total Amount</span>
+                            <span>₹ <%= order.finalAmount.toLocaleString("en-IN") %></span>
+                          </div>
+                </div>
+
+                <!-- ================= PAYMENT INFO ================= -->
+                <div class="order-container">
+                  <h3>Payment Information</h3>
+                  <p><strong>Method:</strong>
+                    <%= order.paymentMethod %>
+                  </p>
+                  <p>
+                    <strong>Status:</strong>
+                    <span class="badge badge-refunded">
+                      <%= order.paymentStatus %>
+                    </span>
+                  </p>
+                </div>
+
+                <!-- ================= ADDRESS ================= -->
+                <div class="order-container">
+                  <h3>Delivery Address</h3>
+                  <p><strong>
+                      <%= order.address.name %>
+                    </strong></p>
+                  <p>
+                    <%= order.address.line1 %>
+                      <% if (order.address.line2) { %>, <%= order.address.line2 %>
+                          <% } %><br>
+                            <%= order.address.city %>, <%= order.address.state %> - <%= order.address.pincode %>
+                  </p>
+                  <p><i class="fa-solid fa-phone"></i>
+                    <%= order.address.phone %>
+                  </p>
+                </div>
+
+        </main>
+    </div>
+
+    <%- include("../partials/user/footer") %>
+
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          document.querySelector('nav')?.classList.add('glass-nav');
+        });
+      </script>
+
+</body>
+
+</html>

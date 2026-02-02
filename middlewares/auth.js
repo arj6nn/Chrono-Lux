@@ -1,25 +1,28 @@
-const User = require("../models/user.model");
+import User from "../models/user.model.js";
 
 // USER AUTH
 const userAuth = async (req, res, next) => {
-    try {
-    if (!req.session.user) {
+  try {
+    if (!req.session.user || !req.session.user.id) {
       return res.redirect("/login");
     }
 
-    // fetch user from DB
     const user = await User.findById(req.session.user.id);
 
-    // user not found or blocked
     if (!user || user.isBlocked) {
       return req.session.destroy(() => {
-        res.redirect("/login");
+        return res.redirect("/login");
       });
-    }  
+    }
+
+    req.user = user;
+
+    res.locals.user = user;
 
     next();
   } catch (error) {
-    res.status(500).send("Internal server error");
+    console.error("User auth error:", error);
+    res.redirect("/login");
   }
 };
 
@@ -62,9 +65,9 @@ const preventAdminAuth = (req, res, next) => {
   next();
 };
 
-module.exports = {
-    userAuth,
-    preventUserAuth,
-    adminAuth,
-    preventAdminAuth
+export {
+  userAuth,
+  preventUserAuth,
+  adminAuth,
+  preventAdminAuth
 };

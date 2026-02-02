@@ -4,165 +4,301 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chrono Lux - Dashboard</title>
+    <title>COMET - Admin Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link rel="stylesheet" href="/styles/admin/dashboard.css">
 </head>
 
 <body>
-    <%- include('../partials/admin/sidebar') %>
-        <main class="main-content">
-            <div class="header">
-                <h1>Dashboard</h1>
-                <p>Welcome back! Here is your store overview</p>
-            </div>
+    <div class="container">
+        <!-- Sidebar -->
+        <%- include('../partials/admin/sidebar') %>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon blue">
-                        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                            <path
-                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z" />
-                        </svg>
-                    </div>
-                    <div class="stat-label">Total Revenue</div>
-                    <div class="stat-value">$48,574</div>
-                    <div class="stat-change positive">↗ +19.5%</div>
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Header -->
+                <div class="header">
+                    <div class="header-title">Welcome back, admin@chrono.com!</div>
+                    <div class="header-subtitle">Here's your business overview for today</div>
                 </div>
 
-                <div class="stat-card">
-                    <div class="stat-icon green">
-                        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                            <path
-                                d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1.003 1.003 0 0020 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" />
-                        </svg>
-                    </div>
-                    <div class="stat-label">Total Orders</div>
-                    <div class="stat-value">1,429</div>
-                    <div class="stat-change positive">↗ +8.2%</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon purple">
-                        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                            <path
-                                d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
-                        </svg>
-                    </div>
-                    <div class="stat-label">Active Users</div>
-                    <div class="stat-value">3,842</div>
-                    <div class="stat-change positive">↗ +23.1%</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon orange">
-                        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                            <path
-                                d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" />
-                        </svg>
-                    </div>
-                    <div class="stat-label">Conversion Rate</div>
-                    <div class="stat-value">3.24%</div>
-                    <div class="stat-change negative">↘ -2.4%</div>
-                </div>
-            </div>
-
-            <div class="charts-grid">
-                <div class="chart-card">
-                    <div class="chart-title">Sales Overview</div>
-                    <div class="line-chart">
-                        <svg class="chart-line" viewBox="0 0 700 250" preserveAspectRatio="none">
-                            <polyline fill="none" stroke="#5a6b3f" stroke-width="2"
-                                points="0,230 116,200 232,185 348,150 464,135 580,100 700,80" />
-                            <circle cx="232" cy="185" r="4" fill="#5a6b3f" />
-                            <circle cx="348" cy="150" r="4" fill="#5a6b3f" />
-                            <circle cx="464" cy="135" r="4" fill="#5a6b3f" />
-                            <circle cx="580" cy="100" r="4" fill="#5a6b3f" />
-                            <circle cx="700" cy="80" r="4" fill="#5a6b3f" />
-                        </svg>
-                    </div>
-                    <div class="chart-labels">
-                        <span>Jan</span>
-                        <span>Feb</span>
-                        <span>Mar</span>
-                        <span>Apr</span>
-                        <span>May</span>
-                        <span>Jun</span>
-                    </div>
-                </div>
-
-                <div class="chart-card">
-                    <div class="chart-title">Sales by Category</div>
-                    <div class="bar-chart">
-                        <div class="bar" style="height: 85%;">
-                            <div class="bar-label">Luxury</div>
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card green">
+                        <div class="stat-icon">₹</div>
+                        <div class="stat-label">Total Revenue</div>
+                        <div class="stat-value">₹<%= totalRevenue.toLocaleString() %>
                         </div>
-                        <div class="bar" style="height: 70%;">
-                            <div class="bar-label">Sport</div>
+                        <div class="stat-change">Total revenue from delivered orders</div>
+                    </div>
+
+                    <div class="stat-card blue">
+                        <div class="stat-icon">📦</div>
+                        <div class="stat-label">Total Orders</div>
+                        <div class="stat-value">
+                            <%= totalOrders %>
                         </div>
-                        <div class="bar" style="height: 60%;">
-                            <div class="bar-label">Classic</div>
+                        <div class="stat-change">Orders placed by customers</div>
+                    </div>
+
+                    <div class="stat-card purple">
+                        <div class="stat-icon">👤</div>
+                        <div class="stat-label">Active Users</div>
+                        <div class="stat-value">
+                            <%= totalUsers %>
                         </div>
-                        <div class="bar" style="height: 50%;">
-                            <div class="bar-label">Dress</div>
+                        <div class="stat-change">Verified customer accounts</div>
+                    </div>
+
+                    <div class="stat-card orange">
+                        <div class="stat-icon">🏷️</div>
+                        <div class="stat-label">Listed Products</div>
+                        <div class="stat-value">
+                            <%= totalProducts %>
                         </div>
-                        <div class="bar" style="height: 75%;">
-                            <div class="bar-label">Smart</div>
+                        <div class="stat-change">Across all categories</div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="charts-section">
+                    <!-- Order Status Distribution -->
+                    <div class="chart-card">
+                        <div class="chart-title">
+                            <div class="chart-icon">📊</div>
+                            Order Status Distribution
+                        </div>
+                        <div class="pie-chart-container">
+                            <canvas id="orderChart"></canvas>
+                        </div>
+                        <div class="chart-legend">
+                            <% const statusColors={ 'Cancelled' : '#ef4444' , 'Pending' : '#f59e0b' , 'Delivered'
+                                : '#10b981' , 'Shipped' : '#a855f7' , 'Processing' : '#3b82f6' , 'Return Requested'
+                                : '#6b7280' , 'Cancellation Requested' : '#ec4899' }; orderStatusData.forEach(status=> {
+                                %>
+                                <div class="legend-item">
+                                    <div class="legend-color"
+                                        style="background-color: <%= statusColors[status._id] || '#9ca3af' %>;"></div>
+                                    <span>
+                                        <%= status._id %> (<%= status.count %>)
+                                    </span>
+                                </div>
+                                <% }) %>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <div class="table-card">
-                <div class="chart-title">Recent Orders</div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Customer</th>
-                            <th>Product</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>#ORD-2341</td>
-                            <td>John Smith</td>
-                            <td>Rolex Submariner</td>
-                            <td>$159.99</td>
-                            <td><span class="status-badge status-completed">Completed</span></td>
-                        </tr>
-                        <tr>
-                            <td>#ORD-2340</td>
-                            <td>Emma Wilson</td>
-                            <td>Omega Seamaster</td>
-                            <td>$189.99</td>
-                            <td><span class="status-badge status-processing">Processing</span></td>
-                        </tr>
-                        <tr>
-                            <td>#ORD-2339</td>
-                            <td>Michael Brown</td>
-                            <td>TAG Heuer Carrera</td>
-                            <td>$129.99</td>
-                            <td><span class="status-badge status-completed">Completed</span></td>
-                        </tr>
-                        <tr>
-                            <td>#ORD-2338</td>
-                            <td>Sarah Davis</td>
-                            <td>Patek Philippe Nautilus</td>
-                            <td>$99.99</td>
-                            <td><span class="status-badge status-shipped">Shipped</span></td>
-                        </tr>
-                        <tr>
-                            <td>#ORD-2337</td>
-                            <td>James Johnson</td>
-                            <td>Apple Watch Ultra</td>
-                            <td>$119.99</td>
-                            <td><span class="status-badge status-completed">Completed</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </main>
+                    <!-- Top Brands & Order Returns -->
+                    <div class="charts-section-right">
+                        <div class="brands-card">
+                            <div class="chart-title">
+                                <div class="chart-icon">⭐</div>
+                                Top Brands
+                            </div>
+                            <ul class="brand-list">
+                                <% if (topBrands && topBrands.length> 0) { %>
+                                    <% topBrands.forEach((brand, index)=> { %>
+                                        <li class="brand-item">
+                                            <div class="brand-rank">
+                                                <%= index + 1 %>
+                                            </div>
+                                            <div class="brand-logo">
+                                                <%= brand.brandDetails.brandName ?
+                                                    brand.brandDetails.brandName.charAt(0) : 'B' %>
+                                            </div>
+                                            <div class="brand-info">
+                                                <div class="brand-name">
+                                                    <%= brand.brandDetails.brandName || 'Unknown Brand' %>
+                                                </div>
+                                                <div class="brand-ranking">Sold: <%= brand.totalSold %> units</div>
+                                            </div>
+                                            <div class="brand-status">
+                                                <%= brand.brandDetails.isBlocked ? 'Blocked' : 'Active' %>
+                                            </div>
+                                        </li>
+                                        <% }) %>
+                                            <% } else { %>
+                                                <li class="brand-item">No data available</li>
+                                                <% } %>
+                            </ul>
+                        </div>
+
+                        <div class="returns-card">
+                            <div class="returns-header">
+                                <span>🔄</span>
+                                <span>Order Return Requests</span>
+                                <div class="returns-badge">
+                                    <%= returnRequests.length %> pending
+                                </div>
+                            </div>
+                            <% if (returnRequests && returnRequests.length> 0) { %>
+                                <% returnRequests.forEach(request=> { %>
+                                    <div class="return-item">
+                                        <div class="return-order-id">
+                                            <%= request.orderId %>
+                                        </div>
+                                        <div class="return-customer">
+                                            <%= request.userId ? request.userId.name : 'Unknown Customer' %>
+                                        </div>
+                                        <div class="return-reason" style="color: var(--danger);">Status: <%=
+                                                request.orderStatus %>
+                                        </div>
+                                        <div class="return-date">
+                                            <%= new Date(request.createdAt).toLocaleDateString() %>
+                                        </div>
+                                        <a href="/admin/orders/details/<%= request._id %>"
+                                            class="return-review-link">Review ></a>
+                                    </div>
+                                    <% }) %>
+                                        <% } else { %>
+                                            <div class="return-item">No pending requests</div>
+                                            <% } %>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Section -->
+                <div class="bottom-section">
+                    <!-- Recent Orders Table -->
+                    <div class="orders-table">
+                        <div class="orders-header">
+                            <div class="orders-title">
+                                <span>📋</span>
+                                Recent Orders
+                            </div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Customer</th>
+                                        <th>Product</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (recentOrders && recentOrders.length> 0) { %>
+                                        <% recentOrders.forEach(order=> { %>
+                                            <tr>
+                                                <td>
+                                                    <%= order.orderId %>
+                                                </td>
+                                                <td>
+                                                    <%= order.userId ? order.userId.name : 'Unknown' %>
+                                                </td>
+                                                <td>
+                                                    <%= order.orderedItems.length %> items
+                                                </td>
+                                                <td>₹<%= order.finalAmount.toLocaleString() %>
+                                                </td>
+                                                <td><span
+                                                        class="status-badge status-<%= order.orderStatus.toLowerCase().replace(' ', '-') %>">
+                                                        <%= order.orderStatus %>
+                                                    </span></td>
+                                                <td>
+                                                    <%= new Date(order.createdAt).toLocaleDateString() %>
+                                                </td>
+                                            </tr>
+                                            <% }) %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="6" style="text-align: center;">No recent orders
+                                                        </td>
+                                                    </tr>
+                                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Top Products -->
+                    <div class="products-card">
+                        <div class="chart-title">
+                            <div class="chart-icon">⭐</div>
+                            Top Products
+                        </div>
+                        <ul class="product-list">
+                            <% if (topProducts && topProducts.length> 0) { %>
+                                <% topProducts.forEach((product, index)=> { %>
+                                    <li class="product-item">
+                                        <div class="product-rank">
+                                            <%= index + 1 %>
+                                        </div>
+                                        <div class="product-image">
+                                            <% let imgUrl='/images/placeholder.png' ; if
+                                                (product.productDetails.variants && product.productDetails.variants[0]
+                                                && product.productDetails.variants[0].images &&
+                                                product.productDetails.variants[0].images[0]) {
+                                                imgUrl=product.productDetails.variants[0].images[0]; if
+                                                (!imgUrl.startsWith('http')) { imgUrl='/uploads/products/' + imgUrl; } }
+                                                %>
+                                                <img src="<%= imgUrl %>" alt=""
+                                                    style="width: 30px; height: 30px; border-radius: 4px; object-fit: cover;">
+                                        </div>
+                                        <div class="product-info">
+                                            <div class="product-name">
+                                                <%= product.productDetails.productName %>
+                                            </div>
+                                            <div class="product-category">Sold: <%= product.totalSold %> units</div>
+                                        </div>
+                                        <div class="product-status">
+                                            <%= product.productDetails.isBlocked ? 'Blocked' : 'Active' %>
+                                        </div>
+                                    </li>
+                                    <% }) %>
+                                        <% } else { %>
+                                            <li class="product-item">No data available</li>
+                                            <% } %>
+                        </ul>
+                    </div>
+                </div>
+            </main>
+    </div>
+
+    <script>
+        // Order Status Distribution Chart
+        const ctx = document.getElementById('orderChart').getContext('2d');
+        const orderData = <%- JSON.stringify(orderStatusData) %>;
+        const statusColorsArr = {
+            'Cancelled': '#ef4444',
+            'Pending': '#f59e0b',
+            'Delivered': '#10b981',
+            'Shipped': '#a855f7',
+            'Processing': '#3b82f6',
+            'Return Requested': '#6b7280',
+            'Cancellation Requested': '#ec4899'
+        };
+
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: orderData.map(d => d._id),
+                datasets: [{
+                    data: orderData.map(d => d.count),
+                    backgroundColor: orderData.map(d => statusColorsArr[d._id] || '#9ca3af'),
+                    borderColor: '#ffffff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: 10
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        enabled: true
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>

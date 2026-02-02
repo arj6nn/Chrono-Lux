@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refer & Earn - Chrono Luxe</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles/user/header.css">
+    <link rel="stylesheet" href="/styles/user/profile-layout.css">
+    <link rel="stylesheet" href="/styles/user/profile-sidebar.css">
+    <link rel="stylesheet" href="/styles/user/refer-earn.css">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <%- include("../partials/user/header") %>
+
+        <div class="dashboard-container">
+            <%- include("../partials/user/profile-sidebar", { active: "refer" }) %>
+
+                <main class="main-content">
+                    <div class="refer-header">
+                        <h2>REFER & <span class="gold-text">EARN</span></h2>
+                    </div>
+
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="bx bx-group"></i></div>
+                            <div>
+                                <span class="stat-label">Total Referrals</span>
+                                <span class="stat-value">
+                                    <%= user.redeemedUsers?.length || 0 %>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="bx bx-wallet"></i></div>
+                            <div>
+                                <span class="stat-label">Wallet Balance</span>
+                                <span class="stat-value">₹<%= walletBalance || 0 %></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="invite-card">
+                        <h3>Invite your friends to Chrono Luxe</h3>
+                        <p class="invite-text">Share your code and get rewards for every new signup.</p>
+
+                        <div class="code-wrapper">
+                            <span class="referral-code" id="refCode">
+                                <%= user.referalCode || 'N/A' %>
+                            </span>
+                            <button class="copy-btn" onclick="copyCode()">COPY CODE</button>
+                        </div>
+                    </div>
+
+                    <div class="steps-container">
+                        <div class="step-card">
+                            <div class="step-badge">1</div>
+                            <h4>Share Your Code</h4>
+                            <p>Send your unique referral code to your friends and family.</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-badge">2</div>
+                            <h4>They Sign Up</h4>
+                            <p>When they create an account using your code, they get <b>₹100</b> bonus credit.</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-badge">3</div>
+                            <h4>You Earn</h4>
+                            <p>You receive <b>₹150</b> in your wallet for every successful referral!</p>
+                        </div>
+                    </div>
+                </main>
+        </div>
+
+        <%- include("../partials/user/footer") %>
+
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <script>
+                function copyCode() {
+                    const code = document.getElementById('refCode').innerText;
+                    if (code === 'N/A') return;
+
+                    navigator.clipboard.writeText(code).then(() => {
+                        const btn = document.querySelector('.copy-btn');
+                        const originalText = btn.innerText;
+                        btn.innerText = 'COPIED!';
+                        btn.classList.add('copied');
+
+                        setTimeout(() => {
+                            btn.innerText = originalText;
+                            btn.classList.remove('copied');
+                        }, 2000);
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Copied!',
+                            text: 'Referral code copied to clipboard',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                            customClass: {
+                                popup: 'glass-toast'
+                            }
+                        });
+                    });
+                }
+            </script>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const nav = document.querySelector('nav');
+                    if (nav) nav.classList.add('glass-nav');
+                });
+            </script>
+</body>
+
+</html>

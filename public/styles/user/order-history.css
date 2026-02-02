@@ -1,0 +1,590 @@
+:root {
+  --bg-dark: #000000;
+  --card-bg: #090909;
+  --border-color: #1a1a1a;
+  --accent-gold: #c5a059;
+  /* Gold color from Chrono Luxe */
+  --text-primary: #ffffff;
+  --text-muted: #888888;
+  --nav-hover-bg: #141414;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+}
+
+/* Navbar */
+.navbar {
+  width: 100%;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border-color);
+  padding: 20px 0;
+  margin-bottom: 30px;
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.logo {
+  font-weight: 800;
+  font-size: 1.4rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.logo span {
+  color: var(--accent-gold);
+}
+
+/* Use for 'LUXE' part */
+
+.nav-links a {
+  text-decoration: none;
+  color: var(--text-primary);
+  margin: 0 20px;
+  font-size: 0.9rem;
+  transition: color 0.3s;
+}
+
+.nav-links a:hover {
+  color: var(--accent-gold);
+}
+
+/* Sidebar Layout */
+.main-wrapper {
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 40px 60px 40px;
+  gap: 40px;
+}
+
+.sidebar {
+  width: 320px;
+}
+
+.profile-section {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 40px 25px;
+  text-align: center;
+}
+
+.user-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.user-email {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 30px;
+}
+
+/* Sidebar Navigation Items */
+.side-menu a {
+  display: flex;
+  align-items: center;
+  padding: 14px 20px;
+  text-decoration: none;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  transition: 0.3s;
+}
+
+.side-menu a i {
+  margin-right: 15px;
+  width: 20px;
+}
+
+.side-menu a.active {
+  background-color: var(--nav-hover-bg);
+  color: var(--accent-gold);
+  border: 1px solid var(--border-color);
+}
+
+.side-menu a:hover:not(.active) {
+  background-color: #111;
+  color: #fff;
+}
+
+.logout-link {
+  color: #ff4d4d !important;
+  margin-top: 30px;
+}
+
+/* Main Content Area */
+.main-content {
+  flex: 1;
+}
+
+.page-title {
+  font-size: 1.8rem;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.page-title span {
+  color: var(--accent-gold);
+}
+
+.page-subtitle {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 30px;
+}
+
+/* Search Bar */
+.filter-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.user-search {
+  flex: 1;
+  padding: 14px;
+  background: #0d0d0d;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: #fff;
+}
+
+.offer-badge {
+  display: inline-block;
+  background: #ff0000;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 10px rgba(255, 0, 0, 0.2);
+  margin-left: 8px;
+}
+
+.black-btn {
+  background: var(--accent-gold);
+  color: #000;
+  font-weight: 700;
+  border: none;
+  padding: 0 30px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+/* Order Cards */
+.order-container {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 15px;
+  margin-bottom: 25px;
+  overflow: hidden;
+}
+
+.order-header-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.order-meta strong {
+  display: block;
+  font-size: 1rem;
+  color: var(--accent-gold);
+}
+
+.order-meta span {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* Status Badges */
+.status-pill-canceled {
+  color: #ff4d4d;
+  background: rgba(255, 77, 77, 0.1);
+  padding: 6px 15px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  border: 1px solid rgba(255, 77, 77, 0.2);
+}
+
+.order-body {
+  padding: 25px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.product-info strong {
+  font-size: 1.1rem;
+  color: #fff;
+}
+
+.product-info p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-top: 6px;
+}
+
+.wallet-text {
+  color: #4caf50;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-top: 5px;
+}
+
+.order-footer-row {
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.price-tag {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.details-outline-btn {
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-primary);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.details-outline-btn:hover {
+  background: var(--accent-gold);
+  color: #000;
+}
+
+.product-row {
+  display: grid;
+  grid-template-columns: 70px 1fr auto;
+  gap: 16px;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.product-image img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 10px;
+  background: #111;
+}
+
+.product-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.product-qty {
+  display: block;
+  font-size: 14px;
+  color: #888;
+  margin-top: 4px;
+}
+
+.product-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+
+/* ===== STATUS BADGES ===== */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+/* Pending */
+.status-pending {
+  color: #f5c26b;
+  background: rgba(197, 160, 89, 0.15);
+  border-color: rgba(197, 160, 89, 0.35);
+}
+
+/* Processing / In Progress */
+.status-processing {
+  color: #4da6ff;
+  background: rgba(77, 166, 255, 0.15);
+  border-color: rgba(77, 166, 255, 0.35);
+}
+
+.status-shipped {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.35);
+}
+
+
+/* Delivered */
+.status-delivered {
+  color: #4caf50;
+  background: rgba(76, 175, 80, 0.15);
+  border-color: rgba(76, 175, 80, 0.35);
+}
+
+/* Cancelled */
+.status-cancelled {
+  color: #ff4d4d;
+  background: rgba(255, 77, 77, 0.15);
+  border-color: rgba(255, 77, 77, 0.35);
+}
+
+/* Returned / Refunded */
+.status-refunded {
+  color: #b388ff;
+  background: rgba(179, 136, 255, 0.15);
+  border-color: rgba(179, 136, 255, 0.35);
+}
+
+.return-btn {
+  margin-top: 6px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 999px;
+  text-decoration: none;
+  color: #ff4d4d;
+  border: 1px solid rgba(255, 77, 77, 0.4);
+  background: rgba(255, 77, 77, 0.12);
+  transition: 0.25s;
+}
+
+.return-btn:hover {
+  background: #ff4d4d;
+  color: #000;
+}
+
+/* RETURN MODAL */
+.return-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.return-modal {
+  background: #0f0f0f;
+  width: 420px;
+  border-radius: 12px;
+  padding: 20px;
+  color: #fff;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #aaa;
+  cursor: pointer;
+}
+
+.return-modal label {
+  margin-top: 14px;
+  display: block;
+}
+
+.return-modal select,
+.return-modal textarea {
+  width: 100%;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 10px;
+  color: #fff;
+  margin-top: 6px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.cancel-btn {
+  background: transparent;
+  border: 1px solid #555;
+  color: #aaa;
+  padding: 8px 16px;
+  border-radius: 6px;
+}
+
+.cancel-order-btn {
+  background: #d4af37;
+  border: 1px solid #555;
+  color: black;
+  padding: 8px 16px;
+  border-radius: 6px;
+}
+
+.submit-btn {
+  background: #c9a24d;
+  border: none;
+  color: #000;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+/* Normalize form inputs in return modal */
+.return-modal textarea {
+  width: 100%;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 12px;
+  color: #e5e7eb;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  box-sizing: border-box;
+}
+
+/* Textarea specific */
+.return-modal textarea {
+  resize: none;
+  min-height: 120px;
+}
+
+/* Focus state (important polish) */
+.return-modal textarea:focus {
+  outline: none;
+  border-color: #c9a24d;
+  background: #111;
+}
+
+.status-approved {
+  background: #16a34a;
+  color: #fff;
+}
+
+.status-rejected {
+  background: #dc2626;
+  color: #fff;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 40px 0;
+}
+
+.page-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: #111;
+  color: #fff;
+  border: 1px solid #333;
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.page-btn:hover {
+  background: #222;
+}
+
+.page-btn.active {
+  background: #d4af37;
+  color: #000;
+  border-color: #d4af37;
+  font-weight: 600;
+}
+
+.page-btn.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Glassmorphism SweetAlert */
+.swal2-popup.glass-alert {
+  background: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  color: white;
+}
+
+.swal2-title {
+  font-weight: 600;
+  color: white;
+}
+
+.swal2-html-container {
+  color: white;
+}
+
+/* Buttons */
+.swal2-confirm {
+  background: rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: blur(6px);
+  border-radius: 10px !important;
+}
+
+.swal2-cancel {
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: #000 !important;
+  backdrop-filter: blur(6px);
+  border-radius: 10px !important;
+}
+
+/* Icons */
+.swal2-icon {
+  backdrop-filter: blur(4px);
+}
+
+/* Force SweetAlert above custom modals */
+.swal2-container {
+  z-index: 99999 !important;
+}

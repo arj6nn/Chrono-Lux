@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="/styles/admin/order-details.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+  <div class="dashboard-container">
+
+    <!-- SIDEBAR -->
+    <%- include("../partials/admin/sidebar") %>
+
+      <!-- MAIN CONTENT -->
+      <main class="content">
+
+        <!-- HEADER -->
+        <div class="header">
+          <a href="/admin/orders" class="back-link">
+            <i data-lucide="arrow-left"></i> Back to Orders
+          </a>
+
+          <h1>Order Details</h1>
+          <p class="order-id">
+            Order ID: <%= order.orderId || order._id %>
+          </p>
+        </div>
+
+        <div class="grid-layout">
+
+          <!-- LEFT COLUMN -->
+          <div class="main-column">
+
+            <!-- ORDER STATUS (READ ONLY) -->
+            <section class="card">
+              <div class="card-header">
+                <h3>Order Status</h3>
+
+                <span class="status-pill <%= order.orderStatus.toLowerCase().replace(/\s/g,'-') %>">
+                  <%= order.orderStatus %>
+                </span>
+              </div>
+
+              <p class="date-text">
+                <i data-lucide="calendar"></i>
+                Placed on <%= new Date(order.createdAt).toLocaleString("en-IN") %>
+              </p>
+            </section>
+
+            <!-- ORDER ITEMS -->
+            <section class="card">
+              <h3>Order Items</h3>
+
+              <% order.orderedItems.forEach(item=> { %>
+                <% const variant=item.variantId ? item.product.variants.find(v=> v._id.toString() ===
+                  item.variantId.toString())
+                  : item.product.variants[0];
+                  %>
+
+                  <div class="product-item">
+
+                    <img src="<%= variant?.images?.[0] || '/images/placeholder.png' %>" class="prod-img"
+                      alt="<%= item.product.productName %>">
+
+                    <div class="prod-details">
+                      <span class="prod-title">
+                        <%= item.product.productName %>
+                      </span>
+                      <span class="prod-meta">Quantity: <%= item.quantity %></span>
+
+                      <span class="prod-meta">
+                        Item Status:
+                        <strong class="item-status <%= item.status.toLowerCase() %>">
+                          <%= item.status %>
+                        </strong>
+                      </span>
+
+                      <% if (!["Cancelled", "Refunded" ].includes(item.status)) { %>
+
+                        <% if (item.status !=="Delivered" ) { %>
+                          <form method="POST" action="/admin/orders/<%= order._id %>/items/<%= item._id %>/status"
+                            class="item-status-form">
+                            <select name="status">
+
+                              <% if (item.status==="Pending" ) { %>
+                                <option value="Processing">Processing</option>
+                                <option value="Shipped">Shipped</option>
+                                <option value="Delivered">Delivered</option>
+                                <option value="Cancelled">Cancelled</option>
+                                <% } %>
+
+                                  <% if (item.status==="Processing" ) { %>
+                                    <option value="Shipped">Shipped</option>
+                                    <option value="Delivered">Delivered</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                    <% } %>
+
+                                      <% if (item.status==="Shipped" ) { %>
+                                        <option value="Delivered">Delivered</option>
+                                        <% } %>
+
+                            </select>
+
+                            <button type="submit">Update Item</button>
+                          </form>
+                          <% } else { %>
+                            <!-- Delivered = FINAL -->
+                            <span class="badge delivered">Delivered</span>
+                            <% } %>
+
+                              <% } %>
+
+
+                                <div class="prod-price">
+                                  <span class="current">₹ <%= item.price %></span>
+                                </div>
+                    </div>
+
+                    <!-- RETURN / REFUND BADGE -->
+                    <% if (item.returnStatus) { %>
+                      <div class="return-info">
+                        <span class="return-badge status-<%= item.returnStatus.toLowerCase() %>">
+                          <%= item.returnStatus %>
+                        </span>
+                      </div>
+                      <% } %>
+
+                  </div>
+                  <% }) %>
+            </section>
+
+            <!-- RETURN REQUESTS -->
+            <% const returnItems=order.orderedItems.filter(i=> i.returnStatus);
+              %>
+
+              <% if (returnItems.length> 0) { %>
+                <section class="card">
+                  <h3>Return Requests</h3>
+
+                  <% returnItems.forEach(item=> { %>
+                    <div class="return-box">
+
+                      <div class="return-text">
+                        <strong class="return-product">
+                          <%= item.product.productName %>
+                        </strong>
+
+                        <p class="reason">
+                          Reason:
+                          <span>
+                            <%= item.returnReason || "Not specified" %>
+                          </span>
+                        </p>
+                      </div>
+
+                      <div class="actions-group">
+
+                        <% if (item.returnStatus==="Requested" ) { %>
+
+                          <form method="POST" action="/admin/returns/<%= order._id %>/<%= item._id %>/approve">
+                            <button class="btn btn-approve">Approve</button>
+                          </form>
+
+                          <form method="POST" action="/admin/returns/<%= order._id %>/<%= item._id %>/reject">
+                            <button class="btn btn-reject">Reject</button>
+                          </form>
+
+                          <% } else if (item.returnStatus==="Approved" ) { %>
+
+                            <form method="POST" action="/admin/returns/<%= order._id %>/<%= item._id %>/refund">
+                              <button class="btn btn-primary">
+                                Confirm & Complete Refund
+                              </button>
+                            </form>
+
+                            <% } else { %>
+
+                              <span class="return-badge status-<%= item.returnStatus.toLowerCase() %>">
+                                <%= item.returnStatus %>
+                              </span>
+
+                              <% } %>
+
+                      </div>
+                    </div>
+                    <% }) %>
+                </section>
+                <% } %>
+
+                  <!-- CANCELLATION REQUESTS -->
+                  <% const cancelItems=order.orderedItems.filter(i=> i.status === "Cancellation Requested"); %>
+
+                    <% if (cancelItems.length> 0) { %>
+                      <section class="card">
+                        <h3>Cancellation Requests</h3>
+                        <% cancelItems.forEach(item=> { %>
+                          <div class="return-box">
+                            <div class="return-text">
+                              <strong class="return-product">
+                                <%= item.product.productName %>
+                              </strong>
+                              <p class="reason">
+                                Reason: <span>
+                                  <%= item.cancelReason || "Not specified" %>
+                                </span>
+                              </p>
+                            </div>
+
+                            <div class="actions-group">
+                              <form method="POST"
+                                action="/admin/cancellations/<%= order._id %>/<%= item._id %>/approve?_method=POST">
+                                <button class="btn btn-approve">Approve Cancellation</button>
+                              </form>
+
+                              <form method="POST"
+                                action="/admin/cancellations/<%= order._id %>/<%= item._id %>/reject?_method=POST">
+                                <button class="btn btn-reject">Reject Request</button>
+                              </form>
+                            </div>
+                          </div>
+                          <% }) %>
+                      </section>
+                      <% } %>
+
+          </div>
+
+          <!-- RIGHT COLUMN -->
+          <div class="side-column">
+
+            <!-- CUSTOMER DETAILS -->
+            <div class="card info-card">
+              <h4><i data-lucide="user"></i> Customer Details</h4>
+              <p><strong>Name</strong>
+                <%= order.userId.name %>
+              </p>
+              <p><strong>Email</strong>
+                <%= order.userId.email %>
+              </p>
+            </div>
+
+            <!-- DELIVERY ADDRESS -->
+            <div class="card info-card">
+              <h4><i data-lucide="map-pin"></i> Delivery Address</h4>
+              <p><strong>
+                  <%= order.address.name %>
+                </strong></p>
+              <p>
+                <%= order.address.phone %>
+              </p>
+
+              <p class="address">
+                <%= order.address.line1 %><br>
+                  <% if (order.address.line2) { %>
+                    <%= order.address.line2 %><br>
+                      <% } %>
+                        <%= order.address.city %>, <%= order.address.state %><br>
+                            <%= order.address.pincode %>
+              </p>
+            </div>
+
+            <!-- PAYMENT DETAILS -->
+            <div class="card info-card">
+              <h4><i data-lucide="credit-card"></i> Payment Details</h4>
+
+              <div class="row">
+                <span>Method</span>
+                <span>
+                  <%= order.paymentMethod %>
+                </span>
+              </div>
+
+              <div class="row">
+                <span>Status</span>
+                <span class="badge-paid">
+                  <%= order.paymentStatus %>
+                </span>
+              </div>
+            </div>
+
+            <!-- ORDER SUMMARY -->
+            <div class="card summary-card">
+              <h4>Order Summary</h4>
+
+              <div class="row">
+                <span>Price</span>
+                <span>₹ <%= order.totalPrice.toLocaleString("en-IN") %></span>
+              </div>
+
+              <% if (order.discount> 0) { %>
+                <div class="row discount">
+                  <span>Discount</span>
+                  <span>- ₹ <%= order.discount.toLocaleString("en-IN") %></span>
+                </div>
+                <% } %>
+
+                  <hr>
+
+                  <div class="row total">
+                    <span>Total Amount</span>
+                    <span>₹ <%= order.finalAmount.toLocaleString("en-IN") %></span>
+                  </div>
+
+                  <% if (order.discount===0) { %>
+                    <p class="note">No discount was applied to this order</p>
+                    <% } %>
+            </div>
+
+          </div>
+        </div>
+      </main>
+  </div>
+
+  <script>
+    lucide.createIcons();
+  </script>
+
+</body>
+
+</html>

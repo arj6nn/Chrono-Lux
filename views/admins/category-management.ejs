@@ -133,7 +133,7 @@
                 <span class="modal-close" onclick="closeAddCategoryModal()">×</span>
             </div>
 
-            <form method="POST" action="/admin/categories/add" enctype="multipart/form-data">
+            <form id="addCategoryForm" enctype="multipart/form-data">
 
                 <label>Category Name</label>
                 <input type="text" name="name" required>
@@ -256,3 +256,55 @@
         });
 
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const addCategoryForm = document.getElementById("addCategoryForm");
+
+  addCategoryForm.addEventListener("submit", async function (e) {
+    e.preventDefault(); // ⛔ stop normal form submit
+
+    const formData = new FormData(this);
+
+    try {
+      const response = await fetch("/admin/categories/add", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        // ❌ ERROR ALERT
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: data.message
+        });
+        return;
+      }
+
+      // ✅ SUCCESS ALERT
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: data.message,
+        timer: 1500,
+        showConfirmButton: false
+      }).then(() => {
+        closeAddCategoryModal();
+        window.location.reload();
+      });
+
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Server Error",
+        text: "Something went wrong. Try again later."
+      });
+    }
+  });
+
+});
+</script>

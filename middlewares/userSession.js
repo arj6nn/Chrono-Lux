@@ -1,9 +1,13 @@
 
-const User = require("../models/user.model");
+import User from "../models/user.model.js";
 
-module.exports = async (req, res, next) => {
+export default async (req, res, next) => {
     try {
-        let userId = req.session.user?._id || req.session.user;
+        let userId =
+            typeof req.session.user === "string"
+                ? req.session.user
+                : req.session.user?.id;
+
 
         if (!userId) {
             res.locals.user = null;

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chrono Lux - Sales Report</title>
+    <link rel="stylesheet" href="/styles/admin/sales-report.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <%- include('../partials/admin/sidebar') %>
+        <main class="main-content">
+            <div class="header">
+                <h1>Sales Report</h1>
+                <p>Track your business performance and sales trends</p>
+            </div>
+
+            <!-- Report Type filter moved to chart header -->
+
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <div class="stat-label">Total Orders</div>
+                        <div class="stat-value">
+                            <%= stats.totalSalesCount %>
+                        </div>
+                        <div class="stat-sub" style="color: #22c55e;">↗ Active</div>
+                    </div>
+                    <div class="stat-icon blue">
+                        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1.003 1.003 0 0020 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <div class="stat-label">Total Order Amount</div>
+                        <div class="stat-value">₹<%= stats.totalOrderAmount.toLocaleString() %>
+                        </div>
+                        <div class="stat-sub" style="color: #22c55e;">↗ Revenue</div>
+                    </div>
+                    <div class="stat-icon green">
+                        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <div class="stat-label">Total Discount</div>
+                        <div class="stat-value">₹<%= stats.totalDiscount.toLocaleString() %>
+                        </div>
+                        <div class="stat-sub" style="color: #f97316;">↘ Offers</div>
+                    </div>
+                    <div class="stat-icon orange">
+                        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M12.75 3.75a.75.75 0 0 0-1.5 0v6.75H4.5a.75.75 0 0 0 0 1.5h6.75v6.75a.75.75 0 0 0 1.5 0v-6.75h6.75a.75.75 0 0 0 0-1.5h-6.75V3.75Z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <div class="stat-label">Net Revenue</div>
+                        <div class="stat-value">₹<%= stats.finalAmount.toLocaleString() %>
+                        </div>
+                        <div class="stat-sub" style="color: #a855f7;">✨ Coupons</div>
+                    </div>
+                    <div class="stat-icon purple">
+                        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M21 18V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zm-2 0H5V6h14v12zm-1-7h-2V9h2v2zm0 4h-2v-2h2v2zm-4-4h-2V9h2v2zm0 4h-2v-2h2v2zm-4-4H7V9h2v2zm0 4H7v-2h2v2z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h2 class="chart-title">Sales Overview</h2>
+                        <div class="chart-legend">
+                            <span class="legend-dot"></span> Net Sales (₹)
+                        </div>
+                    </div>
+                    <form action="/admin/sales-report" method="GET" id="chartFilterForm">
+                        <div class="header-filters">
+                            <select name="filterType" id="filterType" onchange="handleFilterChange()">
+                                <option value="daily" <%=filterType==='daily' ? 'selected' : '' %>>Daily</option>
+                                <option value="weekly" <%=filterType==='weekly' ? 'selected' : '' %>>Weekly</option>
+                                <option value="monthly" <%=filterType==='monthly' ? 'selected' : '' %>>Monthly</option>
+                                <option value="yearly" <%=filterType==='yearly' ? 'selected' : '' %>>Yearly</option>
+                                <option value="custom" <%=filterType==='custom' ? 'selected' : '' %>>Custom Range
+                                </option>
+                            </select>
+
+                            <div id="custom-dates" class="custom-range-inputs"
+                                style="display: <%= filterType === 'custom' ? 'flex' : 'none' %>">
+                                <input type="date" name="startDate" id="startDate" value="<%= startDate %>"
+                                    onchange="handleFilterChange()">
+                                <input type="date" name="endDate" id="endDate" value="<%= endDate %>"
+                                    onchange="handleFilterChange()">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="chart-container">
+                    <canvas id="salesChart"></canvas>
+                </div>
+                <div class="chart-footer">
+                    <button onclick="downloadExcel()" class="btn-secondary">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Excel
+                    </button>
+                    <button onclick="downloadPDF()" class="btn-secondary">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                        PDF
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-card">
+                <div class="chart-title">Recent Orders</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Payment</th>
+                            <th>Status</th>
+                            <th>Amount</th>
+                            <th>Discount</th>
+                            <th>Final</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (orders && orders.length> 0) { %>
+                            <% orders.forEach(order=> { %>
+                                <tr>
+                                    <td>
+                                        <%= order.orderId %>
+                                    </td>
+                                    <td>
+                                        <%= order.createdAt.toLocaleDateString() %>
+                                    </td>
+                                    <td>
+                                        <%= order.userId ? order.userId.name : 'Unknown' %>
+                                    </td>
+                                    <td>
+                                        <%= order.paymentMethod %>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge status-<%= order.orderStatus.toLowerCase() %>">
+                                            <%= order.orderStatus %>
+                                        </span>
+                                    </td>
+                                    <td>₹<%= order.totalPrice.toLocaleString() %>
+                                    </td>
+                                    <td>₹<%= (order.discount + order.couponDiscount).toLocaleString() %>
+                                    </td>
+                                    <td>₹<%= order.finalAmount.toLocaleString() %>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="8" style="text-align: center;">No orders found for the selected
+                                                period</td>
+                                        </tr>
+                                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+
+        <script>
+            // Chart Initialization
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            const chartLabels = <%- JSON.stringify(chartLabels) %>;
+            const chartValues = <%- JSON.stringify(chartValues) %>;
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Net Sales (₹)',
+                        data: chartValues,
+                        borderColor: '#1e293b',
+                        backgroundColor: 'rgba(30, 41, 59, 0.05)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#1e293b',
+                        pointRadius: function (context) {
+                            const value = context.dataset.data[context.dataIndex];
+                            return value > 0 ? 3 : 0;
+                        },
+                        pointHoverRadius: function (context) {
+                            const value = context.dataset.data[context.dataIndex];
+                            return value > 0 ? 6 : 0;
+                        }
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                maxRotation: 0,
+                                autoSkip: true,
+                                maxTicksLimit: 8
+                            }
+                        }
+                    }
+                }
+            });
+
+            function handleFilterChange() {
+                const filterType = document.getElementById('filterType').value;
+                const customDates = document.getElementById('custom-dates');
+
+                if (filterType === 'custom') {
+                    customDates.style.display = 'flex';
+                    const start = document.getElementById('startDate').value;
+                    const end = document.getElementById('endDate').value;
+                    if (start && end) {
+                        document.getElementById('chartFilterForm').submit();
+                    }
+                } else {
+                    customDates.style.display = 'none';
+                    document.getElementById('chartFilterForm').submit();
+                }
+            }
+
+            function downloadPDF() {
+                const filterType = document.getElementById('filterType').value;
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                window.location.href = `/admin/sales-report/pdf?filterType=${filterType}&startDate=${startDate}&endDate=${endDate}`;
+            }
+
+            function downloadExcel() {
+                const filterType = document.getElementById('filterType').value;
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                window.location.href = `/admin/sales-report/excel?filterType=${filterType}&startDate=${startDate}&endDate=${endDate}`;
+            }
+        </script>
+</body>
+
+</html>

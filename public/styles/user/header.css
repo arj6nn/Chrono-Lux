@@ -115,16 +115,6 @@ nav.glass-nav .nav-login-btn {
   nav.glass-nav .nav-links { display: none; }
 }
 
-.glass-popup {
-  color: white;
-  backdrop-filter: blur(15px) saturate(180%);
-  -webkit-backdrop-filter: blur(15px) saturate(180%);
-  background: rgba(255, 255, 255, 0.15) !important;
-  border-radius: 20px !important;
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-}
-
 .nav-login-btn {
         padding: 8px 18px;
         border-radius: 50px;
@@ -177,3 +167,75 @@ body.fade-out {
   opacity: 0.4;
 }
 
+/* Google / Uploaded Profile Image */
+.nav-profile-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #2E4235;
+    transition: box-shadow 0.2s ease;
+}
+
+/* Letter Avatar */
+.nav-letter-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #2E4235;
+    border: 2px solid #2E4235;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* Premium hover */
+.nav-profile-img:hover,
+.nav-letter-avatar:hover {
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.6);
+}
+
+/* Update this in your CSS to match the Home page pill style */
+nav.glass-nav {
+    position: absolute;      /* Detaches from document flow */
+    top: 24px;               /* Vertical gap from top */
+    left: 50%;               /* Center horizontally... */
+    transform: translateX(-50%); /* ...with left: 50% */
+    
+    /* 🔑 THE FIX: Ensures the navbar is a pill and not full-width */
+    width: calc(100% - 80px); 
+    max-width: 1240px;       /* Matches your container utility */
+    
+    /* Visuals from Home Page */
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px 30px;      /* Tighter vertical, wider horizontal padding */
+    height: auto;            /* Let padding define the height */
+}
+
+a {
+  text-decoration: none;
+  font-size: 14.4px;
+}
+
+.nav-cart-btn {
+  position: relative;
+  color: inherit;
+  text-decoration: none;
+}
+
+.cart-count {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  background: crimson;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 50%;
+  line-height: 1;
+}

@@ -1,0 +1,154 @@
+/* Core Theme Colors */
+:root {
+    --bg-black: #000000;
+    --card-bg: #111111;
+    --accent-gold: #cca353; /* Matches "LUXE" in your logo */
+    --text-main: #ffffff;
+    --text-muted: #888888;
+    --border-color: #222222;
+}
+
+body {
+    background-color: var(--bg-black);
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 60px 20px;
+}
+
+.page-header {
+    margin-bottom: 40px;
+}
+
+.page-header h1 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.item-count {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* Grid Layout */
+.wishlist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+/* Card Styling */
+.wishlist-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.wishlist-card:hover {
+    transform: translateY(-5px);
+}
+
+.image-wrapper {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: #1a1a1a;
+}
+
+.image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.85;
+    transition: opacity 0.3s ease;
+}
+
+.wishlist-card:hover .image-wrapper img {
+    opacity: 1;
+}
+
+.card-details {
+    padding: 20px;
+    text-align: left;
+}
+
+.card-details h3 {
+    margin: 0 0 8px 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.price {
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+/* Buttons */
+.add-to-bag {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--accent-gold);
+    border: none;
+    color: black;
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: background 0.3s ease;
+}
+
+.add-to-bag:hover {
+    background-color: #b58f44;
+}
+
+.remove-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    border: none;
+    font-size: 1.5rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.remove-btn:hover {
+    background: #ff4d4d;
+}
+
+.wishlist-footer {
+    margin-top: 50px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 30px;
+}
+
+.continue-shopping {
+    color: var(--accent-gold);
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px solid transparent;
+}
+
+.continue-shopping:hover {
+    border-bottom: 1px solid var(--accent-gold);
+}
+
+.wishlist-page {
+  padding-top: 120px; /* space for fixed navbar */
+  min-height: calc(100vh - 120px);
+}

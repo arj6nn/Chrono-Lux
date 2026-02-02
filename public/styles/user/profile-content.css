@@ -1,0 +1,400 @@
+/* Main Content Cards */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.premium-card {
+    background: var(--card-dark);
+    padding: 30px;
+    border-radius: 20px;
+    border: 1px solid var(--border-subtle);
+}
+
+.gold-text {
+    color: var(--gold);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.card-header h2 {
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+}
+
+.info-item label {
+    display: block;
+    color: var(--text-grey);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.info-item p {
+    font-size: 1rem;
+    color: var(--text-white);
+}
+
+/* Stats */
+.stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+}
+
+.mini-card {
+    background: var(--card-dark);
+    border: 1px solid var(--border-subtle);
+    padding: 20px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    background: var(--bg-black);
+    color: var(--gold);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.mini-card label {
+    color: var(--text-grey);
+    font-size: 0.8rem;
+}
+
+.mini-card .value {
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.gold-link {
+    position: absolute;
+    right: 25px;
+    color: var(--gold);
+    text-decoration: none;
+    font-size: 0.8rem;
+}
+
+/* Forms & Buttons */
+.luxe-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 0.8rem;
+    color: var(--text-grey);
+}
+
+.input-group input {
+    width: 94%;
+    background: var(--bg-black);
+    border: 1px solid var(--border-subtle);
+    padding: 12px 20px;
+    border-radius: 50px;
+    color: white;
+    outline: none;
+}
+
+.input-group input:focus {
+    border-color: var(--gold);
+}
+
+.btn-gold {
+    background: var(--gold);
+    color: black;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 50px;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    align-self: flex-start;
+    transition: 0.3s;
+    margin-top: 12px;
+}
+
+.btn-gold:hover {
+    background: #e0b86d;
+    transform: translateY(-2px);
+}
+
+.edit-btn {
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 8px 16px;
+    border-radius: 50px;
+    cursor: pointer;
+}
+
+/* Change Password Button */
+.btn-outline-gold {
+    background: transparent;
+    border: 1px solid #d4af37;
+    color: #d4af37;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 20px;
+    cursor: pointer;
+    letter-spacing: 0.4px;
+    transition: all 0.25s ease;
+}
+
+/* Hover effect */
+.btn-outline-gold:hover {
+    background: rgba(212, 175, 55, 0.12);
+    box-shadow: 0 0 10px rgba(212, 175, 55, 0.25);
+    transform: translateY(-1px);
+}
+
+/* Active (click) */
+.btn-outline-gold:active {
+    transform: scale(0.96);
+}
+
+/* Focus (accessibility) */
+.btn-outline-gold:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.35);
+}
+
+.btn-outline-gold i {
+    margin-right: 6px;
+    font-size: 14px;
+}
+
+/* EDIT INPUT STYLES */
+.info-item input {
+    width: 65%;
+    padding: 10px 14px;
+    background: #0d0d0d;
+    border: 1px solid rgba(255, 215, 0, 0.25);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.info-item input:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.15);
+}
+
+/* BUTTON GROUP */
+.edit-actions {
+    display: flex;
+    gap: 14px;
+    margin-top: 24px;
+}
+
+/* CANCEL BUTTON */
+.btn-outline {
+    padding: 10px 22px;
+    height: 43px;
+    margin-top: 12px;
+    background: transparent;
+    border: 1px solid var(--gold);
+    border-radius: 30px;
+    color: var(--gold);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-outline:hover {
+    background: var(--gold);
+    color: #000;
+}
+
+/* --- FOOTER SPECIFIC STYLES --- */
+.main-footer {
+    background-color: #000;
+    /* Matching your black theme */
+    color: var(--white);
+    padding: 80px 0 0;
+    margin-top: 100px;
+    border-top: 1px solid #111;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1.5fr;
+    /* 4 Column layout */
+    gap: 40px;
+    padding-bottom: 60px;
+}
+
+.footer-column h3 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 25px;
+    color: var(--accent-gold);
+}
+
+.footer-text {
+    font-size: 0.85rem;
+    color: var(--text-gray);
+    line-height: 1.8;
+    margin-bottom: 20px;
+}
+
+.footer-column ul li {
+    margin-bottom: 12px;
+}
+
+.footer-column ul li a {
+    color: var(--text-gray);
+    font-size: 0.85rem;
+    transition: 0.3s ease;
+}
+
+.footer-column ul li a:hover {
+    color: var(--accent-gold);
+    padding-left: 5px;
+}
+
+/* Social Icons */
+.social-links {
+    display: flex;
+    gap: 15px;
+}
+
+.social-links a {
+    font-size: 1.3rem;
+    color: var(--white);
+    transition: 0.3s;
+}
+
+.social-links a:hover {
+    color: var(--accent-gold);
+    transform: translateY(-3px);
+}
+
+/* Newsletter Styles (from your snippet) */
+.newsletter-form {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.newsletter-form input {
+    flex: 1;
+    background: #111;
+    border: 1px solid #222;
+    padding: 12px 15px;
+    color: white;
+    font-size: 0.85rem;
+    outline: none;
+}
+
+.newsletter-form input:focus {
+    border-color: var(--accent-gold);
+}
+
+/* Footer Bottom Bar */
+.footer-bottom {
+    border-top: 1px solid #111;
+    padding: 30px 0;
+    text-align: center;
+}
+
+.footer-bottom p {
+    font-size: 0.75rem;
+    color: #444;
+    letter-spacing: 1px;
+}
+
+/* Responsive Footer */
+@media (max-width: 1024px) {
+    .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .footer-grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .social-links {
+        justify-content: center;
+    }
+}
+
+/* ==============================
+   SWEETALERT GLASSMORPHISM
+============================== */
+.swal2-popup.glass-alert {
+    background: rgba(10, 10, 10, 0.75) !important;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    border-radius: 24px;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.85);
+    color: #fff;
+}
+
+.swal2-title {
+    color: #fff !important;
+    letter-spacing: 1px;
+}
+
+.swal2-html-container {
+    color: #cfcfcf !important;
+}
+
+.swal2-confirm {
+    background: linear-gradient(135deg, #d4af37, #f5e6a1) !important;
+    color: #000 !important;
+    border-radius: 999px !important;
+    padding: 10px 26px !important;
+}
+
+.swal2-cancel {
+    background: transparent !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    color: #fff !important;
+    border-radius: 999px !important;
+}
+
+.field-error {
+    color: #dc2626;
+    /* red-600 */
+    font-size: 13px;
+    margin-top: 6px;
+    display: none;
+}
+
+.input-error {
+    border: 1.5px solid #dc2626 !important;
+    box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.15);
+}

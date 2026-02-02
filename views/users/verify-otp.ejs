@@ -71,12 +71,23 @@
 
         function updateTimer() {
             timeLeft--;
-            timerEl.textContent = timeLeft;
+            if (timerEl) {
+                timerEl.textContent = timeLeft;
+            }
 
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
                 resendBtn.classList.remove("disabled");
                 resendBtn.textContent = "Resend";
+
+                // Expire OTP on server
+                $.ajax({
+                    type: "POST",
+                    url: "/expire-otp",
+                    success: function (response) {
+                        console.log("OTP Expired");
+                    }
+                });
             }
         }
 

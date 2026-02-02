@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/styles/user/checkout.css">
+  <link rel="stylesheet" href="/styles/user/header.css">
+  <link rel="stylesheet" href="/styles/user/address-form.css">
+</head>
+
+<body>
+  <%- include("../partials/user/header") %>
+
+    <form id="checkoutForm" method="POST" action="/order/place">
+      <input type="hidden" name="razorpayOrderId" id="razorpayOrderId">
+      <input type="hidden" name="razorpayPaymentId" id="razorpayPaymentId">
+      <input type="hidden" name="razorpaySignature" id="razorpaySignature">
+      <main class="checkout-container">
+        <div class="checkout-details">
+
+          <!-- ======================
+           DELIVERY ADDRESS
+      ======================= -->
+          <section class="checkout-section" id="checkoutAddressView">
+            <div class="section-title">
+              <span class="icon-circle">1</span> Delivery Address
+            </div>
+
+            <% if (!addresses || addresses.length===0) { %>
+              <p class="text-dim">No address found</p>
+              <button class="add-new-btn" id="btnShowAddForm" type="button">
+                + ADD NEW ADDRESS
+              </button>
+              <% } else { %>
+
+                <% addresses.forEach((address, index)=> { %>
+                  <label class="address-card <%= index === 0 ? 'selected' : '' %>">
+                    <input type="radio" name="addressId" value="<%= address._id %>" <%=index===0 ? 'checked' : '' %>
+                    hidden
+                    required
+                    >
+
+                    <div class="address-header">
+                      <span class="badge">
+                        <%= address.addressType?.toUpperCase() || 'ADDRESS' %>
+                      </span>
+
+                      <% if (address.isDefault) { %>
+                        <span class="default-badge">Default</span>
+                        <% } %>
+                    </div>
+
+                    <strong>
+                      <%= address.name %>
+                    </strong>
+                    <p>
+                      <%= address.phone %>
+                    </p>
+
+                    <p class="text-dim">
+                      <%= address.line1 %><br>
+                        <% if (address.line2) { %>
+                          <%= address.line2 %><br>
+                            <% } %>
+                              <%= address.city %>, <%= address.state %> - <%= address.pin_code %>
+                    </p>
+                  </label>
+                  <% }) %>
+
+                    <button type="button" class="add-new-btn" id="btnShowAddForm">
+                      + ADD NEW ADDRESS
+                    </button>
+
+                    <% } %>
+          </section>
+
+          <!-- ======================
+           ORDER ITEMS
+      ======================= -->
+          <section class="checkout-section">
+            <div class="section-title">
+              <span class="icon-circle">2</span> Order Items (<%= checkoutItems.length %>)
+            </div>
+
+            <% checkoutItems.forEach(item=> { %>
+              <div class="item-card">
+
+                <img src="<%= item.image %>" alt="<%= item.name %>">
+
+                <div class="item-info">
+                  <h4>
+                    <%= item.name %>
+                  </h4>
+                  <% if (item.appliedOffer) { %>
+                    <div class="offer-badge" style="margin-left: 0; margin-top: 4px; font-size: 9px; padding: 2px 8px;">
+                      <%= item.appliedOffer.discountValue %>% OFF
+                    </div>
+                    <% } %>
+                      <p>Qty: <%= item.quantity %>
+                      </p>
+
+                      <div class="price-row">
+                        <span class="sale-price">₹ <%= item.salePrice.toLocaleString("en-IN") %></span>
+
+                        <% if (item.mrp> item.salePrice) { %>
+                          <span class="old-price">₹ <%= item.mrp.toLocaleString("en-IN") %></span>
+                          <% } %>
+                      </div>
+                </div>
+
+                <div class="item-total">
+                  ₹ <%= item.total.toLocaleString("en-IN") %>
+                </div>
+
+              </div>
+              <% }) %>
+          </section>
+
+          <!-- ======================
+           PAYMENT METHOD
+      ======================= -->
+          <section class="checkout-section">
+            <div class="section-title">
+              <span class="icon-circle">3</span> Payment Method
+            </div>
+
+            <div class="payment-options">
+
+              <label class="payment-option selected">
+                <div class="selection-indicator">
+                  <i class="fa-regular fa-circle-check"></i>
+                </div>
+                <div class="payment-content">
+                  <div class="pay-brand">
+                    <img src="https://razorpay.com/favicon.png" class="pay-logo">
+                    <span class="pay-title">Razorpay</span>
+                  </div>
+                  <span class="pay-desc">Pay securely with Razorpay</span>
+                </div>
+                <input type="radio" name="payment" value="razorpay" checked hidden>
+              </label>
+
+              <label class="payment-option <%= walletBalance < finalAmount ? 'disabled' : '' %>">
+                <div class="selection-indicator">
+                  <i class="fa-regular fa-circle"></i>
+                </div>
+                <div class="payment-content">
+                  <span class="pay-title">Chrono Luxe Wallet</span>
+                  <span class="pay-desc">Balance: ₹ <%= walletBalance.toLocaleString("en-IN") %>
+                      <% if (walletBalance < finalAmount) { %>
+                        <p style="color: #ef4444; font-size: 0.8rem; margin-top: 5px;">Insufficient balance</p>
+                        <% } %>
+                  </span>
+                </div>
+                <input type="radio" name="payment" value="wallets" <%=walletBalance < finalAmount ? 'disabled' : '' %>
+                hidden>
+              </label>
+
+
+              <label class="payment-option">
+                <div class="selection-indicator">
+                  <i class="fa-regular fa-circle"></i>
+                </div>
+                <div class="payment-content">
+                  <span class="pay-title">Cash on Delivery</span>
+                  <span class="pay-desc">Pay when you receive</span>
+                </div>
+                <input type="radio" name="payment" value="cod" hidden>
+              </label>
+
+            </div>
+          </section>
+
+        </div>
+
+        <!-- ======================
+         ORDER SUMMARY
+    ======================= -->
+        <aside class="order-summary">
+          <h3>Order Summary</h3>
+
+          <div class="summary-row">
+            <span>Subtotal</span>
+            <span>₹ <%= subtotal.toLocaleString("en-IN") %></span>
+          </div>
+
+          <% if (totalDiscount> 0) { %>
+            <div class="summary-row discount">
+              <span>Offer Discount</span>
+              <span>- ₹ <%= totalDiscount.toLocaleString("en-IN") %></span>
+            </div>
+            <% } %>
+
+              <div class="summary-row coupon-row" id="couponRow"
+                style="<%= couponDiscount > 0 ? '' : 'display: none;' %>">
+                <span>Coupon Discount</span>
+                <span class="text-success">- ₹ <span id="couponDiscountVal">
+                    <%= couponDiscount.toLocaleString("en-IN") %>
+                  </span></span>
+              </div>
+
+              <div class="summary-row">
+                <span>Shipping</span>
+                <span class="<%= deliveryFee === 0 ? 'free-text' : '' %>" id="shippingVal">
+                  <%= deliveryFee===0 ? 'Free' : '₹ ' + deliveryFee %>
+                </span>
+              </div>
+
+              <hr class="divider">
+
+              <div class="summary-row total">
+                <span>Total</span>
+                <span id="finalAmountVal">₹ <%= finalAmount.toLocaleString("en-IN") %></span>
+              </div>
+
+              <!-- Coupon SECTION -->
+              <div class="coupon-section">
+                <label class="coupon-label">Apply Coupon</label>
+
+                <!-- Applied State -->
+                <div id="appliedCouponBox" class="applied-coupon-box"
+                  style="<%= appliedCoupon ? 'display: flex;' : 'display: none;' %>">
+                  <div class="applied-info">
+                    <div class="coupon-applied-title">
+                      <i class="fa-solid fa-circle-check"></i>
+                      <span id="appliedCodeText">
+                        <%= appliedCoupon ? appliedCoupon.couponCode : '' %> Applied
+                      </span>
+                    </div>
+                    <p class="saved-text">You saved ₹ <span id="appliedSavedAmount">
+                        <%= couponDiscount %>
+                      </span></p>
+                  </div>
+                  <button type="button" class="remove-coupon-btn" onclick="removeCoupon()">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+
+                <!-- Non-Applied State -->
+                <div id="couponInputBox" class="coupon-input-group"
+                  style="<%= appliedCoupon ? 'display: none;' : 'display: flex;' %>">
+                  <div class="input-with-icon">
+                    <i class="fa-solid fa-tag"></i>
+                    <input type="text" id="couponCodeInput" placeholder="Enter coupon code">
+                  </div>
+                  <button type="button" class="apply-btn" onclick="applyCoupon()">Apply</button>
+                </div>
+
+                <!-- Available Coupons -->
+                <div class="available-coupons" id="availableCoupons"
+                  style="<%= !appliedCoupon && availableCoupons.length > 0 ? 'display: block;' : 'display: none;' %>">
+                  <p class="av-title">Available Coupons:</p>
+                  <% availableCoupons.forEach(coupon=> { %>
+                    <div class="coupon-item" onclick="selectCoupon('<%= coupon.couponCode %>')">
+                      <strong>
+                        <%= coupon.couponCode %>
+                      </strong> -
+                      <% if (coupon.discountType==='PERCENTAGE' ) { %>
+                        Get <%= coupon.discountValue %>% off
+                          <% } else { %>
+                            Get ₹<%= coupon.discountValue %> off
+                              <% } %>
+                    </div>
+                    <% }) %>
+                </div>
+              </div>
+
+              <button type="submit" class="place-order-btn">PLACE ORDER</button>
+        </aside>
+      </main>
+    </form>
+
+    <!-- ADD ADDRESS MODAL -->
+    <div id="addressModal" class="modal-overlay">
+      <div class="modal-box">
+        <button class="modal-close" id="closeAddressModal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <%- include("../partials/user/address-form", { backText: "Cancel" , submitText: "Save Address" }) %>
+      </div>
+    </div>
+
+    <%- include("../partials/user/footer") %>
+
+      <!-- SweetAlert2 Library -->
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+      <!-- Glass Nav Setup -->
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          const nav = document.querySelector('nav');
+          if (nav) nav.classList.add('glass-nav');
+        });
+      </script>
+
+      <!-- Glass Alert Helper Function -->
+      <script>
+        const glassAlert = (icon, title, text) => {
+          Swal.fire({
+            icon,
+            title,
+            text,
+            customClass: {
+              popup: 'glass-alert'
+            },
+            confirmButtonText: 'OK'
+          });
+        };
+      </script>
+
+      <!-- Stock Update Notification -->
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          // READ VALUES SAFELY
+          const reducedItems = <%- JSON.stringify(locals.reducedItems || []) %>;
+          const removedItems = <%- JSON.stringify(locals.removedItems || []) %>;
+
+
+          console.log("[CHECKOUT] Reduced:", reducedItems, "Removed:", removedItems);
+
+
+          // Show alert if data exists
+          if (reducedItems.length > 0 || removedItems.length > 0) {
+            let message = "";
+
+            if (reducedItems.length > 0) {
+              reducedItems.forEach(item => {
+                message += `<p>Quantity of <strong>${item.name}</strong> has been reduced to <strong>${item.quantity}</strong> due to insufficient stock.</p>`;
+              });
+            }
+
+            if (removedItems.length > 0) {
+              message += `<p>The following items were removed due to unavailability: <strong>${removedItems.join(", ")}</strong></p>`;
+            }
+
+            Swal.fire({
+              icon: "info",
+              title: "Cart Updated",
+              html: message,
+              confirmButtonText: "OK",
+              customClass: {
+                popup: "glass-alert"
+              }
+            });
+          }
+        });
+      </script>
+
+      <!-- Address Modal Handling -->
+      <script>
+        document.addEventListener("DOMContentLoaded", () => {
+          const modal = document.getElementById("addressModal");
+          const openBtn = document.getElementById("btnShowAddForm");
+          const closeBtn = document.getElementById("closeAddressModal");
+          const cancelBtn = document.getElementById("btnCancelAdd");
+
+          if (openBtn) {
+            openBtn.onclick = (e) => {
+              e.preventDefault();
+              modal.classList.add("show");
+              document.body.style.overflow = "hidden";
+            };
+          }
+
+          const closeModal = () => {
+            modal.classList.remove("show");
+            document.body.style.overflow = "";
+          };
+
+          if (closeBtn) closeBtn.onclick = closeModal;
+          if (cancelBtn) cancelBtn.onclick = closeModal;
+
+          // Close on backdrop click
+          modal.addEventListener("click", (e) => {
+            if (e.target === modal) closeModal();
+          });
+
+          // Form submission
+          const form = document.getElementById("addNewAddressForm");
+
+          if (form) {
+            form.addEventListener("submit", async (e) => {
+              e.preventDefault();
+
+              const formData = new FormData(form);
+              const data = Object.fromEntries(formData);
+
+              // Convert to proper types
+              data.pin_code = parseInt(data.pin_code);
+              data.phone = parseInt(data.phone);
+              data.isDefault = formData.has("isDefault");
+
+              try {
+                const response = await fetch("/profile/addresses", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json"
+                  },
+                  body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                  glassAlert("success", "Address saved successfully");
+                  form.reset();
+                  closeModal();
+
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 800);
+                } else {
+                  glassAlert("error", "Failed to save the address");
+                }
+              } catch (error) {
+                console.error("Error:", error);
+                glassAlert("error", "Error saving address: " + error.message);
+              }
+            });
+          }
+        });
+      </script>
+
+      <!-- Address Card Selection -->
+      <script>
+        document.addEventListener("DOMContentLoaded", () => {
+          const addressCards = document.querySelectorAll(".address-card");
+
+          addressCards.forEach(card => {
+            card.addEventListener("click", () => {
+              // Remove selected from all cards
+              addressCards.forEach(c => c.classList.remove("selected"));
+
+              // Add selected to clicked card
+              card.classList.add("selected");
+
+              // Check the radio input
+              const radio = card.querySelector("input[type='radio']");
+              if (radio) radio.checked = true;
+            });
+          });
+        });
+      </script>
+
+      <!-- Payment Option Selection -->
+      <script>
+        document.addEventListener("DOMContentLoaded", () => {
+          const paymentOptions = document.querySelectorAll(".payment-option");
+
+          const syncPaymentUI = () => {
+            paymentOptions.forEach(option => {
+              const radio = option.querySelector("input[type='radio']");
+              const icon = option.querySelector(".selection-indicator i");
+
+              if (radio.checked) {
+                option.classList.add("selected");
+                icon.classList.remove("fa-circle");
+                icon.classList.add("fa-circle-check");
+              } else {
+                option.classList.remove("selected");
+                icon.classList.remove("fa-circle-check");
+                icon.classList.add("fa-circle");
+              }
+            });
+          };
+
+          syncPaymentUI();
+
+          paymentOptions.forEach(option => {
+            option.addEventListener("click", () => {
+              const radio = option.querySelector("input[type='radio']");
+              radio.checked = true;
+              syncPaymentUI();
+            });
+          });
+        });
+      </script>
+
+      <script>
+        window.checkoutAmount = <%- finalAmount %>;
+        window.razorpayKeyId = "<%- razorpayKeyId %>";
+      </script>
+
+
+
+      <!-- Form Validation and Submission -->
+      <script>
+        document.addEventListener("DOMContentLoaded", () => {
+          const form = document.getElementById("checkoutForm");
+
+          form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const selectedAddress = document.querySelector("input[name='addressId']:checked");
+            const selectedPayment = document.querySelector("input[name='payment']:checked");
+
+            if (!selectedAddress) {
+              glassAlert("error", "Validation Error", "Please select a delivery address");
+              return;
+            }
+
+            if (!selectedPayment) {
+              glassAlert("error", "Validation Error", "Please select a payment method");
+              return;
+            }
+
+            // COD → direct submit
+            if (selectedPayment.value === "cod") {
+              if (window.checkoutAmount >= 10000) {
+                glassAlert("error", "Validation Error", "COD is not available for this amount");
+                return;
+              }
+              form.submit();
+              return;
+            }
+
+            // Razorpay
+            if (selectedPayment.value === "razorpay") {
+              startRazorpayPayment();
+              return;
+            }
+
+            // Wallet
+            if (selectedPayment.value === "wallets") {
+              form.submit();
+              return;
+            }
+
+          });
+        });
+
+        async function startRazorpayPayment() {
+          try {
+            const res = await fetch("/razorpay/create-order", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ amount: window.checkoutAmount })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+              openRazorpay(data.order);
+            } else {
+              glassAlert("error", "Payment Error", data.error || "Failed to initiate payment");
+            }
+          } catch (err) {
+            glassAlert("error", "Payment Error", "Failed to connect to payment server");
+          }
+        }
+
+        function openRazorpay(order) {
+          const options = {
+            key: window.razorpayKeyId,
+            amount: order.amount,
+            currency: "INR",
+            order_id: order.id,
+            name: "Chrono Luxe",
+            description: "Order Payment",
+
+            handler: async function (response) {
+              const verifyRes = await fetch("/razorpay/verify-payment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(response)
+              });
+
+              const result = await verifyRes.json();
+
+              if (result.success) {
+                document.getElementById("razorpayOrderId").value = response.razorpay_order_id;
+                document.getElementById("razorpayPaymentId").value = response.razorpay_payment_id;
+                document.getElementById("razorpaySignature").value = response.razorpay_signature;
+
+                document.getElementById("checkoutForm").submit();
+              } else {
+                glassAlert("error", "Payment Failed", "Verification failed");
+              }
+            }
+          };
+
+          const rzp = new Razorpay(options);
+          rzp.open();
+        }
+      </script>
+
+
+      <!-- Coupon Functions -->
+      <script>
+        async function applyCoupon() {
+          const couponCode = document.getElementById('couponCodeInput').value.trim();
+          if (!couponCode) {
+            glassAlert('warning', 'Empty Code', 'Please enter a coupon code');
+            return;
+          }
+
+          try {
+            const response = await fetch('/checkout/apply-coupon', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ couponCode })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+              // Update UI
+              document.getElementById('appliedCodeText').innerText = result.couponCode + ' Applied';
+              document.getElementById('appliedSavedAmount').innerText = result.discount.toFixed(2);
+
+              document.getElementById('appliedCouponBox').style.display = 'flex';
+              document.getElementById('couponInputBox').style.display = 'none';
+              document.getElementById('availableCoupons').style.display = 'none';
+
+              // Update Summary Row
+              document.getElementById('couponRow').style.display = 'flex';
+              document.getElementById('couponDiscountVal').innerText = result.discount.toLocaleString("en-IN");
+
+              // Reload after a small delay to get updated totals from server
+              setTimeout(() => location.reload(), 1000);
+            } else {
+              glassAlert('error', 'Coupon Error', result.message);
+            }
+          } catch (error) {
+            console.error('Error applying coupon:', error);
+            glassAlert('error', 'Error', 'Something went wrong');
+          }
+        }
+
+        async function removeCoupon() {
+          try {
+            const response = await fetch('/checkout/remove-coupon', { method: 'POST' });
+            const result = await response.json();
+
+            if (result.success) {
+              location.reload();
+            }
+          } catch (error) {
+            console.error('Error removing coupon:', error);
+          }
+        }
+
+        function selectCoupon(code) {
+          document.getElementById('couponCodeInput').value = code;
+          applyCoupon();
+        }
+      </script>
+      <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+</body>
+
+</html>

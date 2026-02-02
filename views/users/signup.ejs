@@ -33,26 +33,26 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>First Name</label>
-                        <input type="text" name="name" id="name" required>
+                        <input type="text" name="name" id="name" value="<%= formData?.name || ''%>" required>
                         <div id="error1" class="error-message"></div>
                     </div>
 
                     <div class="form-group">
                         <label>Last Name</label>
-                        <input type="text" name="lName" id="lName" required>
+                        <input type="text" name="lName" id="lName" value="<%= formData?.lName || ''%>" required>
                         <div id="error2" class="error-message"></div>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Email address</label>
-                    <input type="email" name="email" id="email" required>
+                    <input type="email" name="email" id="email" value="<%= formData.email || '' %>" required>
                     <div id="error3" class="error-message"></div>
                 </div>
 
                 <div class="form-group">
                     <label>Phone</label>
-                    <input type="text" name="phone" id="phone" required>
+                    <input type="text" name="phone" id="phone" value="<%= formData.phone || ''%>" required>
                     <div id="error4" class="error-message"></div>
                 </div>
 
@@ -78,9 +78,26 @@
                     <div class="alert alert-danger text-center">
                         <%= message %>
                     </div>
-                <% } %>
+                    <% } %>
 
-                <button type="submit" class="btn-primary">Create Account</button>
+                        <div class="referral-section">
+                            <h3 class="referral-title">Join with a Friend?</h3>
+                            <p class="referral-subtitle">Did someone refer you to our platform? Enter their referral
+                                code below!</p>
+
+                            <label class="referral-question">Do you have a referral code?</label>
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="hasReferral" onchange="toggleReferralInput()">
+                                <span>Yes</span>
+                            </div>
+
+                            <div id="referralInputWrapper" class="referral-input-wrapper">
+                                <label class="referral-success-msg">Great! Enter the code</label>
+                                <input type="text" name="referralCode" id="referralCode" placeholder="CODE">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary">Create Account</button>
 
             </form>
 
@@ -97,6 +114,12 @@
     </section>
 
     <script>
+        function toggleReferralInput() {
+            const checkbox = document.getElementById('hasReferral');
+            const wrapper = document.getElementById('referralInputWrapper');
+            wrapper.style.display = checkbox.checked ? 'block' : 'none';
+        }
+
         function togglePassword(inputId, icon) {
             const input = document.getElementById(inputId);
             if (input.type === "password") {

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="/styles/user/header.css">
+  <link rel="stylesheet" href="/styles/user/cart.css">
+  <link rel="stylesheet" href="/styles/user/profile-layout.css">
+
+  <!-- TOASTIFY CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+  <!-- SweetAlert2 for stock notifications -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+  <%- include("../partials/user/header") %>
+
+    <main class="container">
+      <h1>Bag</h1>
+
+      <% if (!cart || cart.items.length===0) { %>
+
+        <div class="empty-cart-layout">
+
+          <section class="empty-cart-left">
+            <p class="empty-msg">There are no items in your bag.</p>
+            <a href="/shop" class="continue-link">Continue Shopping</a>
+          </section>
+
+          <aside class="price-details empty-state">
+            <h3>PRICE DETAILS</h3>
+
+            <div class="row">
+              <span>Price (0 items)</span>
+              <span>—</span>
+            </div>
+
+            <div class="row discount">
+              <span>Discount</span>
+              <span>—</span>
+            </div>
+
+            <hr>
+
+            <div class="row total">
+              <span>Total Amount</span>
+              <span>—</span>
+            </div>
+
+            <p class="savings-msg muted">Add items to see savings</p>
+
+            <button class="checkout-btn disabled" disabled>Checkout</button>
+
+            <ul class="trust-markers muted">
+              <li>✓ Secure checkout</li>
+              <li>✓ Free returns within 30 days</li>
+              <li>✓ Estimated delivery: 3–5 days</li>
+            </ul>
+          </aside>
+
+        </div>
+
+        <% } else { %>
+
+          <div class="cart-layout">
+
+            <section class="cart-items">
+              <% let subtotal=0; let originalTotal=0; %>
+
+                <% cart.items.forEach(item=> {
+                  const v = item.variant;
+                  const p = item.product;
+
+                  const originalPrice = v.price * item.quantity;
+                  const salePrice =
+                  (v.salesPrice > 0 ? v.salesPrice : v.price) * item.quantity;
+
+                  subtotal += salePrice;
+                  originalTotal += originalPrice;
+                  %>
+
+                  <div class="item-card" data-item-id="<%= item._id %>"
+                    data-unit-price="<%= v.salesPrice > 0 ? v.salesPrice : v.price %>"
+                    data-original-price="<%= v.price %>">
+                    <div class="product-img">
+                      <img src="<%= v.images[0] %>" alt="<%= p.productName %>">
+                    </div>
+
+                    <div class="product-info">
+                      <h3>
+                        <%= p.productName %>
+                      </h3>
+                      <p class="variant">Color: <%= v.color %> | Dial: <%= v.dialSize %>
+                      </p>
+                      <% if (v.appliedOffer) { %>
+                        <div class="offer-badge" style="margin-left: 0; margin-top: 5px;">
+                          <%= v.appliedOffer.discountValue %>% OFF
+                        </div>
+                        <% } %>
+
+                          <div class="quantity-controls">
+                            <button class="trash-btn" data-id="<%= item._id %>">🗑️</button>
+
+                            <div class="counter">
+                              <button class="qty-btn" data-action="decrease">-</button>
+                              <span class="qty">
+                                <%= item.quantity %>
+                              </span>
+                              <button class="qty-btn" data-action="increase">+</button>
+                            </div>
+                          </div>
+                    </div>
+
+                    <div class="price-tag">
+                      <span class="current-price">₹ <%= salePrice.toLocaleString() %></span>
+                      <% if (v.salesPrice> 0) { %>
+                        <span class="old-price">₹ <%= originalPrice.toLocaleString() %></span>
+                        <% } %>
+                    </div>
+                  </div>
+
+                  <% }) %>
+
+            </section>
+
+            <aside class="price-details">
+              <h3>PRICE DETAILS</h3>
+
+              <div class="row" id="priceRow">
+                <span>Price (<%= cart.items.length %> items)</span>
+                <span>₹ <%= originalTotal.toLocaleString() %></span>
+              </div>
+
+              <div class="row discount" id="discountRow">
+                <span>Discount</span>
+                <span>- ₹ <%= (originalTotal - subtotal).toLocaleString() %></span>
+              </div>
+
+              <hr>
+
+              <div class="row total" id="totalRow">
+                <span>Total Amount</span>
+                <span>₹ <%= subtotal.toLocaleString() %></span>
+              </div>
+
+              <p class="savings-msg" id="savingsMsg">
+                You will save ₹ <%= (originalTotal - subtotal).toLocaleString() %>
+              </p>
+
+              <a href="/checkout"><button class="checkout-btn">Checkout</button></a>
+            </aside>
+
+          </div>
+          <% } %>
+
+    </main>
+
+    <%- include("../partials/user/footer") %>
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          const nav = document.querySelector('nav');
+          if (nav) nav.classList.add('glass-nav');
+        });
+      </script>
+
+      <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+      <script>
+        function showToast(text, color = "#ef4444") {
+          Toastify({
+            text,
+            duration: 3000,
+            gravity: "bottom",
+            position: "center",
+            className: "toastify-custom",
+            style: {
+              borderLeft: `4px solid ${color}`,
+              background: "#111", // Ensure dark background
+            },
+            close: true
+          }).showToast();
+        }
+      </script>
+
+      <script>
+        document.addEventListener("DOMContentLoaded", () => {
+          const params = new URLSearchParams(window.location.search);
+          if (params.get("updated") === "true") {
+            showToast("Cart updated due to stock changes", "#f59e0b");
+            history.replaceState({}, "", location.pathname);
+          }
+
+          document.querySelectorAll(".item-card").forEach(updateQtyButtons);
+        });
+      </script>
+
+      <script>
+        // Stock Update Notification
+        document.addEventListener('DOMContentLoaded', () => {
+          const reducedItems = <%- JSON.stringify(locals.reducedItems || []) %>;
+          const removedItems = <%- JSON.stringify(locals.removedItems || []) %>;
+
+          console.log("[CART] Reduced:", reducedItems, "Removed:", removedItems);
+
+
+          if (reducedItems.length > 0 || removedItems.length > 0) {
+            let message = "";
+
+            if (reducedItems.length > 0) {
+              reducedItems.forEach(item => {
+                message += `<p>Quantity of <strong>${item.name}</strong> has been reduced to <strong>${item.quantity}</strong> due to insufficient stock.</p>`;
+              });
+            }
+
+            if (removedItems.length > 0) {
+              message += `<p>The following items were removed due to unavailability: <strong>${removedItems.join(", ")}</strong></p>`;
+            }
+
+            Swal.fire({
+              icon: "info",
+              title: "Cart Updated",
+              html: message,
+              confirmButtonText: "OK",
+              customClass: {
+                popup: "glass-alert"
+              }
+            });
+          }
+        });
+      </script>
+
+      <script>
+        document.addEventListener("click", async (e) => {
+          const btn = e.target.closest(".qty-btn");
+          if (!btn) return;
+
+          const action = btn.dataset.action;
+          const card = btn.closest(".item-card");
+          const itemId = card.dataset.itemId;
+
+          // Prevent multiple clicks
+          if (btn.disabled) return;
+          btn.disabled = true;
+
+          try {
+            const res = await axios.patch(`/cart/update/${itemId}`, { action });
+
+            if (!res.data.success && res.data.message) {
+              showToast(res.data.message, "#f59e0b");
+              return;
+            }
+
+            if (res.data.removed) {
+              card.remove();
+              showToast("Item removed from cart", "#10B981"); // Success green
+              updateCartTotals();
+              updateNavbarCount();
+              return;
+            }
+
+            card.querySelector(".qty").innerText = res.data.quantity;
+            card.querySelector(".current-price").innerText =
+              `₹ ${res.data.itemTotal.toLocaleString()}`;
+
+            updateQtyButtons(card);
+            updateCartTotals();
+            updateNavbarCount();
+
+          } catch (error) {
+            console.error(error);
+            showToast("Failed to update cart", "#ef4444");
+          } finally {
+            btn.disabled = false;
+            // Update button state again to ensure correct disabled state after enabling
+            updateQtyButtons(card);
+          }
+        });
+      </script>
+
+      <script>
+        document.addEventListener("click", async (e) => {
+          const btn = e.target.closest(".trash-btn");
+          if (!btn) return;
+
+          const itemId = btn.dataset.id;
+          const card = btn.closest(".item-card");
+
+          try {
+            const res = await axios.delete(`/cart/remove/${itemId}`);
+            if (res.data.success) {
+              card.remove();
+              showToast("Item removed from cart", "#10B981");
+              updateCartTotals();
+              updateNavbarCount();
+            }
+          } catch (error) {
+            console.error(error);
+            showToast("Failed to remove item", "#ef4444");
+          }
+        });
+      </script>
+
+      <script>
+        function updateQtyButtons(card) {
+          const qty = parseInt(card.querySelector(".qty").innerText);
+          const decreaseBtn = card.querySelector('[data-action="decrease"]');
+
+          if (decreaseBtn) {
+            if (qty <= 1) {
+              decreaseBtn.disabled = true;
+              decreaseBtn.style.opacity = "0.5";
+              decreaseBtn.style.cursor = "not-allowed";
+            } else {
+              decreaseBtn.disabled = false;
+              decreaseBtn.style.opacity = "1";
+              decreaseBtn.style.cursor = "pointer";
+            }
+          }
+        }
+      </script>
+
+      <script>
+        function updateCartTotals() {
+          let subtotal = 0, original = 0, count = 0;
+
+          document.querySelectorAll(".item-card").forEach(card => {
+            const qty = parseInt(card.querySelector(".qty").innerText);
+            subtotal += qty * parseInt(card.dataset.unitPrice);
+            original += qty * parseInt(card.dataset.originalPrice);
+            count++;
+          });
+
+          if (count === 0) location.reload();
+
+          // Update Price Details
+          const discount = original - subtotal;
+
+          const priceRow = document.querySelector("#priceRow");
+          if (priceRow) {
+            priceRow.querySelector("span:first-child").innerText = `Price (${count} items)`;
+            priceRow.querySelector("span:last-child").innerText = `₹ ${original.toLocaleString()}`;
+          }
+
+          const discountRow = document.querySelector("#discountRow");
+          if (discountRow) {
+            discountRow.querySelector("span:last-child").innerText = `- ₹ ${discount.toLocaleString()}`;
+          }
+
+          const totalRow = document.querySelector("#totalRow");
+          if (totalRow) {
+            totalRow.querySelector("span:last-child").innerText = `₹ ${subtotal.toLocaleString()}`;
+          }
+
+          const savingsMsg = document.querySelector("#savingsMsg");
+          if (savingsMsg) {
+            savingsMsg.innerText = `You will save ₹ ${discount.toLocaleString()}`;
+          }
+        }
+      </script>
+
+      <script>
+        function updateNavbarCount() {
+          const badge = document.querySelector(".cart-count");
+          if (!badge) return;
+          const count = document.querySelectorAll(".item-card").length;
+          count === 0 ? badge.remove() : badge.innerText = count;
+        }
+      </script>
+
+</body>
+
+</html>

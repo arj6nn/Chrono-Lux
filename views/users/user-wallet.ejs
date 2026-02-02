@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wallet - Chrono Luxe</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/styles/user/header.css">
+    <link rel="stylesheet" href="/styles/user/profile-layout.css">
+    <link rel="stylesheet" href="/styles/user/profile-sidebar.css">
+    <link rel="stylesheet" href="/styles/user/profile-content.css">
+    <link rel="stylesheet" href="/styles/user/wallet.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+</head>
+
+<body>
+
+    <%- include("../partials/user/header") %>
+
+        <div class="dashboard-container">
+            <%- include("../partials/user/profile-sidebar", { active: "wallet" }) %>
+
+                <main class="main-content">
+
+                    <% if (typeof isAddMoneyPage !=='undefined' && isAddMoneyPage) { %>
+                        <div class="wallet-header-row">
+                            <a href="/profile/wallet" class="back-link">
+                                <i class='bx bx-left-arrow-alt'></i> Back to Wallet
+                            </a>
+                        </div>
+
+                        <section class="add-money-container">
+                            <div class="page-title-area">
+                                <h2>Add Money</h2>
+                                <p>Load your wallet for instant checkouts and easier returns.</p>
+                            </div>
+
+                            <div class="current-balance-display">
+                                <div class="balance-content">
+                                    <span>Current Balance</span>
+                                    <h3>₹<%= wallet.balance.toLocaleString('en-IN') %>
+                                    </h3>
+                                </div>
+                                <div class="wallet-icon-large">
+                                    <i class='bx bxs-wallet'></i>
+                                </div>
+                            </div>
+
+                            <div class="amount-selection-section">
+                                <h4>Select or Enter Amount</h4>
+                                <div class="amount-grid">
+                                    <button class="amount-btn" data-val="500">₹ 500</button>
+                                    <button class="amount-btn" data-val="1000">₹ 1,000</button>
+                                    <button class="amount-btn" data-val="2000">₹ 2,000</button>
+                                    <button class="amount-btn" data-val="5000">₹ 5,000</button>
+                                    <button class="amount-btn active" data-val="10000">₹ 10,000</button>
+                                    <button class="amount-btn" id="btnOther" data-val="other">Other</button>
+                                </div>
+
+                                <div class="manual-amount-wrapper" style="display: none;">
+                                    <i class='bx bx-edit-alt'></i>
+                                    <input type="number" id="manualAmount" class="manual-amount-input"
+                                        placeholder="Add custom amount" min="1">
+                                </div>
+
+
+                                <div class="total-summary-box">
+                                    <span class="label">Total Crediting</span>
+                                    <span id="displayAmount" class="value">₹ 10,000</span>
+                                </div>
+
+                                <button class="action-submit-btn" id="proceedToAdd">
+                                    Proceed to Add <span id="btnAmount">₹ 10,000</span>
+                                </button>
+
+                                <div class="security-note">
+                                    <i class='bx bxs-shield-check'></i>
+                                    <span>Secure 256-bit SSL Encrypted Payment</span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <% } else { %>
+                            <h2 class="section-main-title">My Wallet</h2>
+
+                            <div class="wallet-banner-card">
+                                <div class="balance-info-col">
+                                    <span class="balance-label">Available Balance</span>
+                                    <h1 class="balance-value">₹<%= wallet.balance.toLocaleString('en-IN') %>
+                                    </h1>
+                                    <% if (wallet.transactions && wallet.transactions.length> 0) { %>
+                                        <p class="last-activity">
+                                            last transaction at : <%= new
+                                                Date(wallet.transactions[0].createdAt).toLocaleDateString('en-US', {
+                                                month: 'short' , day: 'numeric' , year: 'numeric' }) %>
+                                        </p>
+                                        <% } %>
+                                </div>
+
+                                <a href="/profile/wallet/addmoney" class="btn-add-funds">
+                                    <i class="bx bx-plus"></i> Add Money
+                                </a>
+                            </div>
+
+                            <div class="history-section">
+                                <h3>Transaction History</h3>
+
+                                <% if (wallet.transactions && wallet.transactions.length> 0) { %>
+                                    <div class="transaction-timeline">
+                                        <% wallet.transactions.forEach(t=> { %>
+                                            <div class="t-row">
+                                                <div class="t-left">
+                                                    <div class="t-icon-box <%= t.type %>">
+                                                        <i
+                                                            class='bx <%= t.type === "credit" ? "bx-up-arrow-alt" : "bx-down-arrow-alt" %>'></i>
+                                                    </div>
+                                                    <div class="t-details">
+                                                        <p class="t-reason">
+                                                            <%= t.orderId && t.orderId.orderId ?
+                                                                t.reason.replace(t.orderId._id.toString(),
+                                                                t.orderId.orderId) : t.reason %>
+                                                        </p>
+                                                        <p class="t-date">
+                                                            <%= new Date(t.createdAt).toLocaleDateString('en-US', {
+                                                                month: 'short' , day: 'numeric' , year: 'numeric' }) %>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div class="t-right">
+                                                    <span class="t-amount <%= t.type %>">
+                                                        <%= t.type==='credit' ? '+' : '-' %>₹<%=
+                                                                t.amount.toLocaleString('en-IN') %>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <% }) %>
+                                    </div>
+
+                                    <!-- Pagination -->
+                                    <% if (totalPages> 1) { %>
+                                        <div class="pagination-container">
+                                            <a href="?page=<%= currentPage - 1 %>"
+                                                class="pag-btn <%= currentPage === 1 ? 'disabled' : '' %>">Prev</a>
+
+                                            <% for(let i=1; i <=totalPages; i++) { %>
+                                                <a href="?page=<%= i %>"
+                                                    class="pag-btn <%= currentPage === i ? 'active' : '' %>">
+                                                    <%= i %>
+                                                </a>
+                                                <% } %>
+
+                                                    <a href="?page=<%= currentPage + 1 %>"
+                                                        class="pag-btn <%= currentPage === totalPages ? 'disabled' : '' %>">Next</a>
+                                        </div>
+                                        <% } %>
+
+                                            <% } else { %>
+                                                <div class="empty-wallet-state">
+                                                    <i class='bx bx-list-ul'></i>
+                                                    <p>No transaction history found</p>
+                                                </div>
+                                                <% } %>
+                            </div>
+                            <% } %>
+
+                </main>
+        </div>
+
+        <%- include("../partials/user/footer") %>
+
+            <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    // Amount selection logic
+                    const amountBtns = document.querySelectorAll('.amount-btn');
+                    const manualInput = document.getElementById('manualAmount');
+
+                    if (amountBtns.length > 0 || manualInput) {
+                        const displayAmt = document.getElementById('displayAmount');
+                        const btnAmt = document.getElementById('btnAmount');
+                        const proceedBtn = document.getElementById('proceedToAdd');
+                        let currentSelected = 10000;
+
+                        const formatCurrency = (val) => {
+                            if (!val || isNaN(val)) val = 0;
+                            return new Intl.NumberFormat('en-IN', {
+                                style: 'currency',
+                                currency: 'INR',
+                                maximumFractionDigits: 0
+                            }).format(val);
+                        };
+
+                        const updateDisplay = (val) => {
+                            currentSelected = Number(val);
+                            displayAmt.innerText = formatCurrency(currentSelected);
+                            btnAmt.innerText = formatCurrency(currentSelected);
+                        };
+
+                        const manualWrapper = document.querySelector('.manual-amount-wrapper');
+
+                        amountBtns.forEach(btn => {
+                            btn.addEventListener('click', () => {
+                                amountBtns.forEach(b => b.classList.remove('active'));
+                                btn.classList.add('active');
+
+                                if (btn.id === 'btnOther') {
+                                    // Show manual input
+                                    manualWrapper.style.display = 'block';
+                                    manualInput.focus();
+                                    // If manual input has a value, use it, else reset to 0
+                                    if (manualInput.value) {
+                                        updateDisplay(manualInput.value);
+                                    } else {
+                                        updateDisplay(0);
+                                    }
+                                } else {
+                                    // Preset selected - hide manual input
+                                    manualWrapper.style.display = 'none';
+                                    if (manualInput) manualInput.value = '';
+                                    updateDisplay(btn.getAttribute('data-val'));
+                                }
+                            });
+                        });
+
+                        if (manualInput) {
+                            manualInput.addEventListener('input', (e) => {
+                                let val = e.target.value;
+
+                                if (val && val > 0) {
+                                    updateDisplay(val);
+                                } else {
+                                    updateDisplay(0);
+                                }
+                            });
+                        }
+
+
+                        if (proceedBtn) {
+                            proceedBtn.addEventListener('click', async () => {
+                                if (currentSelected <= 0 || isNaN(currentSelected)) {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Invalid Amount',
+                                        text: 'Please select or enter a valid amount to add.'
+                                    });
+                                    return;
+                                }
+
+                                try {
+                                    // 1. Create Order
+                                    const res = await fetch("/razorpay/create-order", {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({ amount: currentSelected })
+                                    });
+
+
+                                    const data = await res.json();
+                                    if (!data.success) {
+                                        throw new Error("Failed to create Razorpay order");
+                                    }
+
+                                    // 2. Open Razorpay Checkout
+                                    const options = {
+                                        key: "<%= locals.razorpayKeyId %>",
+                                        amount: data.order.amount,
+                                        currency: "INR",
+                                        name: "Chrono Luxe",
+                                        description: "Wallet Top-up",
+                                        order_id: data.order.id,
+                                        handler: async function (response) {
+                                            // 3. Verify Payment
+                                            const verifyRes = await fetch("/profile/wallet/verify", {
+                                                method: "POST",
+                                                headers: { "Content-Type": "application/json" },
+                                                body: JSON.stringify({
+                                                    ...response,
+                                                    amount: currentSelected
+                                                })
+                                            });
+
+                                            const verifyData = await verifyRes.json();
+                                            if (verifyData.success) {
+                                                Toastify({
+                                                    text: `₹${currentSelected.toLocaleString('en-IN')} added to wallet successfully`,
+                                                    duration: 3000,
+                                                    gravity: "bottom",
+                                                    position: "center",
+                                                    close: true,
+                                                    stopOnFocus: true,
+                                                    style: {
+                                                        background: "linear-gradient(135deg, #16a34a, #22c55e)",
+                                                    }
+                                                }).showToast();
+
+                                                setTimeout(() => {
+                                                    window.location.href = "/profile/wallet";
+                                                }, 2000);
+                                            } else {
+                                                Toastify({
+                                                    text: verifyData.message || "Payment verification failed",
+                                                    duration: 3000,
+                                                    gravity: "bottom",
+                                                    position: "center",
+                                                    close: true,
+                                                    stopOnFocus: true,
+                                                    style: {
+                                                        background: "linear-gradient(135deg, #dc2626, #ef4444)",
+                                                    }
+                                                }).showToast();
+                                            }
+                                        },
+                                        prefill: {
+                                            name: "<%= user.name %>",
+                                            email: "<%= user.email %>",
+                                            contact: "<%= user.phone %>"
+                                        },
+                                        theme: {
+                                            color: "#1a1a1a"
+                                        },
+                                        modal: {
+                                            ondismiss: function () {
+                                                console.log('Checkout closed');
+                                            }
+                                        }
+                                    };
+
+                                    const rzp = new Razorpay(options);
+                                    rzp.open();
+
+                                } catch (error) {
+                                    console.error("Add money error:", error);
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: 'Something went wrong. Please try again.'
+                                    });
+                                }
+                            });
+                        }
+                    }
+                });
+            </script>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const nav = document.querySelector('nav');
+                    if (nav) nav.classList.add('glass-nav');
+                });
+            </script>
+            <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+</body>
+
+</html>

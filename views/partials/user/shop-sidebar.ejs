@@ -1,145 +1,112 @@
-<link rel="stylesheet" href="/styles/user/sidebar.css">
-
-<!-- SIDEBAR -->
 <aside class="sidebar">
 
-  <!-- HEADER -->
+  <!-- FILTER BUTTONS -->
   <div class="filter-section">
-    <h3>Filter By</h3>
     <div class="filter-buttons">
-      <button class="filter-btn active" onclick="applyFilters()">Apply</button>
+      <button class="filter-btn active" onclick="applyFilters()">Apply Filters</button>
       <button class="filter-btn" onclick="resetFilters()">Reset</button>
     </div>
   </div>
 
   <!-- CATEGORY -->
   <div class="filter-section">
-    <h3>Category</h3>
+    <h3>Categories</h3>
     <div class="checkbox-group">
-      <% categories.forEach(cat => { %>
+      <% categories.forEach(cat=> { %>
         <label>
-          <input
-            type="checkbox"
-            name="category"
-            value="<%= cat._id %>"
-            <%= filters.category == cat._id ? "checked" : "" %>
+          <input type="checkbox" name="category" value="<%= cat._id %>" <%=filters.category &&
+            filters.category.split(',').includes(cat._id.toString()) ? "checked" : "" %>
           >
           <%= cat.name %>
         </label>
-      <% }) %>
-    </div>
-  </div>
-
-  <!-- PRICE -->
-  <div class="filter-section">
-    <label>
-      Price: ₹<span id="priceValue">
-        <%= filters.maxPrice
-          ? Number(filters.maxPrice).toLocaleString("en-IN")
-          : "Any" %>
-      </span>
-    </label>
-
-    <div class="range-slider-single">
-      <span>₹1,00,000</span>
-      <input
-        type="range"
-        id="priceRange"
-        min="0"
-        max="1000000"
-        value="<%= filters.maxPrice || 1000000 %>"
-      >
-      <span>₹10,00,000</span>
+        <% }) %>
     </div>
   </div>
 
   <!-- BRAND -->
   <div class="filter-section">
-    <h3>Brand</h3>
+    <h3>Brands</h3>
     <div class="checkbox-group">
-      <% brands.forEach(b => { %>
+      <% brands.forEach(b=> { %>
         <label>
-          <input
-            type="radio"
-            name="brand"
-            value="<%= b._id %>"
-            <%= filters.brand == b._id ? "checked" : "" %>
+          <input type="checkbox" name="brand" value="<%= b._id %>" <%=filters.brand &&
+            filters.brand.split(',').includes(b._id.toString()) ? "checked" : "" %>
           >
           <%= b.brandName %>
         </label>
-      <% }) %>
+        <% }) %>
+    </div>
+  </div>
+
+  <!-- PRICE slider -->
+  <div class="filter-section">
+    <h3>Price Range</h3>
+    <div class="range-slider-single">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+        <span style="color: #fff; font-size: 13px;">Max Range:</span>
+        <span id="priceValue" style="color: var(--accent-gold); font-weight: 600;">
+          ₹<%= filters.maxPrice ? Number(filters.maxPrice).toLocaleString("en-IN") : "Any" %>
+        </span>
+      </div>
+      <input type="range" id="priceRange" min="0" max="1000000" step="5000" value="<%= filters.maxPrice || 1000000 %>">
+      <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+        <span>₹0</span>
+        <span>₹10L+</span>
+      </div>
     </div>
   </div>
 
 </aside>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", function () {
+    const slider = document.getElementById("priceRange");
+    const label = document.getElementById("priceValue");
 
-  const slider = document.getElementById("priceRange");
-  const label = document.getElementById("priceValue");
+    if (!slider || !label) return;
 
-  if (!slider || !label) return;
+    function updateSlider() {
+      const value = slider.value;
+      const percent = (value / slider.max) * 100;
 
-  function updateSlider() {
-    const value = slider.value;
-    const min = slider.min;
-    const max = slider.max;
-    const percent = ((value - min) / (max - min)) * 100;
+      slider.style.background = `linear-gradient(to right, var(--accent-gold) 0%, var(--accent-gold) ${percent}%, #333 ${percent}%, #333 100%)`;
 
-    slider.style.background = `
-      linear-gradient(to right,
-        #e74c3c 0%,
-        #e74c3c ${percent}%,
-        #000 ${percent}%,
-        #000 100%)
-    `;
-
-    label.innerText =
-      value == max
-        ? "Any"
-        : Number(value).toLocaleString("en-IN");
-  }
-
-  window.applyFilters = function () {
-    const url = new URL(window.location.href);
-
-    const categories = Array.from(
-      document.querySelectorAll('input[name="category"]:checked')
-    ).map(input => input.value);
-
-    if (categories.length) {
-     url.searchParams.set("category", categories.join(","));
-    } else {
-      url.searchParams.delete("category");
+      label.innerText = value == slider.max ? "Any" : "₹" + Number(value).toLocaleString("en-IN");
     }
 
+    window.applyFilters = function () {
+      const url = new URL(window.location.href);
 
-    // BRAND
-    const brand = document.querySelector('input[name="brand"]:checked');
-    if (brand) url.searchParams.set("brand", brand.value);
-    else url.searchParams.delete("brand");
+      // CATEGORIES
+      const categories = Array.from(document.querySelectorAll('input[name="category"]:checked'))
+        .map(input => input.value);
+      if (categories.length) url.searchParams.set("category", categories.join(","));
+      else url.searchParams.delete("category");
 
-    // PRICE — always send slider value
-    url.searchParams.set("maxPrice", slider.value);
-    
-    // SEARCH (from shop page)
-    const searchInput = document.querySelector(".search-input");
-    if (searchInput && searchInput.value.trim() !== "") {
-      url.searchParams.set("search", searchInput.value.trim());
-    } else {
-      url.searchParams.delete("search");
-    }
+      // BRANDS
+      const brands = Array.from(document.querySelectorAll('input[name="brand"]:checked'))
+        .map(input => input.value);
+      if (brands.length) url.searchParams.set("brand", brands.join(","));
+      else url.searchParams.delete("brand");
 
-    url.searchParams.set("page", 1);
-    window.location.href = url.toString();
-  };
+      // PRICE
+      url.searchParams.set("maxPrice", slider.value);
 
-  window.resetFilters = function () {
-    window.location.href = "/shop";
-  };
+      // SEARCH
+      const searchInput = document.querySelector(".search-input");
+      if (searchInput && searchInput.value.trim() !== "") {
+        url.searchParams.set("search", searchInput.value.trim());
+      }
 
-  slider.addEventListener("input", updateSlider);
-  updateSlider();
-});
+      url.searchParams.set("page", 1);
+      window.location.href = url.toString();
+    };
+
+    window.resetFilters = function () {
+      window.location.href = "/shop";
+    };
+
+    slider.addEventListener("input", updateSlider);
+    updateSlider();
+  });
 </script>

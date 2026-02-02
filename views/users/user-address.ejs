@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Addresses - Chrono Luxe</title>
+
+  <!-- Fonts & Icons (SAME AS PROFILE) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+  <!-- Global styles (CRITICAL) -->
+  <link rel="stylesheet" href="/styles/user/header.css">
+  <link rel="stylesheet" href="/styles/user/profile-layout.css">
+  <link rel="stylesheet" href="/styles/user/profile-sidebar.css">
+  <link rel="stylesheet" href="/styles/user/profile-content.css">
+
+  <!-- Page-specific -->
+  <link rel="stylesheet" href="/styles/user/user-address.css">
+</head>
+
+<body>
+
+<%- include("../partials/user/header") %>
+
+<div class="dashboard-container">
+
+  <!-- SAME SIDEBAR -->
+  <%- include("../partials/user/profile-sidebar", { active: "addresses" }) %>
+
+  <main class="main-content">
+
+    <!-- SAME CARD STYLE AS PROFILE -->
+    <!-- ADDRESS LIST -->
+<section class="premium-card" id="addressListView">
+
+  <div class="card-header">
+    <h2>MANAGE <span class="gold-text">ADDRESSES</span></h2>
+    <button class="btn-gold add-address-btn" id="btnShowAddForm">
+      <i class="fa-solid fa-plus"></i> Add New Address
+    </button>
+  </div>
+
+  <% if (addresses.length === 0) { %>
+    <p class="empty-text">No addresses added yet.</p>
+  <% } %>
+
+  <% addresses.forEach(address => { %>
+  <div class="address-card">
+
+    <div class="card-top">
+      <div class="tag-group">
+        <% if (address.isDefault) { %>
+          <span class="type-tag default">Default</span>
+        <% } %>
+        <span class="type-tag <%= address.addressType.toLowerCase() %>">
+          <%= address.addressType %>
+        </span>
+      </div>
+
+      <div class="card-actions">
+        <button
+          class="edit-btn"
+          data-id="<%= address._id %>"
+          data-name="<%= address.name %>"
+          data-phone="<%= address.phone %>"
+          data-type="<%= address.addressType %>"
+          data-line1="<%= address.line1 %>"
+          data-line2="<%= address.line2 || '' %>"
+          data-city="<%= address.city %>"
+          data-state="<%= address.state %>"
+          data-pin="<%= address.pin_code %>"
+          data-default="<%= address.isDefault %>"
+        >
+          <i class="bx bx-edit"></i> Edit
+        </button>
+
+        <button class="delete-btn" data-id="<%= address._id %>">
+          <i class="bx bx-trash"></i> Delete
+        </button>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <h4><%= address.name %></h4>
+      <p class="phone"><%= address.phone %></p>
+      <p class="address-details">
+        <%= address.line1 %><br>
+        <% if (address.line2) { %>
+          <%= address.line2 %><br>
+        <% } %>
+        <%= address.city %>, <%= address.state %> – <%= address.pin_code %>
+      </p>
+    </div>
+
+  </div>
+<% }) %>
+
+</section>
+
+<!-- ADD ADDRESS PAGE -->
+<%- include("../partials/user/address-form", {
+  backText: "Back to Addresses",
+  submitText: "Add Address"
+}) %>
+
+
+  </main>
+</div>
+
+<%- include("../partials/user/footer") %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+const glassAlert = (icon, title, text) => {
+    Swal.fire({
+                icon,
+                title,
+                text,
+                customClass: {
+                                popup: 'glass-alert'
+                            },
+                                confirmButtonText: 'OK'
+                            });
+            };
+</script>
+<script>
+let editingAddressId = null;
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const nav = document.querySelector("nav");
+  if (nav) nav.classList.add("glass-nav");
+
+  const listView = document.getElementById("addressListView");     // profile
+  const checkoutView = document.getElementById("checkoutAddressView"); // checkout
+  const addView = document.getElementById("addAddressView");
+
+  const showAddBtn = document.getElementById("btnShowAddForm");
+  const backBtn = document.getElementById("btnBackToList");
+  const cancelBtn = document.getElementById("btnCancelAdd");
+
+  if (showAddBtn && addView) {
+    showAddBtn.onclick = () => {
+      editingAddressId = null;
+
+      const title = document.getElementById("addressFormTitle");
+      if (title) {
+        title.innerHTML = 'Add New <span>Address</span>';
+      }
+
+      if (listView) listView.style.display = "none";
+      if (checkoutView) checkoutView.style.display = "none";
+
+      addView.style.display = "block";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+  }
+
+  const backToList = (e) => {
+    if (e) e.preventDefault();
+
+    editingAddressId = null;
+    if (addView) addView.style.display = "none";
+
+    if (listView) listView.style.display = "block";
+    if (checkoutView) checkoutView.style.display = "block";
+  };
+
+  if (backBtn) backBtn.onclick = backToList;
+  if (cancelBtn) cancelBtn.onclick = backToList;
+});
+</script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".edit-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      editingAddressId = btn.dataset.id;
+
+      document.getElementById("addressFormTitle").innerHTML =
+        'Edit <span>Address</span>';
+
+      document.querySelector('[name="name"]').value = btn.dataset.name;
+      document.querySelector('[name="phone"]').value = btn.dataset.phone;
+      document.querySelector('[name="addressType"]').value = btn.dataset.type;
+      document.querySelector('[name="line1"]').value = btn.dataset.line1;
+      document.querySelector('[name="line2"]').value = btn.dataset.line2 || "";
+      document.querySelector('[name="city"]').value = btn.dataset.city;
+      document.querySelector('[name="state"]').value = btn.dataset.state;
+      document.querySelector('[name="pin_code"]').value = btn.dataset.pin;
+
+      document.querySelector('[name="isDefault"]').checked =
+        btn.dataset.default === "true" || btn.dataset.default === true;
+
+      document.getElementById("addressListView").style.display = "none";
+      document.getElementById("addAddressView").style.display = "block";
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+});
+</script>
+
+
+<script>
+
+const form = document.getElementById("addNewAddressForm");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(form);
+  const payload = Object.fromEntries(formData.entries());
+  payload.isDefault = formData.get("isDefault") === "on";
+
+  const isEdit = Boolean(editingAddressId);
+
+  const url = isEdit
+    ? `/profile/addresses/${editingAddressId}`
+    : "/profile/addresses";
+
+  const method = isEdit ? "PATCH" : "POST";
+
+  try {
+    const res = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      await glassAlert(
+        "success",
+        isEdit ? "Address Updated" : "Address Added",
+        isEdit
+          ? "Your address has been updated successfully."
+          : "Your new address has been saved successfully."
+      );
+
+      form.reset();
+      editingAddressId = null;
+      location.href = "/profile/addresses";
+    } else {
+      await glassAlert(
+        "error",
+        "Failed",
+        "Unable to save address. Please try again."
+      );
+    }
+
+  } catch (err) {
+    console.error(err);
+    await glassAlert(
+      "error",
+      "Error",
+      "Something went wrong. Please try again."
+    );
+  }
+});
+
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".delete-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const addressId = btn.dataset.id;
+
+      // Show confirmation dialog
+      const result = await Swal.fire({
+        icon: 'warning',
+        title: 'Delete Address',
+        text: 'Are you sure you want to delete this address?',
+        customClass: {
+          popup: 'glass-alert'
+        },
+        showCancelButton: true,
+        confirmButtonText: 'Delete',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#d4af37',
+        cancelButtonColor: '#6b7280'
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const res = await fetch(`/profile/addresses/${addressId}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' }
+          });
+
+          const data = await res.json();
+
+          if (data.success) {
+            await glassAlert(
+              "success",
+              "Deleted",
+              "Address has been deleted successfully."
+            );
+            location.href = "/profile/addresses";
+          } else {
+            await glassAlert(
+              "error",
+              "Failed",
+              "Unable to delete address. Please try again."
+            );
+          }
+        } catch (err) {
+          console.error(err);
+          await glassAlert(
+            "error",
+            "Error",
+            "Something went wrong. Please try again."
+          );
+        }
+      }
+    });
+  });
+});
+</script>
+
+</body>
+</html>

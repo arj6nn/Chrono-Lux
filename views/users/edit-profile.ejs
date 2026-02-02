@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="stylesheet" href="/styles/user/header.css">
+  <link rel="stylesheet" href="/styles/user/profile-layout.css">
+  <link rel="stylesheet" href="/styles/user/profile-sidebar.css">
+  <link rel="stylesheet" href="/styles/user/edit-profile.css" />
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+
+  <!-- CropperJS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+</head>
+
+<body>
+
+  <%- include("../partials/user/header") %>
+
+    <% if (!user) { %>
+      <script>window.location.href = "/login";</script>
+      <% } %>
+
+        <div class="dashboard-container">
+
+          <%- include("../partials/user/profile-sidebar", { active: "edit" }) %>
+
+            <main class="main-content">
+
+              <section class="luxe-card">
+                <div class="card-header">
+                  <h2>UPDATE <span class="gold-text">INFORMATION</span></h2>
+                </div>
+
+                <!-- PROFILE IMAGE UPLOAD -->
+                <div class="upload-area">
+                  <div class="mini-avatar">
+                    <% if (user.profileImage) { %>
+                      <img id="avatarPreview" src="<%= user.profileImage %>" alt="Profile" />
+                      <% } else { %>
+                        <img id="avatarPreview" style="display:none;" />
+                        <i class="bx bx-user"></i>
+                        <% } %>
+                  </div>
+
+
+                  <label for="file-upload" class="gold-link">
+                    <i class="bx bx-upload"></i> Upload photo
+                  </label>
+
+
+                  <input type="file" id="file-upload" name="profileImage" accept="image/*" hidden />
+                </div>
+
+                <form class="luxe-form" id="editProfileForm">
+
+                  <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" name="name" value="<%= user.name %>" class="pill-input" required />
+                  </div>
+
+                  <div class="form-group">
+                    <label>Phone</label>
+                    <input type="text" name="phone" value="<%= user.phone || '' %>" class="pill-input" />
+                  </div>
+
+                  <div style="display:flex; gap:12px;">
+                    <button type="submit" class="btn-gold-pill">SAVE CHANGES</button>
+                    <button type="button" class="btn-cancel" onclick="window.location.href='/profile'">
+                      Cancel
+                    </button>
+                  </div>
+
+                </form>
+              </section>
+              <!-- ================= EMAIL VERIFICATION ================= -->
+              <section class="luxe-card">
+                <div class="card-header">
+                  <h2>EMAIL <span class="gold-text">VERIFICATION</span></h2>
+                </div>
+
+                <% if (user.googleId) { %>
+                  <div class="google-sync-notice">
+                    <i class="bx bxl-google"></i>
+                    <p>
+                      You signed in using <strong>Google</strong>.<br>
+                      To change your email, please update it from your Google account settings.
+                    </p>
+                  </div>
+                  <% } else { %>
+                    <div class="input-action-group">
+                      <input type="email" class="pill-input" id="newEmail" value="<%= user.email %>"
+                        autocomplete="off" />
+
+                      <button type="button" class="inline-gold-link" id="sendEmailOtp">
+                        Send OTP
+                      </button>
+                    </div>
+
+                    <div class="otp-row" id="emailOtpRow">
+                      <input type="text" class="pill-input otp-input" id="emailOtp" placeholder="Enter OTP" />
+                      <button type="button" class="btn-verify" id="verifyEmailOtp">
+                        Verify
+                      </button>
+                    </div>
+                    <% } %>
+              </section>
+
+
+              <!-- ================= PHONE VERIFICATION ================= -->
+              <section class="luxe-card">
+                <div class="card-header">
+                  <h2>PHONE <span class="gold-text">VERIFICATION</span></h2>
+                </div>
+
+                <div class="input-action-group">
+                  <input type="text" class="pill-input" id="newPhone" value="<%= user.phone || '' %>" />
+
+                  <button type="button" class="inline-gold-link" id="sendPhoneOtp">
+                    Send OTP
+                  </button>
+                </div>
+
+                <div class="otp-row" id="phoneOtpRow">
+                  <input type="text" class="pill-input otp-input" id="phoneOtp" placeholder="Enter OTP" />
+                  <button type="button" class="btn-verify" id="verifyPhoneOtp">
+                    Verify
+                  </button>
+                </div>
+              </section>
+
+            </main>
+        </div>
+
+        <!-- CROP MODAL -->
+        <div id="cropperModal" style="display:none; 
+                  position:fixed; 
+                  inset:0; 
+                  background:rgba(0,0,0,.85); 
+                  z-index:999999; 
+                  justify-content:center; 
+                  align-items:center; 
+                  padding: 20px;">
+          <div
+            style="background:#1a1a1a; padding:25px; width:100%; max-width:500px; border-radius:15px; border: 1px solid #d4af37;">
+            <h3 style="color:#d4af37; margin-bottom:15px; text-align:center;">Crop Profile Picture</h3>
+            <div style="width:100%; height:350px; background:#000; overflow:hidden; border-radius:10px;">
+              <img id="cropperImage" style="max-width:100%;">
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:20px; gap: 15px;">
+              <button type="button" onclick="closeCropper()"
+                style="flex:1; background:transparent; border:1px solid #666; color:#fff; padding:12px; border-radius:30px; cursor:pointer;">Cancel</button>
+              <button type="button" id="btnCropSave"
+                style="flex:1; background:#d4af37; padding:12px; border:none; color:#000; font-weight:bold; border-radius:30px; cursor:pointer;">Apply
+                Crop</button>
+            </div>
+          </div>
+        </div>
+
+        <%- include("../partials/user/footer") %>
+
+          <script>
+            document.addEventListener('DOMContentLoaded', function () {
+              const nav = document.querySelector('nav');
+              if (!nav) return;
+              nav.classList.add('glass-nav');
+            });
+          </script>
+
+          <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+          <script>
+            const glassAlert = (icon, title, text) => {
+              Swal.fire({
+                icon,
+                title,
+                text,
+                customClass: {
+                  popup: 'glass-alert'
+                },
+                confirmButtonText: 'OK'
+              });
+            };
+          </script>
+
+          <script>
+            let selectedImageBlob = null;
+            let cropper = null;
+
+            const fileInput = document.getElementById("file-upload");
+            const avatarPreview = document.getElementById("avatarPreview");
+            const defaultIcon = document.querySelector(".mini-avatar i");
+            const form = document.getElementById("editProfileForm");
+            const cropperModal = document.getElementById("cropperModal");
+            const cropperImage = document.getElementById("cropperImage");
+
+            /* --------------------------------
+               IMAGE SELECTION -> CROPPER
+            -------------------------------- */
+            fileInput.addEventListener("change", () => {
+              if (!fileInput.files.length) return;
+
+              const file = fileInput.files[0];
+              const reader = new FileReader();
+
+              reader.onload = (e) => {
+                cropperImage.src = e.target.result;
+                cropperModal.style.display = "flex";
+
+                if (cropper) cropper.destroy();
+
+                setTimeout(() => {
+                  cropper = new Cropper(cropperImage, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    autoCropArea: 1,
+                    background: false
+                  });
+                }, 100);
+              };
+              reader.readAsDataURL(file);
+            });
+
+            /* --------------------------------
+               CLOSE CROPPER
+            -------------------------------- */
+            function closeCropper() {
+              cropperModal.style.display = "none";
+              if (cropper) {
+                cropper.destroy();
+                cropper = null;
+              }
+              fileInput.value = "";
+            }
+
+            /* --------------------------------
+               APPLY CROP
+            -------------------------------- */
+            document.getElementById("btnCropSave").addEventListener("click", () => {
+              if (!cropper) return;
+
+              const canvas = cropper.getCroppedCanvas({
+                width: 400,
+                height: 400
+              });
+
+              canvas.toBlob((blob) => {
+                selectedImageBlob = blob;
+
+                // Preview the cropped image
+                avatarPreview.src = canvas.toDataURL();
+                avatarPreview.style.display = "block";
+                if (defaultIcon) defaultIcon.style.display = "none";
+
+                closeCropper();
+              }, 'image/jpeg', 0.9);
+            });
+
+            /* --------------------------------
+               SAVE CHANGES (UPLOAD + UPDATE)
+            -------------------------------- */
+            form.addEventListener("submit", async (e) => {
+              e.preventDefault();
+
+              const formData = new FormData(form);
+
+              // attach image ONLY if selected and cropped
+              if (selectedImageBlob) {
+                formData.delete("profileImage"); // Remove the original empty input entry
+                formData.append("profileImage", selectedImageBlob, "profile.jpg");
+              }
+
+              try {
+                const response = await fetch("/profile/edit", {
+                  method: "POST",
+                  body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'Profile Updated',
+                    text: 'Your information has been saved',
+                    timer: 1500,
+                    showConfirmButton: false,
+                    customClass: {
+                      popup: 'glass-alert'
+                    }
+                  }).then(() => {
+                    window.location.href = "/profile";
+                  });
+                } else {
+                  glassAlert("error", "Update Failed", result.message || "Something went wrong");
+                }
+              } catch (err) {
+                console.error(err);
+                glassAlert("error", "Error", "Failed to connect to server");
+              }
+            });
+          </script>
+
+          <script>
+            document.getElementById("sendEmailOtp").addEventListener("click", async () => {
+              const email = document.getElementById("newEmail").value.trim();
+
+              if (!email) {
+                alert("Please enter email");
+                return;
+              }
+
+              const res = await fetch("/profile/email/send-otp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email })
+              });
+
+              const data = await res.json();
+
+              if (data.success) {
+                document.getElementById("emailOtpRow").classList.add("visible");
+                glassAlert("success", "OTP Sent", "We’ve sent a verification code to your email");
+              } else {
+                glassAlert("error", "Verification Failed", data.message || "Invalid OTP");
+              }
+            });
+
+            document.getElementById("verifyEmailOtp").addEventListener("click", async () => {
+              const email = document.getElementById("newEmail").value.trim();
+              const otp = document.getElementById("emailOtp").value.trim();
+
+              const res = await fetch("/profile/email/verify-otp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, otp })
+              });
+
+              const data = await res.json();
+
+              if (data.success) {
+                Swal.fire({
+                  icon: "success",
+                  title: "Email Verified",
+                  text: "Your email has been updated successfully",
+                  customClass: { popup: "glass-alert" }
+                }).then(() => {
+                  window.location.reload();
+                });
+              } else {
+                glassAlert("error", "Verification Failed", data.message || "Invalid OTP");
+              }
+            });
+          </script>
+
+</body>
+
+</html>

@@ -1,0 +1,144 @@
+<%- include("../partials/user/header") %>
+
+<link rel="stylesheet" href="/styles/user/wishlist.css">
+
+<main class="container wishlist-page">
+
+  <header class="page-header">
+    <h1>Wishlist</h1>
+    <p class="item-count">
+      <%= wishlist.products.length %> Item<%= wishlist.products.length !== 1 ? "s" : "" %>
+    </p>
+  </header>
+
+  <% if (wishlist.products.length === 0) { %>
+
+    <!-- EMPTY STATE -->
+    <div class="empty-wishlist">
+      <p>Your wishlist is empty ❤️</p>
+      <a href="/shop" class="continue-shopping">Continue Shopping</a>
+    </div>
+
+  <% } else { %>
+
+    <!-- WISHLIST GRID -->
+    <section class="wishlist-grid">
+
+      <% wishlist.products.forEach(product => { 
+           const variant = product.variants?.[0];
+           const price =
+             variant?.salesPrice > 0
+               ? variant.salesPrice
+               : variant?.price;
+      %>
+
+        <div
+  class="wishlist-card"
+  data-id="<%= product._id %>"
+  data-variant-id="<%= variant?._id %>"
+>
+
+
+          <!-- REMOVE -->
+          <button class="remove-btn" aria-label="Remove item">&times;</button>
+
+          <!-- IMAGE -->
+          <div class="image-wrapper">
+            <img
+              src="<%= variant?.images?.[0] || '/images/placeholder.png' %>"
+              alt="<%= product.productName %>"
+            >
+          </div>
+
+          <!-- DETAILS -->
+          <div class="card-details">
+            <h3><%= product.productName %></h3>
+
+            <p class="price">
+              ₹ <%= price ? price.toLocaleString("en-IN") : "N/A" %>
+            </p>
+
+            <button class="add-to-bag">
+              Add to Cart
+            </button>
+          </div>
+
+        </div>
+
+      <% }) %>
+
+    </section>
+
+    <footer class="wishlist-footer">
+      <a href="/shop" class="continue-shopping">Continue Shopping</a>
+    </footer>
+
+  <% } %>
+
+</main>
+
+<%- include("../partials/user/footer") %>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const nav = document.querySelector('nav');
+  if (nav) nav.classList.add('glass-nav');
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  // REMOVE FROM WISHLIST
+  document.querySelectorAll(".remove-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const card = btn.closest(".wishlist-card");
+      const productId = card.dataset.id;
+
+      const res = await fetch(`/wishlist/remove/${productId}`, {
+        method: "POST",
+        credentials: "include"
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        card.remove();
+      }
+    });
+  });
+
+  // ADD TO CART FROM WISHLIST
+  document.querySelectorAll(".add-to-bag").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const card = btn.closest(".wishlist-card");
+
+      const productId = card.dataset.id;
+      const variantId = card.dataset.variantId;
+
+      try {
+        const res = await fetch("/cart/add", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            productId,
+            variantId,
+            quantity: 1
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          card.remove();
+        } else {
+          alert(data.message || "Failed to add to cart");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Something went wrong");
+      }
+    });
+  });
+
+});
+</script>
