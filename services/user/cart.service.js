@@ -2,6 +2,7 @@ import Cart from "../../models/cart.model.js";
 import Product from "../../models/product.model.js";
 import { applyOffers } from "../../utils/offerUtils.js";
 import sanitizeCart from "../../utils/sanitizeCart.js";
+import Wishlist from "../../models/wishlist.model.js";
 
 export const getUserCart = async (userId) => {
   // Fetch cart with populated products
@@ -12,11 +13,9 @@ export const getUserCart = async (userId) => {
 
   if (!cart) return null;
 
-  // Sanitize cart to handle stock changes and blocked products
   const { cart: sanitizedCart, reducedItems, removedItems } = await sanitizeCart(cart, Product);
   cart = sanitizedCart;
 
-  // Extract products to apply offers in bulk
   const products = cart.items.map(item => item.productId);
   const productsWithOffers = await applyOffers(products);
 
@@ -99,6 +98,12 @@ export const addItemToCart = async ({
   }
 
   await cart.save();
+
+  // Remove from Wishlist if exists
+  await Wishlist.updateOne(
+    { userId },
+    { $pull: { products: productId } }
+  );
 
   return { success: true };
 };

@@ -37,7 +37,6 @@ export const createUser = async (userData) => {
           `Referral bonus for inviting ${savedUser.name}`
         );
 
-        // Add new user to referrer's referral list
         referrer.redeemedUsers.push(savedUser._id);
         await referrer.save();
 
@@ -49,17 +48,13 @@ export const createUser = async (userData) => {
           'Welcome bonus for using a referral code'
         );
       } else {
-        // Create empty wallet if refer code invalid
         await getOrCreateWallet(savedUser._id);
       }
     } else {
-      // Create empty wallet for normal signup
       await getOrCreateWallet(savedUser._id);
     }
   } catch (walletError) {
     console.error("Referral wallet credit error:", walletError);
-    // We don't want to fail signup if wallet credit fails, but it should ideally be atomical
-    // For now, logging the error is better than breaking signup
   }
 
   return savedUser;

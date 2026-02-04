@@ -1,144 +1,168 @@
 <%- include("../partials/user/header") %>
 
-<link rel="stylesheet" href="/styles/user/wishlist.css">
+  <link rel="stylesheet" href="/styles/user/wishlist.css">
 
-<main class="container wishlist-page">
+  <main class="container wishlist-page">
 
-  <header class="page-header">
-    <h1>Wishlist</h1>
-    <p class="item-count">
-      <%= wishlist.products.length %> Item<%= wishlist.products.length !== 1 ? "s" : "" %>
-    </p>
-  </header>
+    <header class="page-header">
+      <h1>Wishlist</h1>
+      <p class="item-count">
+        <%= wishlist.products.length %> Item<%= wishlist.products.length !==1 ? "s" : "" %>
+      </p>
+    </header>
 
-  <% if (wishlist.products.length === 0) { %>
+    <% if (wishlist.products.length===0) { %>
 
-    <!-- EMPTY STATE -->
-    <div class="empty-wishlist">
-      <p>Your wishlist is empty ❤️</p>
-      <a href="/shop" class="continue-shopping">Continue Shopping</a>
-    </div>
+      <!-- EMPTY STATE -->
+      <div class="empty-wishlist">
+        <p>Your wishlist is empty ❤️</p>
+        <a href="/shop" class="continue-shopping">Continue Shopping</a>
+      </div>
 
-  <% } else { %>
+      <% } else { %>
 
-    <!-- WISHLIST GRID -->
-    <section class="wishlist-grid">
+        <!-- WISHLIST GRID -->
+        <section class="wishlist-grid">
 
-      <% wishlist.products.forEach(product => { 
-           const variant = product.variants?.[0];
-           const price =
-             variant?.salesPrice > 0
-               ? variant.salesPrice
-               : variant?.price;
-      %>
+          <% wishlist.products.forEach(product=> {
+            const variant = product.variants?.[0];
+            const price =
+            variant?.salesPrice > 0
+            ? variant.salesPrice
+            : variant?.price;
+            %>
 
-        <div
-  class="wishlist-card"
-  data-id="<%= product._id %>"
-  data-variant-id="<%= variant?._id %>"
->
+            <div class="wishlist-card" data-id="<%= product._id %>" data-variant-id="<%= variant?._id %>">
 
 
-          <!-- REMOVE -->
-          <button class="remove-btn" aria-label="Remove item">&times;</button>
+              <!-- REMOVE -->
+              <button class="remove-btn" aria-label="Remove item">&times;</button>
 
-          <!-- IMAGE -->
-          <div class="image-wrapper">
-            <img
-              src="<%= variant?.images?.[0] || '/images/placeholder.png' %>"
-              alt="<%= product.productName %>"
-            >
-          </div>
+              <!-- IMAGE -->
+              <div class="image-wrapper">
+                <img src="<%= variant?.images?.[0] || '/images/placeholder.png' %>" alt="<%= product.productName %>">
+              </div>
 
-          <!-- DETAILS -->
-          <div class="card-details">
-            <h3><%= product.productName %></h3>
+              <!-- DETAILS -->
+              <div class="card-details">
+                <h3>
+                  <%= product.productName %>
+                </h3>
 
-            <p class="price">
-              ₹ <%= price ? price.toLocaleString("en-IN") : "N/A" %>
-            </p>
+                <% const hasOffer=variant.appliedOffer || (variant.salesPrice> 0 && variant.salesPrice < variant.price);
+                    const currentPrice=hasOffer ? variant.salesPrice : variant.price; const originalPrice=variant.price;
+                    %>
 
-            <button class="add-to-bag">
-              Add to Cart
-            </button>
-          </div>
+                    <div class="price-container" style="display: flex; flex-direction: column; gap: 4px;">
 
-        </div>
+                      <% if (hasOffer) { %>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <span class="current-price" style="font-weight: 600; color: #fff;">₹ <%=
+                              currentPrice.toLocaleString("en-IN") %></span>
+                          <span class="original-price"
+                            style="text-decoration: line-through; color: #888; font-size: 0.9em;">₹ <%=
+                              originalPrice.toLocaleString("en-IN") %></span>
+                        </div>
 
-      <% }) %>
+                        <% if (variant.appliedOffer) { %>
+                          <span class="offer-badge"
+                            style="background: #2E4235; color: #4ade80; font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; border: 1px solid #2E4235; width: fit-content;">
+                            <%= variant.appliedOffer.discountValue %>% OFF
+                          </span>
+                          <% } else { %>
+                            <!-- Simple sale without explicit offer name (manual sale price) -->
+                            <span class="offer-badge" style="color: #ef4444; font-size: 0.8em;">Sale</span>
+                            <% } %>
 
-    </section>
+                              <% } else { %>
+                                <p class="price" style="margin: 0;">
+                                  ₹ <%= currentPrice.toLocaleString("en-IN") %>
+                                </p>
+                                <% } %>
 
-    <footer class="wishlist-footer">
-      <a href="/shop" class="continue-shopping">Continue Shopping</a>
-    </footer>
+                    </div>
 
-  <% } %>
+                    <button class="add-to-bag">
+                      Add to Cart
+                    </button>
+              </div>
 
-</main>
+            </div>
 
-<%- include("../partials/user/footer") %>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  const nav = document.querySelector('nav');
-  if (nav) nav.classList.add('glass-nav');
-});
-</script>
+            <% }) %>
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
+        </section>
 
-  // REMOVE FROM WISHLIST
-  document.querySelectorAll(".remove-btn").forEach(btn => {
-    btn.addEventListener("click", async () => {
-      const card = btn.closest(".wishlist-card");
-      const productId = card.dataset.id;
+        <footer class="wishlist-footer">
+          <a href="/shop" class="continue-shopping">Continue Shopping</a>
+        </footer>
 
-      const res = await fetch(`/wishlist/remove/${productId}`, {
-        method: "POST",
-        credentials: "include"
+        <% } %>
+
+  </main>
+
+  <%- include("../partials/user/footer") %>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const nav = document.querySelector('nav');
+        if (nav) nav.classList.add('glass-nav');
       });
+    </script>
 
-      const data = await res.json();
-      if (data.success) {
-        card.remove();
-      }
-    });
-  });
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
 
-  // ADD TO CART FROM WISHLIST
-  document.querySelectorAll(".add-to-bag").forEach(btn => {
-    btn.addEventListener("click", async () => {
-      const card = btn.closest(".wishlist-card");
+        // REMOVE FROM WISHLIST
+        document.querySelectorAll(".remove-btn").forEach(btn => {
+          btn.addEventListener("click", async () => {
+            const card = btn.closest(".wishlist-card");
+            const productId = card.dataset.id;
 
-      const productId = card.dataset.id;
-      const variantId = card.dataset.variantId;
+            const res = await fetch(`/wishlist/remove/${productId}`, {
+              method: "POST",
+              credentials: "include"
+            });
 
-      try {
-        const res = await fetch("/cart/add", {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            productId,
-            variantId,
-            quantity: 1
-          })
+            const data = await res.json();
+            if (data.success) {
+              card.remove();
+            }
+          });
         });
 
-        const data = await res.json();
+        // ADD TO CART FROM WISHLIST
+        document.querySelectorAll(".add-to-bag").forEach(btn => {
+          btn.addEventListener("click", async () => {
+            const card = btn.closest(".wishlist-card");
 
-        if (data.success) {
-          card.remove();
-        } else {
-          alert(data.message || "Failed to add to cart");
-        }
-      } catch (err) {
-        console.error(err);
-        alert("Something went wrong");
-      }
-    });
-  });
+            const productId = card.dataset.id;
+            const variantId = card.dataset.variantId;
 
-});
-</script>
+            try {
+              const res = await fetch("/cart/add", {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  productId,
+                  variantId,
+                  quantity: 1
+                })
+              });
+
+              const data = await res.json();
+
+              if (data.success) {
+                card.remove();
+              } else {
+                alert(data.message || "Failed to add to cart");
+              }
+            } catch (err) {
+              console.error(err);
+              alert("Something went wrong");
+            }
+          });
+        });
+
+      });
+    </script>

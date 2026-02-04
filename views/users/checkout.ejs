@@ -552,6 +552,9 @@
         }
 
         function openRazorpay(order) {
+          let paymentError = null;
+          let failureRedirectTimer = null; // Timer for auto-redirect
+
           const options = {
             key: window.razorpayKeyId,
             amount: order.amount,
@@ -559,6 +562,20 @@
             order_id: order.id,
             name: "Chrono Luxe",
             description: "Order Payment",
+
+            // Handle closing the modal (including after failure)
+            modal: {
+              ondismiss: function () {
+                // If a timer was pending, clear it (user closed manually)
+                if (failureRedirectTimer) clearTimeout(failureRedirectTimer);
+
+                const params = new URLSearchParams();
+                if (paymentError) {
+                  params.append("message", paymentError.description || "Payment Failed");
+                }
+                window.location.href = "/order/failure?" + params.toString();
+              }
+            },
 
             handler: async function (response) {
               const verifyRes = await fetch("/razorpay/verify-payment", {
@@ -576,12 +593,26 @@
 
                 document.getElementById("checkoutForm").submit();
               } else {
-                glassAlert("error", "Payment Failed", "Verification failed");
+                window.location.href = "/order/failure";
               }
             }
           };
 
           const rzp = new Razorpay(options);
+
+          // Capture failure events to pass message
+          rzp.on('payment.failed', function (response) {
+            paymentError = response.error;
+            console.error("Razorpay Payment Failed:", response.error);
+
+            // Auto-redirect after 4 seconds so user sees the error message
+            failureRedirectTimer = setTimeout(() => {
+              const params = new URLSearchParams();
+              params.append("message", response.error.description || "Payment Failed");
+              window.location.href = "/order/failure?" + params.toString();
+            }, 4000);
+          });
+
           rzp.open();
         }
       </script>

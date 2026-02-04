@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.0/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.0/sweetalert2.min.css">
+
+    <!-- Page CSS -->
+    <link rel="stylesheet" href="/styles/user/header.css">
+    <link rel="stylesheet" href="/styles/user/order-success.css">
+
+    <style>
+        /* Hide page content initially */
+        .main-content {
+            display: none;
+            min-height: 80vh;
+            width: 100%;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Error specific overrides */
+        .crossmark {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 30px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            animation: scaleIn 0.6s ease-out;
+            color: white;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .success-container {
+            border: 1px solid #7f1d1d;
+            box-shadow: 0 20px 60px rgba(127, 29, 29, 0.2);
+            max-width: 800px;
+            width: 100%;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #ef4444;
+        }
+
+        /* Ensure flex parent usage */
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .subtitle {
+            color: #d1d5db;
+        }
+
+        .detail-item {
+            border-bottom-color: #374151;
+        }
+
+        /* Override item row border */
+        .item-row {
+            border-left: 4px solid #ef4444;
+        }
+
+        .item-subtotal {
+            color: #ef4444;
+        }
+
+        .breakdown-row.total {
+            border-bottom: 2px solid #ef4444;
+            color: #ef4444;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-secondary {
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* SweetAlert Error Overrides */
+        .swal2-popup {
+            border: 2px solid #ef4444 !important;
+        }
+
+        .swal2-icon.swal2-error {
+            border-color: #ef4444 !important;
+        }
+
+        .swal2-icon.swal2-error [class^='swal2-x-mark-line'] {
+            background-color: #ef4444 !important;
+        }
+
+        .swal2-confirm {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+            color: #fff !important;
+        }
+
+        .swal2-confirm:hover {
+            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3) !important;
+        }
+
+        /* Additional styles from order-success that were inline */
+        .ordered-items-section {
+            margin-top: 40px;
+            padding: 20px;
+            background: #111;
+            border-radius: 8px;
+        }
+
+        .ordered-items-section h3 {
+            margin-bottom: 20px;
+            font-size: 20px;
+            color: #ef4444;
+        }
+
+        .items-list {
+            margin-bottom: 20px;
+        }
+
+        .price-breakdown {
+            margin-top: 20px;
+            padding: 15px;
+            background: #111;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ================= HEADER ================= -->
+    <%- include("../partials/user/header") %>
+
+        <!-- ================= MAIN ================= -->
+        <main class="main-content">
+
+            <section class="success-container">
+
+                <div class="crossmark">✕</div>
+
+                <h1>Order Failed!</h1>
+                <p class="subtitle">
+                    We encountered an issue processing your payment. Your order could not be completed.<br>
+                    Please try again or choose a different payment method.
+                </p>
+
+                <% if (locals.order) { %>
+                    <!-- ORDER DETAILS (If available) -->
+                    <div class="order-details">
+
+                        <div class="detail-item">
+                            <span class="detail-label">Order Number</span>
+                            <span class="detail-value order-number" style="color: #ef4444;">
+                                <%= order.orderId %>
+                            </span>
+                        </div>
+
+                        <div class="detail-item">
+                            <span class="detail-label">Order Date</span>
+                            <span class="detail-value">
+                                <%= new Date(order.createdAt).toLocaleDateString("en-IN", { year: "numeric" ,
+                                    month: "long" , day: "numeric" }) %>
+                            </span>
+                        </div>
+
+                        <div class="detail-item">
+                            <span class="detail-label">Order Total</span>
+                            <span class="detail-value">
+                                ₹ <%= order.finalAmount.toLocaleString("en-IN") %>
+                            </span>
+                        </div>
+
+                        <div class="detail-item">
+                            <span class="detail-label">Payment Status</span>
+                            <span class="detail-value" style="color: #ef4444;">
+                                Failed
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <!-- ORDERED ITEMS -->
+                    <div class="ordered-items-section">
+                        <h3>📦 Order Items (<%= order.orderedItems.length %>)</h3>
+                        <div class="items-list">
+                            <% order.orderedItems.forEach(item=> { %>
+                                <div class="item-row">
+                                    <div class="item-details">
+                                        <h5>
+                                            <%= item.product.productName %>
+                                        </h5>
+                                        <p><strong>Quantity:</strong>
+                                            <%= item.quantity %>
+                                        </p>
+                                        <p><strong>Price per Unit:</strong> ₹ <%= item.price.toLocaleString("en-IN") %>
+                                        </p>
+                                        <% if (item.appliedOffer) { %>
+                                            <div class="offer-badge"
+                                                style="font-size: 8px; padding: 2px 8px; display: inline-block; margin-top: 4px;">
+                                                <%= item.appliedOffer.discountValue %>% OFF
+                                            </div>
+                                            <% } %>
+                                    </div>
+                                    <div class="item-subtotal">
+                                        ₹ <%= (item.price * item.quantity).toLocaleString("en-IN") %>
+                                    </div>
+                                </div>
+                                <% }) %>
+                        </div>
+
+                        <div class="price-breakdown">
+                            <div class="breakdown-row">
+                                <span>Subtotal</span>
+                                <span>₹ <%= order.totalPrice.toLocaleString("en-IN") %></span>
+                            </div>
+                            <% if (order.discount> 0) { %>
+                                <div class="breakdown-row">
+                                    <span>Discount Applied</span>
+                                    <span style="color: #28a745;">- ₹ <%= order.discount.toLocaleString("en-IN") %>
+                                    </span>
+                                </div>
+                                <% } %>
+                                    <div class="breakdown-row total">
+                                        <span>Total Amount</span>
+                                        <span>₹ <%= order.finalAmount.toLocaleString("en-IN") %></span>
+                                    </div>
+                        </div>
+                    </div>
+                    <% } %>
+
+                        <!-- ACTION BUTTONS -->
+                        <div class="button-group"
+                            style="margin-top: 30px; display: flex; gap: 15px; justify-content: center;">
+                            <!-- Retry Payment usually goes back to checkout or specific retry endpoint -->
+                            <button class="btn btn-primary" onclick="window.location.href='/checkout'"
+                                style="padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 16px;">
+                                Retry Payment
+                            </button>
+
+                            <button class="btn btn-secondary" onclick="window.location.href='/cart'"
+                                style="padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 16px;">
+                                Back to Cart
+                            </button>
+                        </div>
+
+            </section>
+
+        </main>
+
+        <!-- ================= FOOTER ================= -->
+        <%- include("../partials/user/footer") %>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const nav = document.querySelector('nav');
+                    if (!nav) return;
+                    nav.classList.add('glass-nav');
+                });
+            </script>
+
+            <!-- ================= SWEETALERT ================= -->
+            <script>
+                // Show error alert immediately
+                document.addEventListener("DOMContentLoaded", function () {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Payment Failed!",
+                        html: `
+        <p style="font-size: 16px; margin: 15px 0;">
+          <% if (locals.order) { %>
+          <strong>Order ID: <%= order.orderId %></strong><br><br>
+          <% } %>
+          <% if (locals.message) { %>
+            Failed Reason: <%= message %><br><br>
+          <% } %>
+          Your payment could not be processed. Please try again.
+        </p>
+      `,
+                        confirmButtonText: "Retry Payment",
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        width: 500
+                    }).then((result) => {
+                        // Show page content after alert is confirmed/closed, or redirect
+                        if (result.isConfirmed) {
+                            // If they click retry in alert, maybe just close alert and show page where they can click retry button?
+                            // Or redirect immediately? Let's just show the page.
+                            document.querySelector('.main-content').style.display = 'flex';
+                        }
+                    });
+                });
+            </script>
+
+</body>
+
+</html>

@@ -89,7 +89,7 @@
 
         .disabled {
             pointer-events: none;
-            color: #8d8d8d !important;
+            color: #ffffff !important;
         }
 
         .return-login {

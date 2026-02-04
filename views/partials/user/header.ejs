@@ -5,96 +5,99 @@
 <link rel="stylesheet" href="/styles/user/header.css">
 
 <nav>
-    <div class="nav-container nav-wrapper">
+  <div class="nav-container nav-wrapper">
 
-        <!-- LOGO -->
-        <a href="/home"><div class="logo">Chrono <span style="color: #D4AF37;">Luxe</span></div></a>
+    <!-- LOGO -->
+    <a href="/home">
+      <div class="logo">Chrono <span style="color: #D4AF37;">Luxe</span></div>
+    </a>
 
-        <!-- LINKS -->
-        <ul class="nav-links">
-            <li><a href="/home">Home</a></li>
-            <li><a href="/shop">Shop</a></li>
-            <li><a href="#">Contact</a></li>
-            <li><a href="#">About Us</a></li>
-        </ul>
+    <!-- LINKS -->
+    <ul class="nav-links">
+      <li><a href="/home">Home</a></li>
+      <li><a href="/shop">Shop</a></li>
+      <li><a href="#">Contact</a></li>
+      <li><a href="#">About Us</a></li>
+    </ul>
 
-        <!-- NAV ICONS + USER -->
-        <div class="nav-icons">
+    <!-- NAV ICONS + USER -->
+    <div class="nav-icons">
 
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <a href="<%= user ? '/wishlist' : '/login' %>"
-   class="nav-wishlist-btn"
-   title="Wishlist">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <a href="<%= user ? '/wishlist' : '/login' %>" class="nav-wishlist-btn" title="Wishlist">
 
-  <i class="fa-regular fa-heart"></i>
+        <i class="fa-regular fa-heart"></i>
+        <% if (locals.wishlistCount && locals.wishlistCount> 0) { %>
+          <span class="cart-count">
+            <%= locals.wishlistCount %>
+          </span>
+          <% } %>
 
-</a>
+      </a>
 
-            <a href="/cart" class="nav-cart-btn" title="Cart">
-              <i class="fa-solid fa-bag-shopping"></i>
+      <a href="/cart" class="nav-cart-btn" title="Cart">
+        <i class="fa-solid fa-bag-shopping"></i>
 
-              <% if (cartCount && cartCount > 0) { %>
-                <span class="cart-count"><%= cartCount %></span>
-              <% } %>
+        <% if (cartCount && cartCount> 0) { %>
+          <span class="cart-count">
+            <%= cartCount %>
+          </span>
+          <% } %>
+      </a>
+
+
+      <% if (!user || !user._id) { %>
+
+        <a href="/signup" class="nav-signup-btn">Sign Up</a>
+        <a href="/login" class="nav-login-btn">Login</a>
+
+        <% } else { %>
+
+          <div style="display: flex; align-items: center; gap: 15px;">
+
+            <a href="/profile" title="My Profile" style="text-decoration:none;">
+
+              <% if (user.profileImage && user.profileImage.trim() !=="" ) { %>
+                <!-- GOOGLE / UPLOADED PROFILE IMAGE -->
+                <img src="<%= user.profileImage %>" alt="Profile" class="nav-profile-img">
+                <% } else { %>
+                  <!-- LETTER AVATAR FALLBACK -->
+                  <% const firstLetter=user.name?.charAt(0).toUpperCase() || "U" ; %>
+                    <div class="nav-letter-avatar">
+                      <%= firstLetter %>
+                    </div>
+                    <% } %>
+
             </a>
 
+          </div>
 
-            <% if (!user || !user._id) { %>
-
-    <a href="/signup" class="nav-signup-btn">Sign Up</a>
-    <a href="/login" class="nav-login-btn">Login</a>
-
-<% } else { %>
-
-    <div style="display: flex; align-items: center; gap: 15px;">
-
-        <a href="/profile" title="My Profile" style="text-decoration:none;">
-
-            <% if (user.profileImage && user.profileImage.trim() !== "") { %>
-                <!-- GOOGLE / UPLOADED PROFILE IMAGE -->
-                <img
-                    src="<%= user.profileImage %>"
-                    alt="Profile"
-                    class="nav-profile-img"
-                >
-            <% } else { %>
-                <!-- LETTER AVATAR FALLBACK -->
-                <% const firstLetter = user.name?.charAt(0).toUpperCase() || "U"; %>
-                <div class="nav-letter-avatar">
-                    <%= firstLetter %>
-                </div>
-            <% } %>
-
-        </a>
-
+          <% } %>
     </div>
-
-<% } %>
-        </div>
-    </div>
+  </div>
 </nav>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-/* Fade IN when page is ready */
-window.addEventListener("DOMContentLoaded", () => {
-  document.body.classList.add("page-ready");
-});
+  /* Fade IN when page is ready */
+  window.addEventListener("DOMContentLoaded", () => {
+    document.body.classList.add("page-ready");
+  });
 
-/* Fade OUT only when clicking a product */
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".product-card").forEach(card => {
-    card.addEventListener("click", () => {
-      document.body.classList.remove("page-ready");
-      document.body.classList.add("fade-out");
+  /* Fade OUT only when clicking a product */
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".product-card").forEach(card => {
+      card.addEventListener("click", () => {
+        document.body.classList.remove("page-ready");
+        document.body.classList.add("fade-out");
+      });
     });
   });
-});
 
-/* Safety: remove fade on back navigation */
-window.addEventListener("pageshow", () => {
-  document.body.classList.add("page-ready");
-  document.body.classList.remove("fade-out");
-});
+  /* Safety: remove fade on back navigation */
+  window.addEventListener("pageshow", () => {
+    document.body.classList.add("page-ready");
+    document.body.classList.remove("fade-out");
+  });
 </script>

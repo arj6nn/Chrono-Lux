@@ -1,3 +1,4 @@
+import PDFDocument from "pdfkit-table";
 import Cart from "../../models/cart.model.js";
 import Product from "../../models/product.model.js";
 import Order from "../../models/order.model.js";
@@ -144,7 +145,7 @@ export const placeOrderService = async ({
     }
   }
 
-  const finalAmount = totalAfterOffers + deliveryFee - couponDiscount;  
+  const finalAmount = totalAfterOffers + deliveryFee - couponDiscount;
 
   //     8.5 Verify Wallet Balance (if payment is wallet)
   if (payment === "wallets") {
@@ -380,6 +381,98 @@ export const cancelSingleItemService = async ({
   return {
     immediate: order.paymentMethod === "COD"
   };
+};
+
+export const generateInvoicePDF = async ({ userId, orderId }) => {
+  const order = await Order.findOne({ _id: orderId, userId }).populate(
+    "orderedItems.product"
+  );
+
+  if (!order) {
+    throw new Error("ORDER_NOT_FOUND");
+  }
+
+  const doc = new PDFDocument({ margin: 40, size: "A4" });
+  const filename = `invoice-${order.orderId}.pdf`;
+
+  // Header / Brand
+  doc.fillColor("#000000").fontSize(25).text("CHRONO LUX", { align: "center", characterSpacing: 2 });
+  doc.fontSize(10).text("PREMIUM TIMEPIECES", { align: "center" });
+  doc.moveDown(2);
+
+  // Invoice Title
+  doc.fontSize(18).text("INVOICE", { underline: true });
+  doc.moveDown();
+
+  // Order Info
+  const startX = 40;
+  const currentY = doc.y;
+
+  doc.fontSize(10).font("Helvetica-Bold").text("Billed To:", startX, currentY);
+  doc.font("Helvetica").text(order.address.name);
+  doc.text(order.address.line1);
+  if (order.address.line2) doc.text(order.address.line2);
+  doc.text(`${order.address.city}, ${order.address.state} - ${order.address.pincode}`);
+  doc.text(`Phone: ${order.address.phone}`);
+
+  doc.font("Helvetica-Bold").text("Order Details:", startX + 300, currentY);
+  doc.font("Helvetica").text(`Order ID: ${order.orderId}`);
+  doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString("en-IN")}`);
+  doc.text(`Payment: ${order.paymentMethod}`);
+  doc.text(`Status: ${order.paymentStatus}`);
+
+  doc.moveDown(3);
+
+  // Items Table
+  const table = {
+    headers: ["Product", "Qty", "MRP", "Offer", "Price", "Total"],
+    rows: order.orderedItems.map((item) => [
+      item.product?.productName || "Product",
+      item.quantity.toString(),
+      `INR ${item.mrp.toLocaleString("en-IN")}`,
+      item.appliedOffer ? `${item.appliedOffer.discountValue}% OFF` : "-",
+      `INR ${item.price.toLocaleString("en-IN")}`,
+      `INR ${(item.price * item.quantity).toLocaleString("en-IN")}`,
+    ]),
+  };
+
+  await doc.table(table, {
+    prepareHeader: () => doc.font("Helvetica-Bold").fontSize(10),
+    prepareRow: (row, index, column, rect, rowIndex, columnIndex) =>
+      doc.font("Helvetica").fontSize(10),
+    width: 500,
+  });
+
+  doc.moveDown();
+
+  // Summary
+  const summaryX = 350;
+  doc.font("Helvetica").text("Subtotal (MRP):", summaryX, doc.y, { width: 100, align: "left" });
+  doc.text(`INR ${order.totalPrice.toLocaleString("en-IN")}`, summaryX + 100, doc.y - 12, { width: 70, align: "right" });
+
+  doc.moveDown(0.5);
+  doc.text("Product Discount:", summaryX, doc.y, { width: 100, align: "left" });
+  doc.text(`- INR ${order.discount.toLocaleString("en-IN")}`, summaryX + 100, doc.y - 12, { width: 70, align: "right" });
+
+  if (order.couponDiscount > 0) {
+    doc.moveDown(0.5);
+    doc.text(`Coupon (${order.couponCode}):`, summaryX, doc.y, { width: 100, align: "left" });
+    doc.text(`- INR ${order.couponDiscount.toLocaleString("en-IN")}`, summaryX + 100, doc.y - 12, { width: 70, align: "right" });
+  }
+
+  const deliveryFee = order.finalAmount - (order.totalPrice - order.discount - order.couponDiscount);
+  doc.moveDown(0.5);
+  doc.text("Delivery:", summaryX, doc.y, { width: 100, align: "left" });
+  doc.text(deliveryFee > 0 ? `INR ${deliveryFee}` : "FREE", summaryX + 100, doc.y - 12, { width: 70, align: "right" });
+
+  doc.moveDown();
+  doc.font("Helvetica-Bold").fontSize(12).text("Total Amount:", summaryX, doc.y, { width: 100, align: "left" });
+  doc.text(`INR ${order.finalAmount.toLocaleString("en-IN")}`, summaryX + 100, doc.y - 14, { width: 70, align: "right" });
+
+  doc.moveDown(4);
+  doc.font("Helvetica-Oblique").fontSize(10).text("Thank you for shopping with Chrono Lux!", { align: "center" });
+
+  return { doc, filename };
 };
 
 export const cancelWholeOrderService = async ({

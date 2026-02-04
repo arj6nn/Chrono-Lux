@@ -57,9 +57,7 @@ const offerSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-/* ======================
-   VALIDATION (SAFE)
-====================== */
+
 offerSchema.pre("save", function () {
   if (this.startDate >= this.endDate) {
     throw new Error("Start date must be before end date");

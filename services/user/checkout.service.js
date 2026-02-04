@@ -117,4 +117,3 @@ export const prepareCheckoutData = async (userId, appliedCouponId = null) => {
     removedItems
   };
 };
-

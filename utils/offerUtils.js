@@ -45,6 +45,9 @@ export const applyOffers = async (products) => {
             // 3. Update each variant's salesPrice
             if (product.variants && Array.isArray(product.variants)) {
                 product.variants.forEach(variant => {
+                    // Safety check: ensure variant exists and has a price
+                    if (!variant || typeof variant.price !== 'number') return;
+
                     const originalPrice = variant.price;
                     const discountAmount = Math.floor((originalPrice * bestOffer.discountValue) / 100);
                     variant.salesPrice = originalPrice - discountAmount;

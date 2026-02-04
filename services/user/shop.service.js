@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Product from "../../models/product.model.js";
 import Category from "../../models/category.model.js";
 import Brand from "../../models/brand.model.js";
+import Offer from "../../models/offer.model.js";
 import { applyOffers } from "../../utils/offerUtils.js";
 
 export const loadShopPageService = async ({
@@ -10,7 +11,7 @@ export const loadShopPageService = async ({
   filters = {}
 }) => {
   const skip = (page - 1) * limit;
-  const { category, brand, maxPrice, search } = filters;
+  const { category, brand, maxPrice, search, sort } = filters;
 
   /* ================= SIDEBAR DATA ================= */
 
@@ -67,6 +68,31 @@ export const loadShopPageService = async ({
     }
   }
 
+  /* ================= OFFERS DATA ================= */
+
+  const now = new Date();
+  const activeOffers = await Offer.find({
+    isActive: true,
+    startDate: { $lte: now },
+    endDate: { $gte: now }
+  });
+
+  /* ================= SORTING ================= */
+
+  let sortCriteria = {};
+  let needsAggregation = true;
+
+  switch (sort) {
+    case "price-low-to-high":
+      sortCriteria = { effectivePrice: 1 };
+      break;
+    case "price-high-to-low":
+      sortCriteria = { effectivePrice: -1 };
+      break;
+    default:
+      sortCriteria = { effectivePrice: 1 };
+  }
+
   /* ================= PRODUCT FETCH ================= */
 
   let products = [];
@@ -76,12 +102,48 @@ export const loadShopPageService = async ({
   const usePriceFilter =
     maxPrice && !isNaN(maxPrice) && Number(maxPrice) < MAX_PRICE;
 
-  // CASE 1: PRICE FILTER (AGGREGATION)
-  if (usePriceFilter) {
-    const price = Number(maxPrice);
+  if (needsAggregation) {
+    const priceLimit = usePriceFilter ? Number(maxPrice) : MAX_PRICE;
 
+    // Build the offer logic for the pipeline
     const pipeline = [
       { $match: baseFilter },
+      {
+        $addFields: {
+          // Find applicable product offers
+          productOffer: {
+            $filter: {
+              input: activeOffers.filter(o => o.type === "PRODUCT").map(o => ({
+                discountValue: o.discountValue,
+                productIds: o.applicableProducts.map(id => id.toString())
+              })),
+              as: "o",
+              cond: { $in: [{ $toString: "$_id" }, "$$o.productIds"] }
+            }
+          },
+          // Find applicable category offers
+          categoryOffer: {
+            $filter: {
+              input: activeOffers.filter(o => o.type === "CATEGORY").map(o => ({
+                discountValue: o.discountValue,
+                categoryId: o.applicableCategory.toString()
+              })),
+              as: "o",
+              cond: { $eq: [{ $toString: "$category" }, "$$o.categoryId"] }
+            }
+          }
+        }
+      },
+      {
+        $addFields: {
+          allDiscounts: { $concatArrays: ["$productOffer.discountValue", "$categoryOffer.discountValue"] }
+        }
+      },
+      {
+        $addFields: {
+          maxDiscount: { $max: { $ifNull: ["$allDiscounts", [0]] } }
+        }
+      },
       {
         $addFields: {
           effectivePrice: {
@@ -90,19 +152,26 @@ export const loadShopPageService = async ({
                 input: "$variants",
                 as: "v",
                 in: {
-                  $cond: [
-                    { $gt: ["$$v.salesPrice", 0] },
-                    "$$v.salesPrice",
-                    "$$v.price"
-                  ]
+                  $floor: {
+                    $subtract: [
+                      "$$v.price",
+                      { $divide: [{ $multiply: ["$$v.price", { $ifNull: ["$maxDiscount", 0] }] }, 100] }
+                    ]
+                  }
                 }
               }
             }
           }
         }
-      },
-      { $match: { effectivePrice: { $lte: price } } }
+      }
     ];
+
+    if (usePriceFilter) {
+      pipeline.push({ $match: { effectivePrice: { $lte: priceLimit } } });
+    }
+
+    // Add sort to pipeline
+    pipeline.push({ $sort: sortCriteria });
 
     const countResult = await Product.aggregate([
       ...pipeline,
@@ -121,17 +190,6 @@ export const loadShopPageService = async ({
       { path: "brand", select: "brandName" },
       { path: "category", select: "name" }
     ]);
-  }
-  // CASE 2: NORMAL FIND
-  else {
-    totalProducts = await Product.countDocuments(baseFilter);
-
-    products = await Product.find(baseFilter)
-      .populate("brand", "brandName")
-      .populate("category", "name")
-      .skip(skip)
-      .limit(limit)
-      .lean();
   }
 
   /* ================= APPLY OFFERS ================= */

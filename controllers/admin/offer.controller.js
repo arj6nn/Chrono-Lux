@@ -9,9 +9,8 @@ import {
   getOfferStats
 } from "../../services/admin/offer.service.js";
 
-/* ======================
-   LOAD OFFER PAGE
-====================== */
+
+//   LOAD OFFER PAGE
 export const loadOfferPage = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -38,9 +37,8 @@ export const loadOfferPage = async (req, res) => {
   }
 };
 
-/* ======================
-   CREATE OFFER
-====================== */
+
+//   CREATE OFFER
 export const createOffer = async (req, res) => {
   try {
     // Parse selected product IDs (sent as JSON string)
@@ -68,9 +66,8 @@ export const createOffer = async (req, res) => {
   }
 };
 
-/* ======================
-   UPDATE OFFER
-====================== */
+
+//   UPDATE OFFER
 export const updateOffer = async (req, res) => {
   try {
     const applicableProducts = req.body.applicableProducts
@@ -96,9 +93,8 @@ export const updateOffer = async (req, res) => {
   }
 };
 
-/* ======================
-   TOGGLE STATUS
-====================== */
+
+//   TOGGLE STATUS
 export const toggleOfferStatus = async (req, res) => {
   try {
     const updatedOffer = await toggleOfferStatusById(req.params.id);

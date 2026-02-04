@@ -2,8 +2,6 @@ import nodemailer from "nodemailer";
 
 export async function sendVerificationEmail(email, otp, subject) {
     try {
-        // We initialize the transporter inside the function because in ES Modules, 
-        // top-level code runs before dotenv.config() in app.js can finish.
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {

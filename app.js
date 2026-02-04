@@ -10,6 +10,7 @@ import userSession from "./middlewares/userSession.js";
 import adminRoute from './routes/admin.route.js';
 import userRouter from './routes/user.route.js';
 import cartCount from "./middlewares/cartCount.js";
+import wishlistCount from "./middlewares/wishlistCount.js";
 import flash from 'connect-flash';
 import noCacheMiddleware from "./middlewares/noCache.js";
 
@@ -76,6 +77,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use(userSession);   //res.locals.user always available in navbar
 app.use(cartCount);
+app.use(wishlistCount);
 
 // ROUTES
 app.use('/', userRouter);

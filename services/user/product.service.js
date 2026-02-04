@@ -30,7 +30,7 @@ export const getProductDetailsService = async ({ productId }) => {
   let relatedProducts = [];
 
   if (!unavailable) {
-    // 1️⃣ Same-brand related products
+    // Same-brand related products
     relatedProducts = await Product.find({
       isBlocked: false,
       brand: product.brand._id,
@@ -39,7 +39,7 @@ export const getProductDetailsService = async ({ productId }) => {
       .limit(4)
       .lean();
 
-    // 2️⃣ Fill remaining slots with random products
+    // Fill remaining slots with random products
     if (relatedProducts.length < 4) {
       const remaining = 4 - relatedProducts.length;
 

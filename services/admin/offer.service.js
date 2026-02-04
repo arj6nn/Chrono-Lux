@@ -1,8 +1,6 @@
 import Offer from "../../models/offer.model.js";
 
-/* ======================
-   GET ALL OFFERS
-====================== */
+//   GET ALL OFFERS
 export const getAllOffers = async (page = 1, limit = 4) => {
   const skip = (page - 1) * limit;
 
@@ -26,9 +24,8 @@ export const getAllOffers = async (page = 1, limit = 4) => {
   return { offers, totalOffers };
 };
 
-/* ======================
-   CREATE OFFER
-====================== */
+
+//   CREATE OFFER
 export const createNewOffer = async (offerData) => {
   const {
     type,
@@ -61,9 +58,8 @@ export const createNewOffer = async (offerData) => {
   return await Offer.create(offerData);
 };
 
-/* ======================
-   UPDATE OFFER
-====================== */
+
+//   UPDATE OFFER
 export const updateOfferById = async (offerId, updateData) => {
   const {
     type,
@@ -106,9 +102,8 @@ export const updateOfferById = async (offerId, updateData) => {
   return offer;
 };
 
-/* ======================
-   TOGGLE STATUS
-====================== */
+
+//   TOGGLE STATUS
 export const toggleOfferStatusById = async (offerId) => {
   const offer = await Offer.findById(offerId);
   if (!offer) {
@@ -119,9 +114,8 @@ export const toggleOfferStatusById = async (offerId) => {
   return await offer.save();
 };
 
-/* ======================
-   GET OFFER STATS
-====================== */
+
+ //  GET OFFER STATS
 export const getOfferStats = async () => {
   const now = new Date();
 

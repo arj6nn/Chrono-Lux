@@ -27,7 +27,6 @@ export const createCoupon = async (req, res) => {
         await couponService.createCoupon(req.body);
         res.status(201).json({ message: "Coupon created successfully" });
     } catch (err) {
-        // 🔴 IMPORTANT PART
         if (err.errors) {
             return res.status(400).json({ errors: err.errors });
         }

@@ -4,6 +4,7 @@ import { getOrderDetailsService } from "../../services/user/order.service.js";
 import { requestReturnService } from "../../services/user/order.service.js";
 import { cancelSingleItemService } from "../../services/user/order.service.js";
 import { cancelWholeOrderService } from "../../services/user/order.service.js";
+import { generateInvoicePDF } from "../../services/user/order.service.js";
 
 const placeOrder = async (req, res) => {
   try {
@@ -52,9 +53,11 @@ const placeOrder = async (req, res) => {
     console.error("PLACE ORDER ERROR:", error.message);
 
     switch (error.message) {
+      case "INVALID_PAYMENT":
+        return res.redirect("/order/failure");
+
       case "INVALID_INPUT":
       case "INVALID_ADDRESS":
-      case "INVALID_PAYMENT":
       case "INSUFFICIENT_WALLET_BALANCE":
         return res.redirect("/checkout");
 
@@ -63,7 +66,7 @@ const placeOrder = async (req, res) => {
         return res.redirect("/cart");
 
       default:
-        return res.redirect("/checkout");
+        return res.redirect("/order/failure");
     }
   }
 };
@@ -281,11 +284,71 @@ const cancelWholeOrder = async (req, res) => {
   }
 };
 
+
+
+const renderOrderFailure = async (req, res) => {
+  try {
+    const { orderId } = req.query;
+    let order = null;
+
+    if (orderId && req.session.user) {
+      const userId = req.session.user.id;
+      try {
+        // Reuse getOrderDetailsService logic directly or call it if exported.
+        // Since getOrderDetailsService is imported at the top, I can use it.
+        order = await getOrderDetailsService({ userId, orderId });
+      } catch (err) {
+        console.warn("Order details not found for failure page:", err.message);
+      }
+    }
+
+    return res.render("users/order-failure", {
+      order,
+      user: res.locals.user || req.session.user,
+      message: req.query.message
+    });
+  } catch (error) {
+    console.error("Render Order Failure Error:", error.message);
+    return res.redirect("/cart");
+  }
+};
+
+const downloadInvoice = async (req, res) => {
+  try {
+    if (!req.session.user || !req.session.user.id) {
+      return res.redirect("/login");
+    }
+
+    const userId = req.session.user.id;
+    const orderId = req.params.orderId;
+
+    const { doc, filename } = await generateInvoicePDF({
+      userId,
+      orderId
+    });
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=${filename}`
+    );
+
+    doc.pipe(res);
+    doc.end();
+
+  } catch (error) {
+    console.error("Download invoice error:", error.message);
+    return res.redirect("/profile/orders");
+  }
+};
+
 export default {
   placeOrder,
   loadOrderHistory,
   loadOrderDetails,
   requestReturn,
   cancelSingleItem,
-  cancelWholeOrder
+  cancelWholeOrder,
+  renderOrderFailure,
+  downloadInvoice
 };

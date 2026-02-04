@@ -56,6 +56,23 @@
     </div>
   </div>
 
+  <!-- SORTING -->
+  <div class="filter-section">
+    <h3>Sort By</h3>
+    <div class="checkbox-group">
+      <label>
+        <input type="radio" name="sort" value="price-low-to-high" <%=!filters.sort || filters.sort==='price-low-to-high'
+          ? "checked" : "" %>>
+        Price: Low to High
+      </label>
+      <label>
+        <input type="radio" name="sort" value="price-high-to-low" <%=filters.sort==='price-high-to-low' ? "checked" : ""
+          %>>
+        Price: High to Low
+      </label>
+    </div>
+  </div>
+
 </aside>
 
 <script>
@@ -75,22 +92,24 @@
     }
 
     window.applyFilters = function () {
-      const url = new URL(window.location.href);
+      const url = new URL(window.location.origin + "/shop"); // Start fresh but keep search if needed
 
       // CATEGORIES
       const categories = Array.from(document.querySelectorAll('input[name="category"]:checked'))
         .map(input => input.value);
       if (categories.length) url.searchParams.set("category", categories.join(","));
-      else url.searchParams.delete("category");
 
       // BRANDS
       const brands = Array.from(document.querySelectorAll('input[name="brand"]:checked'))
         .map(input => input.value);
       if (brands.length) url.searchParams.set("brand", brands.join(","));
-      else url.searchParams.delete("brand");
 
       // PRICE
       url.searchParams.set("maxPrice", slider.value);
+
+      // SORT
+      const sort = document.querySelector('input[name="sort"]:checked').value;
+      url.searchParams.set("sort", sort);
 
       // SEARCH
       const searchInput = document.querySelector(".search-input");

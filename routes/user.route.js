@@ -103,10 +103,12 @@ router.post("/checkout/remove-coupon", userAuth, checkoutController.removeCoupon
 
 //place-order
 router.post("/order/place", userAuth, orderController.placeOrder);
+router.get("/order/failure", userAuth, orderController.renderOrderFailure);
 
 //order-history
 router.get("/profile/orders", userAuth, orderController.loadOrderHistory);
 router.get("/profile/orders/:orderId", userAuth, orderController.loadOrderDetails);
+router.get("/profile/orders/:orderId/invoice", userAuth, orderController.downloadInvoice);
 router.post("/profile/orders/:orderId/return/:itemId", userAuth, orderController.requestReturn);
 
 //order-cancel

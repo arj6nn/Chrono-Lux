@@ -17,17 +17,15 @@ const categorySchema = new mongoose.Schema(
         },
 
         categoryImage: {
-            type: String,     // Cloudinary URL
+            type: String,     // cloudinary URL
             required: true
         },
 
-        // NEW FIELD → Used for toggle button (Active / Inactive)
         isListed: {
             type: Boolean,
             default: true
         },
 
-        // Soft delete (You will NOT delete permanently)
         isBlocked: {
             type: Boolean,
             default: false

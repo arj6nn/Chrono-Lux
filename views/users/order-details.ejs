@@ -150,9 +150,10 @@
 
                       <div class="order-footer-row">
                         <span class="price-tag">₹ <%= order.finalAmount.toLocaleString("en-IN") %></span>
-                        <button class="details-outline-btn">
+                        <a href="/profile/orders/<%= order._id %>/invoice" class="details-outline-btn"
+                          style="text-decoration: none;">
                           <i class="fa-solid fa-download"></i> Download Invoice
-                        </button>
+                        </a>
                       </div>
                 </div>
 
