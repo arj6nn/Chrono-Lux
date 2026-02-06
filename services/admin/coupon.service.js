@@ -104,6 +104,10 @@ async updateCoupon(id, data) {
         errors.minPurchase = "Minimum purchase amount cannot be negative";
     }
 
+    if(data.discountType == "FLAT" && data.minimumPurchaseAmount < data.discountValue){
+        errors.minPurchase =  "Minimum purchase amount must be greater than or equal to discount value for flat discount";
+    }
+
 
     const exists = await Coupon.findOne({
         couponCode: data.couponCode,

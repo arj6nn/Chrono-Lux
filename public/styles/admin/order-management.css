@@ -23,17 +23,12 @@ body {
   color: var(--text);
 }
 
-/* LAYOUT */
-.admin-layout {
-  display: flex;
-  width: 100%;
-  min-height: 100vh;
-}
-
-.main {
-  flex: 1;                 /* ✅ fills remaining space */
-  padding: 24px 32px;
+/* MAIN CONTENT */
+.main-content {
+  flex: 1;
+  padding: 30px 40px;
   background: var(--bg);
+  overflow-y: auto;
 }
 
 
@@ -90,7 +85,8 @@ thead {
   background: #fafafa;
 }
 
-th, td {
+th,
+td {
   padding: 14px 16px;
   font-size: 14px;
   text-align: left;
@@ -245,4 +241,3 @@ tbody tr:hover {
   pointer-events: none;
   cursor: not-allowed;
 }
-
