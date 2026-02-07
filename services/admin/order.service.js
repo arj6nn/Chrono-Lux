@@ -122,7 +122,15 @@ const refundReturn = async ({ orderId, itemId }) => {
   const user = await User.findById(order.userId);
   if (!user) throw new Error("USER_NOT_FOUND");
 
-  const refundAmount = item.price * item.quantity;
+  const itemTotalAfterOffers = item.price * item.quantity;
+
+  const orderItemsTotal = order.orderedItems.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+
+  const proportionateCouponDiscount = order.couponDiscount > 0
+    ? (itemTotalAfterOffers / orderItemsTotal) * order.couponDiscount
+    : 0;
+
+  const refundAmount = Math.round(itemTotalAfterOffers - proportionateCouponDiscount);
 
   // restore stock
   await Product.updateOne(
@@ -233,8 +241,6 @@ const rejectCancellation = async ({ orderId, itemId, reason }) => {
   const item = order.orderedItems.id(itemId);
   if (!item || item.status !== "Cancellation Requested") return;
 
-  // Revert to a safe status. Since it was cancellable, it was likely 'Pending' or 'Processing'.
-  // We can try to guess or just set it to 'Processing' or 'Pending'.
   item.status = "Pending";
   item.cancelRejectReason = reason || "Cancellation request rejected by admin";
 

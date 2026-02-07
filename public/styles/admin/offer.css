@@ -442,6 +442,20 @@ tr:last-child td {
     color: var(--text-muted);
 }
 
+
 .hidden {
     display: none !important;
+}
+
+.error-message {
+    color: var(--danger);
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    display: none;
+    font-weight: 500;
+}
+
+.form-group input.error,
+.form-group select.error {
+    border-color: var(--danger) !important;
 }

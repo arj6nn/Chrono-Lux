@@ -303,11 +303,13 @@
                 <option value="PRODUCT">Product Offer</option>
                 <option value="CATEGORY">Category Offer</option>
               </select>
+              <div id="offerTypeError" class="error-message"></div>
             </div>
 
             <div class="form-group">
               <label>Offer Name *</label>
               <input type="text" name="name" id="name" placeholder="e.g. Summer Sale 2025" required />
+              <div id="nameError" class="error-message"></div>
             </div>
 
             <div class="form-group full-col" id="productSearchBox">
@@ -320,6 +322,7 @@
                 <input type="text" id="productSearchInput" placeholder="Search and add products..." autocomplete="off">
                 <div class="search-results hidden" id="productSearchResults"></div>
               </div>
+              <div id="applicableProductsError" class="error-message"></div>
               <p id="selectionCount" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">0
                 products selected</p>
               <div id="selectedProductsList"
@@ -339,6 +342,7 @@
                   </option>
                   <% }) %>
               </select>
+              <div id="applicableCategoryError" class="error-message"></div>
             </div>
 
             <div class="form-group">
@@ -357,16 +361,19 @@
                 <span
                   style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.875rem;">%</span>
               </div>
+              <div id="discountValueError" class="error-message"></div>
             </div>
 
             <div class="form-group">
               <label>Start Date *</label>
               <input type="date" name="startDate" id="startDate" required />
+              <div id="startDateError" class="error-message"></div>
             </div>
 
             <div class="form-group">
               <label>End Date *</label>
               <input type="date" name="endDate" id="endDate" required />
+              <div id="endDateError" class="error-message"></div>
             </div>
 
             <div class="form-group full-col">
@@ -429,6 +436,7 @@
       function toggleModal(show) {
         const modal = document.getElementById("offerModal");
         modal.style.display = show ? "flex" : "none";
+        clearAllErrors();
         if (!show) {
           document.getElementById("offerForm").reset();
           document.getElementById("offerForm").action = "/admin/offers/add";
@@ -600,7 +608,138 @@
           document.getElementById("productSearchResults").classList.add("hidden");
         }
       });
+
+      // Validation Logic
+      function showError(id, message) {
+        const errorElement = document.getElementById(id + "Error");
+        const inputElement = document.getElementById(id);
+        if (errorElement) {
+          errorElement.innerText = message;
+          errorElement.style.display = "block";
+        }
+        if (inputElement) {
+          inputElement.classList.add("error");
+        }
+      }
+
+      function hideError(id) {
+        const errorElement = document.getElementById(id + "Error");
+        const inputElement = document.getElementById(id);
+        if (errorElement) {
+          errorElement.innerText = "";
+          errorElement.style.display = "none";
+        }
+        if (inputElement) {
+          inputElement.classList.remove("error");
+        }
+      }
+
+      function clearAllErrors() {
+        const errorMessages = document.querySelectorAll(".error-message");
+        errorMessages.forEach(msg => {
+          msg.innerText = "";
+          msg.style.display = "none";
+        });
+        const errorInputs = document.querySelectorAll(".error");
+        errorInputs.forEach(input => {
+          input.classList.remove("error");
+        });
+      }
+
+      function validateOfferForm() {
+        let isValid = true;
+        clearAllErrors();
+
+        const type = document.getElementById("offerType").value;
+        const name = document.getElementById("name").value.trim();
+        const discountValue = document.getElementById("discountValue").value;
+        const startDate = document.getElementById("startDate").value;
+        const endDate = document.getElementById("endDate").value;
+
+        // Name validation
+        if (!name) {
+          showError("name", "Offer name is required");
+          isValid = false;
+        } else if (name.length < 3) {
+          showError("name", "Offer name must be at least 3 characters");
+          isValid = false;
+        }
+
+        // Type specific validation
+        if (type === "PRODUCT") {
+          if (selectedProducts.length === 0) {
+            showError("applicableProducts", "Please select at least one product");
+            isValid = false;
+          }
+        } else if (type === "CATEGORY") {
+          const category = document.getElementById("applicableCategory").value;
+          if (!category) {
+            showError("applicableCategory", "Please select a category");
+            isValid = false;
+          }
+        }
+
+        // Discount validation
+        if (!discountValue) {
+          showError("discountValue", "Discount value is required");
+          isValid = false;
+        } else {
+          const val = Number(discountValue);
+          if (isNaN(val) || val <= 0 || val >= 100) {
+            showError("discountValue", "Discount must be between 1 and 99");
+            isValid = false;
+          }
+        }
+
+        // Date validation
+        if (!startDate) {
+          showError("startDate", "Start date is required");
+          isValid = false;
+        }
+        if (!endDate) {
+          showError("endDate", "End date is required");
+          isValid = false;
+        }
+
+        if (startDate && endDate) {
+          const start = new Date(startDate);
+          const end = new Date(endDate);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+
+          if (start < today && document.getElementById("offerForm").action.includes("/add")) {
+            showError("startDate", "Start date cannot be in the past");
+            isValid = false;
+          }
+          if (end <= start) {
+            showError("endDate", "End date must be after start date");
+            isValid = false;
+          }
+        }
+
+        return isValid;
+      }
+
+      document.getElementById("offerForm").addEventListener("submit", function (e) {
+        if (!validateOfferForm()) {
+          e.preventDefault();
+        }
+      });
+
+      // Real-time clearing of errors
+      document.querySelectorAll("#offerForm input, #offerForm select").forEach(input => {
+        input.addEventListener("input", function () {
+          hideError(this.id);
+          if (this.id === "productSearchInput") {
+            hideError("applicableProducts");
+          }
+        });
+        input.addEventListener("change", function () {
+          hideError(this.id);
+        });
+      });
     </script>
+
 </body>
 
 </html>

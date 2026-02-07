@@ -18,6 +18,10 @@ class CouponService {
         errors.discountValue = "Discount value must be greater than 0";
     }
 
+    if(data.discountType === "PERCENTAGE" && data.discountValue >= 100){
+        errors.discountValue = "Percentage discount must be less than 100";
+    }
+
     if (!data.startDate) {
         errors.startDate = "Start date is required";
     }
@@ -30,6 +34,9 @@ class CouponService {
         errors.minPurchase = "Minimum purchase amount cannot be negative";
     }
 
+    if(data.discountType == "FLAT" && data.minimumPurchaseAmount <= data.discountValue){
+        errors.minPurchase =  "Minimum purchase amount must be greater than or equal to discount value for flat discount";
+    }
 
     if (data.startDate && data.endDate) {
         if (new Date(data.endDate) <= new Date(data.startDate)) {
@@ -42,7 +49,6 @@ class CouponService {
         errors.couponCode = "Coupon code already exists";
     }
 
-    // 🔴 IMPORTANT: throw field-wise errors
     if (Object.keys(errors).length > 0) {
         throw { errors };
     }
@@ -94,6 +100,10 @@ async updateCoupon(id, data) {
         errors.discountValue = "Discount value must be greater than 0";
     }
 
+    if(data.discountType === "PERCENTAGE" && data.discountValue >= 100){
+        errors.discountValue = "Percentage discount must be less than 100";
+    }
+
     if (data.startDate && data.endDate) {
         if (new Date(data.endDate) <= new Date(data.startDate)) {
             errors.endDate = "End date must be after start date";
@@ -104,7 +114,7 @@ async updateCoupon(id, data) {
         errors.minPurchase = "Minimum purchase amount cannot be negative";
     }
 
-    if(data.discountType == "FLAT" && data.minimumPurchaseAmount < data.discountValue){
+    if(data.discountType == "FLAT" && data.minimumPurchaseAmount <= data.discountValue){
         errors.minPurchase =  "Minimum purchase amount must be greater than or equal to discount value for flat discount";
     }
 

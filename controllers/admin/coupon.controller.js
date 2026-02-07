@@ -3,7 +3,7 @@ import couponService from "../../services/admin/coupon.service.js";
 export const renderCouponPage = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 10;
+        const limit = 7;
         const search = req.query.search || "";
 
         const { coupons, totalPages, totalCoupons, currentPage } =
