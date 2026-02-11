@@ -1,8 +1,8 @@
-import { 
+import {
   getWishlistByUserId,
   addProductToWishlist,
-  removeProductFromWishlist 
- } from "../../services/user/wishlist.service.js";
+  removeProductFromWishlist
+} from "../../services/user/wishlist.service.js";
 
 const getWishlist = async (req, res) => {
   try {
@@ -48,7 +48,8 @@ const addToWishlist = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Added to wishlist"
+      message: "Added to wishlist",
+      wishlistCount: result.wishlistCount
     });
 
   } catch (error) {
@@ -79,11 +80,12 @@ const removeFromWishlist = async (req, res) => {
       });
     }
 
-    await removeProductFromWishlist(req.user._id, productId);
+    const result = await removeProductFromWishlist(req.user._id, productId);
 
     return res.status(200).json({
       success: true,
-      message: "Removed from wishlist"
+      message: "Removed from wishlist",
+      wishlistCount: result.wishlistCount
     });
 
   } catch (error) {

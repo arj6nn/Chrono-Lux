@@ -10,6 +10,11 @@ const loadCheckout = async (req, res) => {
 
     const data = await prepareCheckoutData(userId, appliedCouponId);
 
+    // If a coupon was applied but is no longer valid, remove it from session
+    if (appliedCouponId && !data.appliedCoupon) {
+      delete req.session.appliedCouponId;
+    }
+
     // Service tells controller to redirect
     if (data.redirect) {
       return res.redirect(data.redirect);
@@ -95,4 +100,27 @@ const removeCoupon = async (req, res) => {
   }
 };
 
-export default { loadCheckout, applyCoupon, removeCoupon };
+const validateStock = async (req, res) => {
+  try {
+    const userId = req.session.user?.id;
+    const appliedCouponId = req.session.appliedCouponId;
+
+    const data = await prepareCheckoutData(userId, appliedCouponId);
+
+    // If stock changes detected
+    if (data.reducedItems.length > 0 || data.removedItems.length > 0) {
+      return res.json({
+        success: false,
+        message: "Stock availability has changed. Please review your cart.",
+        redirect: "/cart?updated=true"
+      });
+    }
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error("Validate stock error:", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+export default { loadCheckout, applyCoupon, removeCoupon, validateStock };

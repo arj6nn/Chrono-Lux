@@ -3,12 +3,14 @@ import Product from "../../models/product.model.js";
 import Category from "../../models/category.model.js";
 import Brand from "../../models/brand.model.js";
 import Offer from "../../models/offer.model.js";
+import Wishlist from "../../models/wishlist.model.js";
 import { applyOffers } from "../../utils/offerUtils.js";
 
 export const loadShopPageService = async ({
   page = 1,
   limit = 12,
-  filters = {}
+  filters = {},
+  userId = null
 }) => {
   const skip = (page - 1) * limit;
   const { category, brand, maxPrice, search, sort } = filters;
@@ -115,7 +117,7 @@ export const loadShopPageService = async ({
             $filter: {
               input: activeOffers.filter(o => o.type === "PRODUCT").map(o => ({
                 discountValue: o.discountValue,
-                productIds: o.applicableProducts.map(id => id.toString())
+                productIds: (o.applicableProducts || []).map(id => id?.toString())
               })),
               as: "o",
               cond: { $in: [{ $toString: "$_id" }, "$$o.productIds"] }
@@ -126,7 +128,7 @@ export const loadShopPageService = async ({
             $filter: {
               input: activeOffers.filter(o => o.type === "CATEGORY").map(o => ({
                 discountValue: o.discountValue,
-                categoryId: o.applicableCategory.toString()
+                categoryId: o.applicableCategory?.toString() || ""
               })),
               as: "o",
               cond: { $eq: [{ $toString: "$category" }, "$$o.categoryId"] }
@@ -195,10 +197,26 @@ export const loadShopPageService = async ({
   /* ================= APPLY OFFERS ================= */
   const productsWithOffers = await applyOffers(products);
 
+  /* ================= WISHLIST STATUS ================= */
+  let wishlistProductIds = [];
+  try {
+    if (userId) {
+      const wishlist = await Wishlist.findOne({ userId }).lean();
+      if (wishlist && Array.isArray(wishlist.products)) {
+        wishlistProductIds = wishlist.products
+          .filter(id => id)
+          .map(id => id.toString());
+      }
+    }
+  } catch (err) {
+    console.error("Wishlist fetch error (non-fatal):", err);
+  }
+
   /* ================= FORMAT PRODUCTS ================= */
 
   const formattedProducts = productsWithOffers.map(p => {
     const v = p.variants?.[0] || {};
+    const totalStock = p.variants?.reduce((sum, v) => sum + (v.stock || 0), 0) || 0;
     return {
       id: p._id,
       productName: p.productName,
@@ -207,7 +225,9 @@ export const loadShopPageService = async ({
       price: v.price,
       salesPrice: v.salesPrice,
       appliedOffer: v.appliedOffer,
-      image: v.images?.[0]
+      image: v.images?.[0],
+      totalStock: totalStock,
+      isInWishlist: wishlistProductIds.includes(p._id.toString())
     };
   });
 
@@ -221,7 +241,7 @@ export const loadShopPageService = async ({
   };
 };
 
-export const liveSearchService = async ({ query, limit = 6 }) => {
+export const liveSearchService = async ({ query, limit = 6, userId = null }) => {
   if (!query || query.trim().length < 1) {
     return [];
   }
@@ -238,15 +258,33 @@ export const liveSearchService = async ({ query, limit = 6 }) => {
 
   const productsWithOffers = await applyOffers(products);
 
+  /* ================= WISHLIST STATUS ================= */
+  let wishlistProductIds = [];
+  try {
+    if (userId) {
+      const wishlist = await Wishlist.findOne({ userId }).lean();
+      if (wishlist && Array.isArray(wishlist.products)) {
+        wishlistProductIds = wishlist.products
+          .filter(id => id)
+          .map(id => id.toString());
+      }
+    }
+  } catch (err) {
+    console.error("Wishlist fetch error (non-fatal):", err);
+  }
+
   return productsWithOffers.map(p => {
     const v = p.variants?.[0] || {};
+    const totalStock = p.variants?.reduce((sum, v) => sum + (v.stock || 0), 0) || 0;
     return {
       id: p._id,
       productName: p.productName,
       price: v.price,
       salesPrice: v.salesPrice,
       appliedOffer: v.appliedOffer,
-      image: v.images?.[0]
+      image: v.images?.[0],
+      totalStock: totalStock,
+      isInWishlist: wishlistProductIds.includes(p._id.toString())
     };
   });
 };

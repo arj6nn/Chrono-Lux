@@ -310,6 +310,21 @@
             confirmButtonText: 'OK'
           });
         };
+
+        function showToast(text, color = "#ef4444") {
+          let typeClass = "error";
+          if (color === "#10B981") typeClass = "success";
+          if (color === "#f59e0b") typeClass = "warning";
+
+          Toastify({
+            text,
+            duration: 3000,
+            gravity: "bottom",
+            position: "center",
+            className: `toastify-glass ${typeClass}`,
+            stopOnFocus: true
+          }).showToast();
+        }
       </script>
 
       <!-- Stock Update Notification -->
@@ -498,19 +513,35 @@
             const selectedPayment = document.querySelector("input[name='payment']:checked");
 
             if (!selectedAddress) {
-              glassAlert("error", "Validation Error", "Please select a delivery address");
+              showToast("Please select a delivery address", "#ef4444");
               return;
             }
 
             if (!selectedPayment) {
-              glassAlert("error", "Validation Error", "Please select a payment method");
+              showToast("Please select a payment method", "#ef4444");
               return;
             }
+
+            // --- Pre-validate Stock ---
+            try {
+              const valRes = await fetch("/checkout/validate-stock");
+              const valData = await valRes.json();
+              if (!valData.success) {
+                showToast(valData.message, "#f59e0b");
+                setTimeout(() => {
+                  window.location.href = valData.redirect || "/cart";
+                }, 1500);
+                return;
+              }
+            } catch (err) {
+              console.error("Validation error:", err);
+            }
+            // --------------------------
 
             // COD → direct submit
             if (selectedPayment.value === "cod") {
               if (window.checkoutAmount >= 10000) {
-                glassAlert("error", "Validation Error", "COD is not available for this amount");
+                showToast("COD is not available for orders above ₹10,000", "#ef4444");
                 return;
               }
               form.submit();
@@ -678,6 +709,7 @@
           applyCoupon();
         }
       </script>
+      <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
       <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 </body>

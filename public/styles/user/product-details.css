@@ -59,9 +59,10 @@ nav a:hover {
 
 /* Breadcrumb */
 .breadcrumb {
-  padding: 20px 60px;
   font-size: 13px;
   color: #888;
+  margin-bottom: 20px;
+  width: 100%;
 }
 
 .breadcrumb a {
@@ -85,8 +86,16 @@ nav a:hover {
 
 .product-images {
   display: flex;
+  flex-direction: column;
   gap: 24px;
   align-items: flex-start;
+}
+
+.images-content-wrapper {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+  width: 100%;
 }
 
 
@@ -341,6 +350,25 @@ nav a:hover {
 .btn-buy-now:hover {
   border-color: #d4af37;
   background: #2a2a2a;
+}
+
+.btn-wishlist {
+  background: transparent;
+  color: #e0e0e0;
+  border: 1px solid #333;
+  transition: all 0.3s;
+}
+
+.btn-wishlist:hover {
+  border-color: #d4af37;
+  color: #d4af37;
+}
+
+.btn-wishlist.active {
+  border-color: #ffcc00 !important;
+  color: #ffcc00 !important;
+  background: transparent !important;
+  cursor: default;
 }
 
 .product-description {
@@ -772,12 +800,11 @@ nav a:hover {
 }
 
 .image-thumbnails {
-  padding-left: 192px;
   display: flex;
   justify-content: center;
   gap: 12px;
-  margin-top: 14px;
-  max-width: 420px;
+  margin-top: 20px;
+  width: 100%;
 }
 
 

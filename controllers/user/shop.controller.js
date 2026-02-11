@@ -7,7 +7,8 @@ const loadShopPage = async (req, res) => {
 
     const data = await loadShopPageService({
       page,
-      filters: req.query
+      filters: req.query,
+      userId: req.session.user?.id || req.user?._id
     });
 
     // AJAX / Fetch requests
@@ -27,7 +28,7 @@ const loadShopPage = async (req, res) => {
 
   } catch (error) {
     console.error("Shop load error FULL:", error);
-    return res.status(500).send("Something went wrong loading shop");
+    return res.status(500).send("Something went wrong loading shop: " + error.message + "\n" + error.stack);
   }
 };
 
@@ -36,7 +37,8 @@ const liveSearch = async (req, res) => {
     const q = req.query.q;
 
     const results = await liveSearchService({
-      query: q
+      query: q,
+      userId: req.session.user?.id || req.user?._id
     });
 
     return res.json(results);

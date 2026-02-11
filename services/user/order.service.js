@@ -7,6 +7,7 @@ import calculateOrderStatus from "../../utils/calculateOrderStatus.js";
 import { applyOffers } from "../../utils/offerUtils.js";
 import Coupon from "../../models/coupon.model.js";
 import * as walletService from "./wallet.service.js";
+import sanitizeCart from "../../utils/sanitizeCart.js";
 
 export const placeOrderService = async ({
   userId,
@@ -39,25 +40,10 @@ export const placeOrderService = async ({
   const productMap = new Map();
   productsWithOffers.forEach(p => productMap.set(p._id.toString(), p));
 
-  //    4. Validate cart items
-  const validItems = [];
+  //    4. Validate cart items (Consistency check with sanitizeCart)
+  const { reducedItems, removedItems } = await sanitizeCart(cart, Product);
 
-  for (const item of cart.items) {
-    const product = productMap.get(item.productId._id.toString());
-    if (!product || product.isBlocked) continue;
-
-    const variant = product.variants.find(
-      v => v._id.toString() === item.variantId.toString()
-    );
-
-    if (!variant || variant.stock < item.quantity) continue;
-    validItems.push(item);
-  }
-
-  if (validItems.length !== cart.items.length) {
-    const validIds = new Set(validItems.map(v => v._id.toString()));
-    cart.items = cart.items.filter(i => validIds.has(i._id.toString()));
-    await cart.save();
+  if (reducedItems.length > 0 || removedItems.length > 0) {
     throw new Error("CART_UPDATED");
   }
 
@@ -142,6 +128,8 @@ export const placeOrderService = async ({
       coupon.usedCount += 1;
       coupon.usedBy.push(userId);
       await coupon.save();
+    } else {
+      throw new Error("INVALID_COUPON");
     }
   }
 
@@ -395,79 +383,98 @@ export const generateInvoicePDF = async ({ userId, orderId }) => {
   const doc = new PDFDocument({ margin: 40, size: "A4" });
   const filename = `invoice-${order.orderId}.pdf`;
 
-  // Header / Brand
-  doc.fillColor("#000000").fontSize(25).text("CHRONO LUX", { align: "center", characterSpacing: 2 });
-  doc.fontSize(10).text("PREMIUM TIMEPIECES", { align: "center" });
+  // --- Header / Brand ---
+  doc.fillColor("#000000").fontSize(25).font("Helvetica-Bold").text("CHRONO LUX", { align: "center", characterSpacing: 2 });
+  doc.fontSize(10).font("Helvetica").text("PREMIUM TIMEPIECES", { align: "center" });
+
   doc.moveDown(2);
 
-  // Invoice Title
-  doc.fontSize(18).text("INVOICE", { underline: true });
-  doc.moveDown();
+  // Shop Details (Left) vs Invoice Info (Right)
+  const startY = doc.y;
+  doc.fontSize(10).font("Helvetica-Bold").text("Sold By:", 40, startY);
+  doc.font("Helvetica").text("CHRONO LUX PVT LTD");
+  doc.text("3rd Floor, Technopark Phase 1");
+  doc.text("Kochi, Kerala - 682024");
+  doc.text("GSTIN: 32AABCC1234D1Z5");
 
-  // Order Info
-  const startX = 40;
-  const currentY = doc.y;
+  doc.font("Helvetica-Bold").text("Invoice Detail:", 350, startY);
+  doc.font("Helvetica").text(`Invoice No: INV-${order.orderId}`);
+  doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString("en-IN")}`);
+  doc.text(`Order ID: ${order.orderId}`);
+  doc.text(`Payment: ${order.paymentMethod}`);
+  doc.text(`Status: ${order.paymentStatus}`);
 
-  doc.fontSize(10).font("Helvetica-Bold").text("Billed To:", startX, currentY);
-  doc.font("Helvetica").text(order.address.name);
+  doc.moveDown(2);
+  doc.rect(40, doc.y, 515, 0.5).fill("#000000"); // Separator line
+  doc.moveDown(1.5);
+
+  // --- Billed To and Shipping ---
+  const billedY = doc.y;
+  doc.fontSize(12).font("Helvetica-Bold").text("Billed To:", 40, billedY);
+  doc.fontSize(10).font("Helvetica").text(order.address.name);
   doc.text(order.address.line1);
   if (order.address.line2) doc.text(order.address.line2);
   doc.text(`${order.address.city}, ${order.address.state} - ${order.address.pincode}`);
   doc.text(`Phone: ${order.address.phone}`);
 
-  doc.font("Helvetica-Bold").text("Order Details:", startX + 300, currentY);
-  doc.font("Helvetica").text(`Order ID: ${order.orderId}`);
-  doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString("en-IN")}`);
-  doc.text(`Payment: ${order.paymentMethod}`);
-  doc.text(`Status: ${order.paymentStatus}`);
-
   doc.moveDown(3);
 
-  // Items Table
+  // --- Items Table ---
   const table = {
     headers: ["Product", "Qty", "MRP", "Offer", "Price", "Total"],
     rows: order.orderedItems.map((item) => [
       item.product?.productName || "Product",
       item.quantity.toString(),
-      `INR ${item.mrp.toLocaleString("en-IN")}`,
-      item.appliedOffer ? `${item.appliedOffer.discountValue}% OFF` : "-",
-      `INR ${item.price.toLocaleString("en-IN")}`,
-      `INR ${(item.price * item.quantity).toLocaleString("en-IN")}`,
+      `${item.mrp.toLocaleString("en-IN")}`,
+      item.appliedOffer ? `${item.appliedOffer.discountValue}%` : "0%",
+      `${item.price.toLocaleString("en-IN")}`,
+      `${(item.price * item.quantity).toLocaleString("en-IN")}`,
     ]),
   };
+
+  // Reset doc.x to ensure table starts from left margin
+  doc.x = 40;
 
   await doc.table(table, {
     prepareHeader: () => doc.font("Helvetica-Bold").fontSize(10),
     prepareRow: (row, index, column, rect, rowIndex, columnIndex) =>
       doc.font("Helvetica").fontSize(10),
-    width: 500,
+    width: 515,
+    columnsSize: [180, 40, 75, 60, 80, 80], // Total 515
+    padding: 5,
   });
 
   doc.moveDown();
 
-  // Summary
+  // --- Summary ---
   const summaryX = 350;
-  doc.font("Helvetica").text("Subtotal (MRP):", summaryX, doc.y, { width: 100, align: "left" });
-  doc.text(`INR ${order.totalPrice.toLocaleString("en-IN")}`, summaryX + 100, doc.y - 12, { width: 70, align: "right" });
+  const valueX = 480;
 
-  doc.moveDown(0.5);
-  doc.text("Product Discount:", summaryX, doc.y, { width: 100, align: "left" });
-  doc.text(`- INR ${order.discount.toLocaleString("en-IN")}`, summaryX + 100, doc.y - 12, { width: 70, align: "right" });
+  const drawLine = (label, value, isBold = false) => {
+    const currentY = doc.y;
+    if (isBold) doc.font("Helvetica-Bold").fontSize(11);
+    else doc.font("Helvetica").fontSize(10);
+
+    doc.text(label, summaryX, currentY);
+    doc.text(`INR ${value}`, valueX, currentY, { width: 75, align: "right" });
+    doc.moveDown(0.8);
+  };
+
+  drawLine("Subtotal (MRP):", order.totalPrice.toLocaleString("en-IN"));
+  drawLine("Product Discount:", `- ${order.discount.toLocaleString("en-IN")}`);
 
   if (order.couponDiscount > 0) {
-    doc.moveDown(0.5);
-    doc.text(`Coupon (${order.couponCode}):`, summaryX, doc.y, { width: 100, align: "left" });
-    doc.text(`- INR ${order.couponDiscount.toLocaleString("en-IN")}`, summaryX + 100, doc.y - 12, { width: 70, align: "right" });
+    drawLine(`Coupon (${order.couponCode}):`, `- ${order.couponDiscount.toLocaleString("en-IN")}`);
   }
 
   const deliveryFee = order.finalAmount - (order.totalPrice - order.discount - order.couponDiscount);
-  doc.moveDown(0.5);
-  doc.text("Delivery:", summaryX, doc.y, { width: 100, align: "left" });
-  doc.text(deliveryFee > 0 ? `INR ${deliveryFee}` : "FREE", summaryX + 100, doc.y - 12, { width: 70, align: "right" });
+  drawLine("Delivery:", deliveryFee > 0 ? deliveryFee.toLocaleString("en-IN") : "0 (FREE)");
 
-  doc.moveDown();
-  doc.font("Helvetica-Bold").fontSize(12).text("Total Amount:", summaryX, doc.y, { width: 100, align: "left" });
-  doc.text(`INR ${order.finalAmount.toLocaleString("en-IN")}`, summaryX + 100, doc.y - 14, { width: 70, align: "right" });
+  doc.moveDown(0.5);
+  doc.rect(summaryX, doc.y, 205, 1).fill("#000000");
+  doc.moveDown(1);
+
+  drawLine("Total Amount:", order.finalAmount.toLocaleString("en-IN"), true);
 
   doc.moveDown(4);
   doc.font("Helvetica-Oblique").fontSize(10).text("Thank you for shopping with Chrono Lux!", { align: "center" });

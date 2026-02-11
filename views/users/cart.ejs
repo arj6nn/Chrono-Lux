@@ -9,8 +9,6 @@
   <link rel="stylesheet" href="/styles/user/cart.css">
   <link rel="stylesheet" href="/styles/user/profile-layout.css">
 
-  <!-- TOASTIFY CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 
   <!-- SweetAlert2 for stock notifications -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -172,17 +170,17 @@
 
       <script>
         function showToast(text, color = "#ef4444") {
+          let typeClass = "error";
+          if (color === "#10B981") typeClass = "success";
+          if (color === "#f59e0b") typeClass = "warning";
+
           Toastify({
             text,
             duration: 3000,
             gravity: "bottom",
             position: "center",
-            className: "toastify-custom",
-            style: {
-              borderLeft: `4px solid ${color}`,
-              background: "#111", // Ensure dark background
-            },
-            close: true
+            className: `toastify-glass ${typeClass}`,
+            stopOnFocus: true
           }).showToast();
         }
       </script>
@@ -227,7 +225,7 @@
               html: message,
               confirmButtonText: "OK",
               customClass: {
-                popup: "glass-alert"
+                popup: "glass-popup"
               }
             });
           }

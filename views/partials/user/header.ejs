@@ -3,6 +3,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="/styles/user/header.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 
 <nav>
   <div class="nav-container nav-wrapper">
@@ -27,22 +28,20 @@
       <a href="<%= user ? '/wishlist' : '/login' %>" class="nav-wishlist-btn" title="Wishlist">
 
         <i class="fa-regular fa-heart"></i>
-        <% if (locals.wishlistCount && locals.wishlistCount> 0) { %>
-          <span class="cart-count">
-            <%= locals.wishlistCount %>
-          </span>
-          <% } %>
+        <span id="wishlist-count-val" class="cart-count"
+          style="<%= locals.wishlistCount > 0 ? '' : 'display: none;' %>">
+          <%= locals.wishlistCount %>
+        </span>
 
       </a>
 
       <a href="/cart" class="nav-cart-btn" title="Cart">
         <i class="fa-solid fa-bag-shopping"></i>
 
-        <% if (cartCount && cartCount> 0) { %>
-          <span class="cart-count">
-            <%= cartCount %>
-          </span>
-          <% } %>
+        <span id="cart-count-val" class="cart-count"
+          style="<%= (locals.cartCount && cartCount > 0) ? '' : 'display: none;' %>">
+          <%= locals.cartCount || 0 %>
+        </span>
       </a>
 
 

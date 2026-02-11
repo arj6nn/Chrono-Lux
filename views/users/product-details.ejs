@@ -13,16 +13,6 @@
       defaultVariant.salesPrice > 0 &&
       defaultVariant.salesPrice < defaultVariant.price; %>
 
-        <!-- BREADCRUMB -->
-        <div class="breadcrumb">
-          <a href="/shop">Shop</a> /
-          <a href="#">
-            <%= product.brand.brandName %>
-          </a> /
-          <span>
-            <%= product.productName %>
-          </span>
-        </div>
 
         <!-- PRODUCT SECTION -->
         <div class="product-container">
@@ -30,42 +20,51 @@
           <!-- IMAGES -->
           <div class="product-images">
 
-            <!-- VARIANT THUMBNAILS (LEFT) -->
-            <% if (product.variants.length> 1) { %>
-              <div class="thumbnail-list" id="variantThumbnails">
-                <% product.variants.forEach((v, index)=> { %>
-                  <div class="thumbnail <%= index === 0 ? 'active' : '' %>" data-variant-index="<%= index %>">
-                    <img src="<%= v.images[0] %>" />
-                  </div>
-                  <% }) %>
-              </div>
-              <% } %>
+            <!-- BREADCRUMB -->
+            <div class="breadcrumb">
+              <a href="/shop">Shop</a> /
+              <a href="#">
+                <%= product.brand.brandName %>
+              </a> /
+              <span>
+                <%= product.productName %>
+              </span>
+            </div>
 
-                <!-- IMAGE COLUMN (CENTER) - NEW WRAPPER -->
-                <div class="image-column">
-                  <!-- MAIN IMAGE -->
-                  <div class="main-image image-wrapper">
+            <!-- IMAGES CONTENT WRAPPER -->
+            <div class="images-content-wrapper">
+              <!-- VARIANT THUMBNAILS (LEFT) -->
+              <% if (product.variants.length> 1) { %>
+                <div class="thumbnail-list" id="variantThumbnails">
+                  <% product.variants.forEach((v, index)=> { %>
+                    <div class="thumbnail <%= index === 0 ? 'active' : '' %>" data-variant-index="<%= index %>">
+                      <img src="<%= v.images[0] %>" />
+                    </div>
+                    <% }) %>
+                </div>
+                <% } %>
 
-                    <button class="img-arrow left" id="prevImage">&#10094;</button>
-
-                    <div class="image-zoom-container">
-                      <img id="mainProductImage" class="click-zoom-image" src="<%= defaultVariant.images[0] %>"
-                        alt="<%= product.productName %>" />
-
+                  <!-- IMAGE COLUMN (CENTER) -->
+                  <div class="image-column">
+                    <!-- MAIN IMAGE -->
+                    <div class="main-image image-wrapper">
+                      <button class="img-arrow left" id="prevImage">&#10094;</button>
+                      <div class="image-zoom-container">
+                        <img id="mainProductImage" class="click-zoom-image" src="<%= defaultVariant.images[0] %>"
+                          alt="<%= product.productName %>" />
+                      </div>
+                      <button class="img-arrow right" id="nextImage">&#10095;</button>
                     </div>
 
-                    <button class="img-arrow right" id="nextImage">&#10095;</button>
-
+                    <!-- IMAGE THUMBNAILS (BELOW MAIN IMAGE) -->
+                    <div class="image-thumbnails" id="imageThumbnails">
+                      <% defaultVariant.images.forEach((img, index)=> { %>
+                        <img src="<%= img %>" class="image-thumb <%= index === 0 ? 'active' : '' %>"
+                          data-image-index="<%= index %>" />
+                        <% }) %>
+                    </div>
                   </div>
-
-                  <!-- IMAGE THUMBNAILS (BELOW MAIN IMAGE) -->
-                  <div class="image-thumbnails" id="imageThumbnails">
-                    <% defaultVariant.images.forEach((img, index)=> { %>
-                      <img src="<%= img %>" class="image-thumb <%= index === 0 ? 'active' : '' %>"
-                        data-image-index="<%= index %>" />
-                      <% }) %>
-                  </div>
-                </div>
+            </div>
 
           </div>
 
@@ -138,18 +137,26 @@
                             Add to Cart
                           </button>
 
-                          <button class="btn btn-wishlist" data-product-id="<%= product._id %>">
-                            <i class="fa-regular fa-heart"></i>
-                            Add to Wishlist
-                          </button>
-
-
-
-                          <% } else { %>
-                            <button class="btn btn-disabled" disabled>
-                              Out of Stock
+                          <% if (isInWishlist) { %>
+                            <button class="btn btn-wishlist active" data-product-id="<%= product._id %>" disabled
+                              style="color: #ffcc00; border-color: #ffcc00;">
+                              <i class="fa-solid fa-heart"></i>
+                              WISHLISTED
                             </button>
-                            <% } %>
+                            <% } else { %>
+                              <button class="btn btn-wishlist" data-product-id="<%= product._id %>">
+                                <i class="fa-regular fa-heart"></i>
+                                Add to Wishlist
+                              </button>
+                              <% } %>
+
+
+
+                                <% } else { %>
+                                  <button class="btn btn-disabled" disabled>
+                                    Out of Stock
+                                  </button>
+                                  <% } %>
                     </div>
 
 
@@ -285,7 +292,7 @@
                   </div>
 
                   <div class="product-card-category">
-                    <%= p.brand?.brandName || "Brand" %>
+                    <%= p.brand?.brandName %>
                   </div>
 
                   <div class="product-card-name">
@@ -318,6 +325,7 @@
   </script>
   <script>
     const IS_LOGGED_IN = <%= (locals.user && locals.user._id) ? "true" : "false" %>;
+    let IS_IN_WISHLIST = <%= isInWishlist ? "true" : "false" %>;
   </script>
 
 
@@ -449,9 +457,15 @@
                     <button class="btn btn-add-cart" data-variant-id="${v._id}">
                         Add to Cart
                     </button>
-                    <button class="btn btn-wishlist" data-product-id="${PRODUCT_ID}">
-                        <i class="fa-regular fa-heart"></i> Add to Wishlist
-                    </button>`;
+                    ${IS_IN_WISHLIST ? `
+                      <button class="btn btn-wishlist active" data-product-id="${PRODUCT_ID}" disabled style="color: #ffcc00; border-color: #ffcc00;">
+                          <i class="fa-solid fa-heart"></i> WISHLISTED
+                      </button>
+                    ` : `
+                      <button class="btn btn-wishlist" data-product-id="${PRODUCT_ID}">
+                          <i class="fa-regular fa-heart"></i> Add to Wishlist
+                      </button>
+                    `}`;
           } else {
             actionButtons.innerHTML = `<button class="btn btn-disabled" disabled>Out of Stock</button>`;
           }
@@ -616,9 +630,23 @@
       const btn = e.target.closest(".btn-wishlist");
       if (!btn) return;
 
-      // 🔐 login check (NOW SAFE)
+      // 🔐 login check
       if (typeof IS_LOGGED_IN === "undefined" || !IS_LOGGED_IN) {
-        window.location.href = "/login";
+        Swal.fire({
+          icon: 'info',
+          title: 'Login Required',
+          text: 'Please login to add items to your wishlist',
+          showCancelButton: true,
+          confirmButtonText: 'Login Now',
+          cancelButtonText: 'Maybe Later',
+          customClass: {
+            popup: 'glass-popup'
+          }
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = '/login';
+          }
+        });
         return;
       }
 
@@ -631,27 +659,61 @@
       try {
         const res = await fetch(`/wishlist/add/${productId}`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" }
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          }
         });
 
         const data = await res.json();
 
         if (data.success) {
           btn.classList.add("active");
-          btn.innerHTML = `<i class="fa-solid fa-heart"></i> Wishlisted`;
+          btn.innerHTML = `<i class="fa-solid fa-heart"></i> WISHLISTED`;
           btn.disabled = true;
+          btn.style.color = "#ffcc00";
+          btn.style.borderColor = "#ffcc00";
 
-          // sync navbar count
-          setTimeout(() => location.reload(), 400);
+          // Update global state for variant switching
+          if (typeof IS_IN_WISHLIST !== 'undefined') {
+            window.IS_IN_WISHLIST = true;
+            IS_IN_WISHLIST = true;
+          }
+
+          // sync navbar counts
+          const wBadge = document.getElementById("wishlist-count-val");
+          if (wBadge && typeof data.wishlistCount !== 'undefined') {
+            wBadge.textContent = data.wishlistCount;
+            wBadge.style.display = data.wishlistCount > 0 ? "" : "none";
+          }
+
+          Toastify({
+            text: "Added to wishlist",
+            duration: 2500,
+            gravity: "bottom",
+            position: "center",
+            className: "toastify-glass success",
+            stopOnFocus: true
+          }).showToast();
         } else {
           btn.classList.remove("loading");
-          glassAlert("error", data.message || "Failed to add to wishlist");
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: data.message || "Failed to add to wishlist",
+            customClass: { popup: 'glass-popup' }
+          });
         }
 
       } catch (err) {
         console.error(err);
         btn.classList.remove("loading");
-        glassAlert("error", "Something went wrong");
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: "Something went wrong",
+          customClass: { popup: 'glass-popup' }
+        });
       }
     });
   </script>
@@ -662,6 +724,25 @@
     document.addEventListener("click", async (e) => {
       const btn = e.target.closest(".btn-add-cart");
       if (!btn) return;
+
+      if (typeof IS_LOGGED_IN === "undefined" || !IS_LOGGED_IN) {
+        Swal.fire({
+          icon: 'info',
+          title: 'Login Required',
+          text: 'Please login to add items to your cart',
+          showCancelButton: true,
+          confirmButtonText: 'Login Now',
+          cancelButtonText: 'Maybe Later',
+          customClass: {
+            popup: 'glass-popup'
+          }
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = '/login';
+          }
+        });
+        return;
+      }
 
       if (PRODUCT_UNAVAILABLE) {
         Swal.fire({
@@ -689,7 +770,10 @@
       try {
         const res = await fetch("/cart/add", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+          },
           body: JSON.stringify({
             productId: PRODUCT_ID,
             variantId,
@@ -700,16 +784,46 @@
         const data = await res.json();
 
         if (data.success) {
-          glassAlert("success", "Added to Cart");
+          Toastify({
+            text: "Added to Cart",
+            duration: 2500,
+            gravity: "bottom",
+            position: "center",
+            className: "toastify-glass success",
+            stopOnFocus: true
+          }).showToast();
 
-          // update navbar cart count
-          setTimeout(() => location.reload(), 600);
+          const cBadge = document.getElementById("cart-count-val");
+          if (cBadge && typeof data.cartCount !== 'undefined') {
+            cBadge.textContent = data.cartCount;
+            cBadge.style.display = data.cartCount > 0 ? "" : "none";
+          }
+
+          const wBadge = document.getElementById("wishlist-count-val");
+          if (wBadge && typeof data.wishlistCount !== 'undefined') {
+            wBadge.textContent = data.wishlistCount;
+            wBadge.style.display = data.wishlistCount > 0 ? "" : "none";
+          }
+
+          // Reset wishlist button if it was in 'WISHLISTED' state
+          const wishlistBtn = document.querySelector(".btn-wishlist");
+          if (wishlistBtn && wishlistBtn.classList.contains("active")) {
+            wishlistBtn.classList.remove("active");
+            wishlistBtn.disabled = false;
+            wishlistBtn.style.color = "";
+            wishlistBtn.style.borderColor = "";
+            wishlistBtn.innerHTML = '<i class="fa-regular fa-heart"></i> Add to Wishlist';
+            if (typeof IS_IN_WISHLIST !== 'undefined') {
+              window.IS_IN_WISHLIST = false;
+              IS_IN_WISHLIST = false;
+            }
+          }
 
         } else {
           Swal.fire({
             icon: "error",
             title: data.message || "Failed to add",
-            customClass: { popup: "glass-alert" }
+            customClass: { popup: "glass-popup" }
           });
         }
       } catch (err) {
@@ -717,3 +831,8 @@
       }
     });
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <%- include("../partials/user/footer") %>
+    </body>
+
+    </html>

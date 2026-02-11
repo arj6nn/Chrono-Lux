@@ -43,13 +43,13 @@ export const addProductToWishlist = async (userId, productId) => {
     return { success: false, status: 400, message: "Product already in cart" };
   }
 
-  await Wishlist.findOneAndUpdate(
+  const wishlist = await Wishlist.findOneAndUpdate(
     { userId },
     { $addToSet: { products: productId } },
     { upsert: true, new: true }
   );
 
-  return { success: true };
+  return { success: true, wishlistCount: wishlist.products.length };
 };
 
 /**
@@ -58,10 +58,23 @@ export const addProductToWishlist = async (userId, productId) => {
  * @param {String} productId
  */
 export const removeProductFromWishlist = async (userId, productId) => {
-  await Wishlist.updateOne(
+  const wishlist = await Wishlist.findOneAndUpdate(
     { userId },
-    { $pull: { products: productId } }
+    { $pull: { products: productId } },
+    { new: true }
   );
 
-  return { success: true };
+  return { success: true, wishlistCount: wishlist ? wishlist.products.length : 0 };
+};
+
+/**
+ * Check if a product is in the user's wishlist
+ * @param {String} userId
+ * @param {String} productId
+ * @returns {Boolean}
+ */
+export const isProductInWishlist = async (userId, productId) => {
+  if (!userId) return false;
+  const wishlist = await Wishlist.findOne({ userId, products: productId });
+  return !!wishlist;
 };

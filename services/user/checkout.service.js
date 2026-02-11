@@ -82,7 +82,12 @@ export const prepareCheckoutData = async (userId, appliedCouponId = null) => {
 
   if (appliedCouponId) {
     appliedCoupon = await Coupon.findById(appliedCouponId);
-    if (appliedCoupon && appliedCoupon.isActive && new Date() <= appliedCoupon.endDate) {
+    if (
+      appliedCoupon &&
+      appliedCoupon.isActive &&
+      new Date() <= appliedCoupon.endDate &&
+      payableAmount >= appliedCoupon.minimumPurchaseAmount
+    ) {
       if (appliedCoupon.discountType === "PERCENTAGE") {
         couponDiscount = (payableAmount * appliedCoupon.discountValue) / 100;
       } else {

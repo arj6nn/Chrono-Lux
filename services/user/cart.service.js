@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Cart from "../../models/cart.model.js";
 import Product from "../../models/product.model.js";
 import { applyOffers } from "../../utils/offerUtils.js";
@@ -102,10 +103,23 @@ export const addItemToCart = async ({
   // Remove from Wishlist if exists
   await Wishlist.updateOne(
     { userId },
-    { $pull: { products: productId } }
+    { $pull: { products: new mongoose.Types.ObjectId(productId) } }
   );
 
-  return { success: true };
+  // Fetch final counts directly from DB to be 100% accurate
+  const [updatedCart, updatedWishlist] = await Promise.all([
+    Cart.findOne({ userId }),
+    Wishlist.findOne({ userId })
+  ]);
+
+  const cartCount = updatedCart ? updatedCart.items.filter(i => i.productId).length : 0;
+  const wishlistCount = updatedWishlist ? updatedWishlist.products.length : 0;
+
+  return {
+    success: true,
+    cartCount,
+    wishlistCount
+  };
 };
 
 export const removeItemFromCart = async ({ userId, itemId }) => {
@@ -131,7 +145,8 @@ export const removeItemFromCart = async ({ userId, itemId }) => {
 
   await cart.save();
 
-  return { success: true };
+  const cartCount = cart.items.filter(i => i.productId).length;
+  return { success: true, cartCount };
 };
 
 export const updateCartItemQuantity = async ({

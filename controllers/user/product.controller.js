@@ -1,16 +1,21 @@
 import { getProductDetailsService } from "../../services/user/product.service.js";
+import { isProductInWishlist } from "../../services/user/wishlist.service.js";
 
 const loadProductDetails = async (req, res) => {
   try {
     const productId = req.params.id;
+    const userId = req.session.user ? req.session.user.id : null;
 
     const { product, relatedProducts, unavailable } =
       await getProductDetailsService({ productId });
 
+    const isInWishlist = await isProductInWishlist(userId, productId);
+
     return res.render("users/product-details", {
       product,
       relatedProducts,
-      unavailable
+      unavailable,
+      isInWishlist
     });
 
   } catch (error) {

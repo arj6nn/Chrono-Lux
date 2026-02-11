@@ -102,6 +102,7 @@
   </main>
 
   <%- include("../partials/user/footer") %>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', function () {
         const nav = document.querySelector('nav');
@@ -126,9 +127,57 @@
             const data = await res.json();
             if (data.success) {
               card.remove();
+              updateWishlistUI(data.wishlistCount, data.cartCount);
+              Toastify({
+                text: "Removed from wishlist",
+                duration: 2500,
+                gravity: "bottom",
+                position: "center",
+                className: "toastify-glass error",
+                stopOnFocus: true
+              }).showToast();
             }
           });
         });
+
+        function updateWishlistUI(wishlistCount, cartCount) {
+          // Update header wishlist badge
+          const wBadge = document.getElementById("wishlist-count-val");
+          if (wBadge && typeof wishlistCount !== 'undefined') {
+            wBadge.textContent = wishlistCount;
+            wBadge.style.display = wishlistCount > 0 ? "" : "none";
+          }
+
+          // Update header cart badge
+          const cBadge = document.getElementById("cart-count-val");
+          if (cBadge && typeof cartCount !== 'undefined') {
+            cBadge.textContent = cartCount;
+            cBadge.style.display = cartCount > 0 ? "" : "none";
+          }
+
+          // Update page-level item count text
+          const countText = document.querySelector(".item-count");
+          if (countText && typeof wishlistCount !== 'undefined') {
+            countText.textContent = `${wishlistCount} Item${wishlistCount !== 1 ? 's' : ''}`;
+          }
+
+          // Handle empty state transition
+          if (wishlistCount === 0) {
+            const container = document.querySelector(".wishlist-page");
+            if (container) {
+              container.innerHTML = `
+                <header class="page-header">
+                  <h1>Wishlist</h1>
+                  <p class="item-count">0 Items</p>
+                </header>
+                <div class="empty-wishlist">
+                  <p>Your wishlist is empty ❤️</p>
+                  <a href="/shop" class="continue-shopping">Continue Shopping</a>
+                </div>
+              `;
+            }
+          }
+        }
 
         // ADD TO CART FROM WISHLIST
         document.querySelectorAll(".add-to-bag").forEach(btn => {
@@ -154,12 +203,35 @@
 
               if (data.success) {
                 card.remove();
+                updateWishlistUI(data.wishlistCount, data.cartCount);
+                Toastify({
+                  text: "Added to cart",
+                  duration: 2500,
+                  gravity: "bottom",
+                  position: "center",
+                  className: "toastify-glass success",
+                  stopOnFocus: true
+                }).showToast();
               } else {
-                alert(data.message || "Failed to add to cart");
+                Toastify({
+                  text: data.message || "Failed to add to cart",
+                  duration: 2500,
+                  gravity: "bottom",
+                  position: "center",
+                  className: "toastify-glass error",
+                  stopOnFocus: true
+                }).showToast();
               }
             } catch (err) {
               console.error(err);
-              alert("Something went wrong");
+              Toastify({
+                text: "Something went wrong",
+                duration: 2500,
+                gravity: "bottom",
+                position: "center",
+                className: "toastify-glass error",
+                stopOnFocus: true
+              }).showToast();
             }
           });
         });

@@ -59,11 +59,14 @@ const placeOrder = async (req, res) => {
       case "INVALID_INPUT":
       case "INVALID_ADDRESS":
       case "INSUFFICIENT_WALLET_BALANCE":
+      case "INVALID_COUPON":
         return res.redirect("/checkout");
 
       case "EMPTY_CART":
-      case "CART_UPDATED":
         return res.redirect("/cart");
+
+      case "CART_UPDATED":
+        return res.redirect("/cart?updated=true");
 
       default:
         return res.redirect("/order/failure");

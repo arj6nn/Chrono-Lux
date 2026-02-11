@@ -47,7 +47,12 @@ const addToCart = async (req, res) => {
       quantity: req.body.quantity
     });
 
-    return res.json(result);
+    return res.json({
+      success: result.success,
+      message: result.message,
+      cartCount: result.cartCount,
+      wishlistCount: result.wishlistCount
+    });
 
   } catch (error) {
     console.error("ADD TO CART ERROR:", error);
@@ -64,7 +69,11 @@ const removeFromCart = async (req, res) => {
 
     const result = await removeItemFromCart({ userId, itemId });
 
-    return res.json(result);
+    return res.json({
+      success: result.success,
+      message: result.message,
+      cartCount: result.cartCount
+    });
 
   } catch (error) {
     console.error("REMOVE CART ITEM ERROR:", error);

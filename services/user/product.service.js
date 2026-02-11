@@ -58,12 +58,12 @@ export const getProductDetailsService = async ({ productId }) => {
 
       relatedProducts = [...relatedProducts, ...randomProducts];
 
-      // Populate after aggregation
-      relatedProducts = await Product.populate(relatedProducts, [
-        { path: "brand", select: "brandName" },
-        { path: "category", select: "name" }
-      ]);
     }
+    // Populate brand and category for all related products
+    relatedProducts = await Product.populate(relatedProducts, [
+      { path: "brand", select: "brandName" },
+      { path: "category", select: "name" }
+    ]);
   }
 
   // Apply offers to the main product

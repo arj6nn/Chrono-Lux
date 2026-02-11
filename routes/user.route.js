@@ -100,6 +100,7 @@ router.patch("/cart/update/:itemId", userAuth, cartController.updateQuantity);
 router.get("/checkout", userAuth, checkoutController.loadCheckout);
 router.post("/checkout/apply-coupon", userAuth, checkoutController.applyCoupon);
 router.post("/checkout/remove-coupon", userAuth, checkoutController.removeCoupon);
+router.get("/checkout/validate-stock", userAuth, checkoutController.validateStock);
 
 //place-order
 router.post("/order/place", userAuth, orderController.placeOrder);

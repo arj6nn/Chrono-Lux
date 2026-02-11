@@ -40,8 +40,10 @@
 
             <a href="/product/<%= product.id %>" class="product-card">
               <div class="product-image-wrapper">
-                <button class="wishlist-btn" onclick="toggleWishlist(event, '<%= product.id %>')"><i
-                    class="fa-regular fa-heart"></i></button>
+                <button class="wishlist-btn <%= product.isInWishlist ? 'active' : '' %>"
+                  onclick="toggleWishlist(event, '<%= product.id %>', <%= product.totalStock || 0 %>)">
+                  <i class="<%= product.isInWishlist ? 'fa-solid' : 'fa-regular' %> fa-heart"></i>
+                </button>
                 <img src="<%= product.image %>" class="product-image" loading="lazy" decoding="async" width="260"
                   height="320" style="object-fit: contain;">
               </div>
@@ -65,6 +67,9 @@
                     <%= product.appliedOffer.discountValue %>% OFF
                   </div>
                   <% } %>
+                    <% if (product.totalStock===0) { %>
+                      <div class="out-of-stock-text">Out of Stock</div>
+                      <% } %>
               </div>
 
             </a>
@@ -192,6 +197,10 @@
             `
           <a href="/product/${p.id}" class="product-card">
             <div class="product-image-wrapper"> 
+               <button class="wishlist-btn ${p.isInWishlist ? 'active' : ''}" 
+                       onclick="toggleWishlist(event, '${p.id}', ${p.totalStock})">
+                <i class="${p.isInWishlist ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+              </button>
               <img
                 src="${p.image}"
                 class="product-image"
@@ -204,6 +213,7 @@
               <div class="product-name">${p.productName}</div>
               <div class="product-price">${priceHTML}</div>
               ${p.appliedOffer ? `<div class="offer-badge">${p.appliedOffer.discountValue}% OFF</div>` : ''}
+              ${p.totalStock === 0 ? '<div class="out-of-stock-text">Out of Stock</div>' : ''}
             </div>
           </a>
         `
@@ -280,12 +290,17 @@
           return `
         <a href="/product/${p.id}" class="product-card">
           <div class="product-image-wrapper">
+            <button class="wishlist-btn ${p.isInWishlist ? 'active' : ''}" 
+                    onclick="toggleWishlist(event, '${p.id}', ${p.totalStock})">
+              <i class="${p.isInWishlist ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+            </button>
             <img src="${p.image}" class="product-image" loading="lazy" style="object-fit:contain">
           </div>
           <div class="product-info">
             <div class="product-name">${p.productName}</div>
             <div class="product-price">${price}</div>
             ${p.appliedOffer ? `<div class="offer-badge">${p.appliedOffer.discountValue}% OFF</div>` : ''}
+            ${p.totalStock === 0 ? '<div class="out-of-stock-text">Out of Stock</div>' : ''}
           </div>
         </a>`;
         }).join("");
@@ -355,21 +370,95 @@
   </script>
 
   <script>
-    function toggleWishlist(event, productId) {
+    async function toggleWishlist(event, productId, totalStock) {
       event.preventDefault();   // stop link
       event.stopPropagation();  // stop card click
 
       const btn = event.currentTarget;
       const icon = btn.querySelector("i");
+      const isAdding = !btn.classList.contains("active");
 
-      btn.classList.toggle("active");
+      if (isAdding && totalStock === 0) {
+        Toastify({
+          text: "Insufficient Stock",
+          duration: 2500,
+          gravity: "bottom",
+          position: "center",
+          className: "toastify-glass error",
+          stopOnFocus: true
+        }).showToast();
+        return;
+      }
 
-      if (btn.classList.contains("active")) {
-        icon.classList.replace("fa-regular", "fa-solid");
-        // TODO: API call → add to wishlist
-      } else {
-        icon.classList.replace("fa-solid", "fa-regular");
-        // TODO: API call → remove from wishlist
+      try {
+        const url = isAdding ? `/wishlist/add/${productId}` : `/wishlist/remove/${productId}`;
+        const res = await fetch(url, {
+          method: "POST",
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+
+        if (res.status === 401) {
+          Swal.fire({
+            icon: 'info',
+            title: 'Login Required',
+            text: 'Please login to add items to your wishlist',
+            showCancelButton: true,
+            confirmButtonText: 'Login Now',
+            cancelButtonText: 'Maybe Later',
+            customClass: {
+              popup: 'glass-popup'
+            }
+          }).then((result) => {
+            if (result.isConfirmed) {
+              window.location.href = '/login';
+            }
+          });
+          return;
+        }
+
+        const data = await res.json();
+
+        if (data.success) {
+          btn.classList.toggle("active");
+          if (isAdding) {
+            icon.classList.replace("fa-regular", "fa-solid");
+            icon.style.color = "#ef4444";
+          } else {
+            icon.classList.replace("fa-solid", "fa-regular");
+            icon.style.color = "";
+          }
+
+          // Update header wishlist count
+          const countBadge = document.getElementById("wishlist-count-val");
+          if (countBadge && typeof data.wishlistCount !== 'undefined') {
+            countBadge.textContent = data.wishlistCount;
+            countBadge.style.display = data.wishlistCount > 0 ? "" : "none";
+          }
+
+          Toastify({
+            text: data.message || (isAdding ? "Added to wishlist" : "Removed from wishlist"),
+            duration: 2500,
+            gravity: "bottom",
+            position: "center",
+            className: `toastify-glass ${isAdding ? 'success' : 'error'}`,
+            stopOnFocus: true
+          }).showToast();
+        } else {
+          throw new Error(data.message);
+        }
+
+      } catch (err) {
+        console.error("Wishlist error:", err);
+        Toastify({
+          text: err.message || "Failed to update wishlist",
+          duration: 2500,
+          gravity: "bottom",
+          position: "center",
+          className: "toastify-glass error",
+          stopOnFocus: true
+        }).showToast();
       }
     }
   </script>
@@ -384,4 +473,5 @@
 
 
 
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
   <%-include("../partials/user/footer")%>

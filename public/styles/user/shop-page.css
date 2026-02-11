@@ -755,6 +755,14 @@ a {
   color: #ff4d6d;
 }
 
+/* Out of Stock Text */
+.out-of-stock-text {
+  color: #ff0000;
+  font-size: 15px;
+  font-weight: 500;
+  margin-top: 8px;
+}
+
 /* Mobile: always visible (no hover) */
 @media (hover: none) {
   .wishlist-btn {

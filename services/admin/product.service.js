@@ -119,6 +119,10 @@ export async function createProduct({ body, files }) {
             stock: Number(variants[i].stock) || 0
         };
 
+        if (variants[i].price < 0 || variants[i].salesPrice < 0) {
+            throw new Error("Prices cannot be negative");
+        }
+
         if (variants[i].salesPrice > variants[i].price) {
             throw new Error("Sales price cannot be higher than price");
         }
@@ -184,6 +188,10 @@ export async function updateProduct({ productId, body, files }) {
             stock: Number(variant.stock) || 0,
             images: [...existingImages]
         };
+
+        if (variantObj.price < 0 || variantObj.salesPrice < 0) {
+            throw new Error("Prices cannot be negative");
+        }
 
         if (variantObj.salesPrice > variantObj.price) {
             throw new Error("Sales price cannot be higher than price");

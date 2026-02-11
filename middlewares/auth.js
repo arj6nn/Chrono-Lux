@@ -4,6 +4,12 @@ import User from "../models/user.model.js";
 const userAuth = async (req, res, next) => {
   try {
     if (!req.session.user || !req.session.user.id) {
+      if (req.xhr || req.headers.accept?.includes('application/json')) {
+        return res.status(401).json({
+          success: false,
+          message: "Please login to proceed"
+        });
+      }
       return res.redirect("/login");
     }
 
