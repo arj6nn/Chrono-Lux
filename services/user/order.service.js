@@ -144,6 +144,45 @@ export const placeOrderService = async ({
   }
 
 
+  //     8.6. Reduce stock atomically
+  const updatedItems = [];
+  try {
+    for (const item of orderedItems) {
+      const result = await Product.updateOne(
+        {
+          _id: item.product,
+          "variants._id": item.variantId,
+          "variants.stock": { $gte: item.quantity }
+        },
+        { $inc: { "variants.$.stock": -item.quantity } }
+      );
+
+      if (result.modifiedCount === 0) {
+        if (payment === "razorpay") {
+          // Refund to wallet since payment is already processed
+          await walletService.creditWallet(
+            userId,
+            finalAmount,
+            "wallet_refund",
+            "Refund for Order Cancellation (Stock Out)"
+          );
+        }
+        throw new Error("OUT_OF_STOCK");
+      }
+      updatedItems.push(item);
+    }
+  } catch (err) {
+    // Rollback stock for already processed items in this loop
+    for (const item of updatedItems) {
+      await Product.updateOne(
+        { _id: item.product, "variants._id": item.variantId },
+        { $inc: { "variants.$.stock": item.quantity } }
+      );
+    }
+    throw err;
+  }
+
+
   //     9. Create order
   const order = await Order.create({
     userId,
@@ -171,23 +210,27 @@ export const placeOrderService = async ({
 
   //     9.5 Debit Wallet (if payment is wallet)
   if (payment === "wallets") {
-    await walletService.debitWallet(
-      userId,
-      finalAmount,
-      "order_payment",
-      `Payment for Order #${order.orderId}`,
-      order._id
-    );
+    try {
+      await walletService.debitWallet(
+        userId,
+        finalAmount,
+        "order_payment",
+        `Payment for Order #${order.orderId}`,
+        order._id
+      );
+    } catch (err) {
+      // If wallet debit fails, we must rollback stock and delete the order
+      for (const item of orderedItems) {
+        await Product.updateOne(
+          { _id: item.product, "variants._id": item.variantId },
+          { $inc: { "variants.$.stock": item.quantity } }
+        );
+      }
+      await Order.deleteOne({ _id: order._id });
+      throw err;
+    }
   }
 
-
-  //     10. Reduce stock
-  for (const item of orderedItems) {
-    await Product.updateOne(
-      { _id: item.product, "variants._id": item.variantId },
-      { $inc: { "variants.$.stock": -item.quantity } }
-    );
-  }
 
   //     11. Clear cart
   await Cart.deleteOne({ userId });

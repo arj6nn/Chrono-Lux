@@ -53,6 +53,9 @@ const placeOrder = async (req, res) => {
     console.error("PLACE ORDER ERROR:", error.message);
 
     switch (error.message) {
+      case "OUT_OF_STOCK":
+        return res.redirect(`/checkout?error=OUT_OF_STOCK&payment=${payment}`);
+
       case "INVALID_PAYMENT":
         return res.redirect("/order/failure");
 
@@ -297,8 +300,6 @@ const renderOrderFailure = async (req, res) => {
     if (orderId && req.session.user) {
       const userId = req.session.user.id;
       try {
-        // Reuse getOrderDetailsService logic directly or call it if exported.
-        // Since getOrderDetailsService is imported at the top, I can use it.
         order = await getOrderDetailsService({ userId, orderId });
       } catch (err) {
         console.warn("Order details not found for failure page:", err.message);

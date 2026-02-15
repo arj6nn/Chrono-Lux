@@ -330,6 +330,16 @@
       <!-- Stock Update Notification -->
       <script>
         document.addEventListener('DOMContentLoaded', () => {
+          // Check for URL errors
+          const urlParams = new URLSearchParams(window.location.search);
+          if (urlParams.get('error') === 'OUT_OF_STOCK') {
+            const isRazorpay = urlParams.get('payment') === 'razorpay';
+            const msg = isRazorpay
+              ? "Order Cancelled: Item went out of stock. Your payment has been refunded to your wallet."
+              : "Order Cancelled: Some items in your cart just went out of stock. Please check your cart.";
+            showToast(msg, "#ef4444");
+          }
+
           // READ VALUES SAFELY
           const reducedItems = <%- JSON.stringify(locals.reducedItems || []) %>;
           const removedItems = <%- JSON.stringify(locals.removedItems || []) %>;

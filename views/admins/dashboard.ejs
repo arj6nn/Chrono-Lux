@@ -59,36 +59,42 @@
                     </div>
                 </div>
 
-                <!-- Charts Section -->
-                <div class="charts-section">
-                    <!-- Order Status Distribution -->
-                    <div class="chart-card">
-                        <div class="chart-title">
-                            <div class="chart-icon">📊</div>
-                            Order Status Distribution
-                        </div>
-                        <div class="pie-chart-container">
-                            <canvas id="orderChart"></canvas>
-                        </div>
-                        <div class="chart-legend">
-                            <% const statusColors={ 'Cancelled' : '#ef4444' , 'Pending' : '#f59e0b' , 'Delivered'
-                                : '#10b981' , 'Shipped' : '#a855f7' , 'Processing' : '#3b82f6' , 'Return Requested'
-                                : '#6b7280' , 'Cancellation Requested' : '#ec4899' }; orderStatusData.forEach(status=> {
-                                %>
-                                <div class="legend-item">
-                                    <div class="legend-color"
-                                        style="background-color: <%= statusColors[status._id] || '#9ca3af' %>;"></div>
-                                    <span>
-                                        <%= status._id %> (<%= status.count %>)
-                                    </span>
-                                </div>
-                                <% }) %>
+                <!-- Dashboard Content Grid (Row 1) -->
+                <div class="dashboard-content-grid">
+                    <!-- Left Column (Chart) -->
+                    <div class="dashboard-left-col">
+                        <!-- Order Status Distribution -->
+                        <div class="chart-card">
+                            <div class="chart-title">
+                                <div class="chart-icon">📊</div>
+                                Order Status Distribution
+                            </div>
+                            <div class="pie-chart-container">
+                                <canvas id="orderChart"></canvas>
+                            </div>
+                            <div class="chart-legend">
+                                <% const statusColors={ 'Cancelled' : '#ef4444' , 'Pending' : '#f59e0b' , 'Delivered'
+                                    : '#10b981' , 'Shipped' : '#a855f7' , 'Processing' : '#3b82f6' , 'Return Requested'
+                                    : '#6b7280' , 'Cancellation Requested' : '#ec4899' };
+                                    orderStatusData.forEach(status=> {
+                                    %>
+                                    <div class="legend-item">
+                                        <div class="legend-color"
+                                            style="background-color: <%= statusColors[status._id] || '#9ca3af' %>;">
+                                        </div>
+                                        <span>
+                                            <%= status._id %> (<%= status.count %>)
+                                        </span>
+                                    </div>
+                                    <% }) %>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Top Brands & Order Returns -->
-                    <div class="charts-section-right">
-                        <div class="brands-card">
+                    <!-- Right Column (Brands) -->
+                    <div class="dashboard-right-col">
+                        <!-- Top Brands -->
+                        <div class="brands-card" style="height: 477px;">
                             <div class="chart-title">
                                 <div class="chart-icon">⭐</div>
                                 Top Brands
@@ -120,44 +126,90 @@
                                                 <% } %>
                             </ul>
                         </div>
-
-                        <div class="returns-card">
-                            <div class="returns-header">
-                                <span>🔄</span>
-                                <span>Order Return Requests</span>
-                                <div class="returns-badge">
-                                    <%= returnRequests.length %> pending
-                                </div>
-                            </div>
-                            <% if (returnRequests && returnRequests.length> 0) { %>
-                                <% returnRequests.forEach(request=> { %>
-                                    <div class="return-item">
-                                        <div class="return-order-id">
-                                            <%= request.orderId %>
-                                        </div>
-                                        <div class="return-customer">
-                                            <%= request.userId ? request.userId.name : 'Unknown Customer' %>
-                                        </div>
-                                        <div class="return-reason" style="color: var(--danger);">Status: <%=
-                                                request.orderStatus %>
-                                        </div>
-                                        <div class="return-date">
-                                            <%= new Date(request.createdAt).toLocaleDateString() %>
-                                        </div>
-                                        <a href="/admin/orders/details/<%= request._id %>"
-                                            class="return-review-link">Review ></a>
-                                    </div>
-                                    <% }) %>
-                                        <% } else { %>
-                                            <div class="return-item">No pending requests</div>
-                                            <% } %>
-                        </div>
                     </div>
                 </div>
 
-                <!-- Bottom Section -->
-                <div class="bottom-section">
-                    <!-- Recent Orders Table -->
+                <!-- Dashboard Equal Grid (Row 2: Products & Categories) -->
+                <div class="dashboard-equal-grid">
+                    <!-- Top Products -->
+                    <div class="products-card">
+                        <div class="chart-title">
+                            <div class="chart-icon">⭐</div>
+                            Top Products
+                        </div>
+                        <ul class="product-list">
+                            <% if (topProducts && topProducts.length> 0) { %>
+                                <% topProducts.forEach((product, index)=> { %>
+                                    <li class="product-item">
+                                        <div class="product-rank">
+                                            <%= index + 1 %>
+                                        </div>
+                                        <div class="product-image">
+                                            <% let imgUrl='/images/placeholder.png' ; if
+                                                (product.productDetails.variants && product.productDetails.variants[0]
+                                                && product.productDetails.variants[0].images &&
+                                                product.productDetails.variants[0].images[0]) {
+                                                imgUrl=product.productDetails.variants[0].images[0]; if
+                                                (!imgUrl.startsWith('http')) { imgUrl='/uploads/products/' + imgUrl; } }
+                                                %>
+                                                <img src="<%= imgUrl %>" alt=""
+                                                    style="width: 30px; height: 30px; border-radius: 4px; object-fit: cover;">
+                                        </div>
+                                        <div class="product-info">
+                                            <div class="product-name">
+                                                <%= product.productDetails.productName %>
+                                            </div>
+                                            <div class="product-category">Sold: <%= product.totalSold %> units</div>
+                                        </div>
+                                        <div class="product-status">
+                                            <%= product.productDetails.isBlocked ? 'Blocked' : 'Active' %>
+                                        </div>
+                                    </li>
+                                    <% }) %>
+                                        <% } else { %>
+                                            <li class="product-item">No data available</li>
+                                            <% } %>
+                        </ul>
+                    </div>
+
+                    <!-- Top Categories -->
+                    <div class="categories-card">
+                        <div class="chart-title">
+                            <div class="chart-icon">📁</div>
+                            Top Categories
+                        </div>
+                        <ul class="category-list">
+                            <% if (topCategories && topCategories.length> 0) { %>
+                                <% topCategories.forEach((category, index)=> { %>
+                                    <li class="category-item">
+                                        <div class="category-rank">
+                                            <%= index + 1 %>
+                                        </div>
+                                        <div class="category-image">
+                                            <img src="<%= category.categoryDetails.categoryImage || '/images/placeholder.png' %>"
+                                                alt="<%= category.categoryDetails.name %>"
+                                                style="width: 30px; height: 30px; border-radius: 4px; object-fit: cover;">
+                                        </div>
+                                        <div class="category-info">
+                                            <div class="category-name">
+                                                <%= category.categoryDetails.name %>
+                                            </div>
+                                            <div class="category-sales">Sold: <%= category.totalSold %> units</div>
+                                        </div>
+                                        <div class="category-status">
+                                            <%= category.categoryDetails.isListed ? 'Active' : 'Unlisted' %>
+                                        </div>
+                                    </li>
+                                    <% }) %>
+                                        <% } else { %>
+                                            <li class="category-item">No data available</li>
+                                            <% } %>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Recent Orders Table (Full Width) -->
+                <div class="orders-section">
                     <div class="orders-table">
                         <div class="orders-header">
                             <div class="orders-title">
@@ -210,47 +262,6 @@
                                 </tbody>
                             </table>
                         </div>
-                    </div>
-
-                    <!-- Top Products -->
-                    <div class="products-card">
-                        <div class="chart-title">
-                            <div class="chart-icon">⭐</div>
-                            Top Products
-                        </div>
-                        <ul class="product-list">
-                            <% if (topProducts && topProducts.length> 0) { %>
-                                <% topProducts.forEach((product, index)=> { %>
-                                    <li class="product-item">
-                                        <div class="product-rank">
-                                            <%= index + 1 %>
-                                        </div>
-                                        <div class="product-image">
-                                            <% let imgUrl='/images/placeholder.png' ; if
-                                                (product.productDetails.variants && product.productDetails.variants[0]
-                                                && product.productDetails.variants[0].images &&
-                                                product.productDetails.variants[0].images[0]) {
-                                                imgUrl=product.productDetails.variants[0].images[0]; if
-                                                (!imgUrl.startsWith('http')) { imgUrl='/uploads/products/' + imgUrl; } }
-                                                %>
-                                                <img src="<%= imgUrl %>" alt=""
-                                                    style="width: 30px; height: 30px; border-radius: 4px; object-fit: cover;">
-                                        </div>
-                                        <div class="product-info">
-                                            <div class="product-name">
-                                                <%= product.productDetails.productName %>
-                                            </div>
-                                            <div class="product-category">Sold: <%= product.totalSold %> units</div>
-                                        </div>
-                                        <div class="product-status">
-                                            <%= product.productDetails.isBlocked ? 'Blocked' : 'Active' %>
-                                        </div>
-                                    </li>
-                                    <% }) %>
-                                        <% } else { %>
-                                            <li class="product-item">No data available</li>
-                                            <% } %>
-                        </ul>
                     </div>
                 </div>
             </main>

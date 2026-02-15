@@ -344,8 +344,8 @@ a {
   background: rgba(18, 18, 18, 0.6) !important;
   backdrop-filter: blur(15px) saturate(160%) !important;
   -webkit-backdrop-filter: blur(15px) saturate(160%) !important;
-  border-radius: 12px !important;
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 10px !important;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
   color: #fff !important;
   font-family: 'Inter', sans-serif !important;

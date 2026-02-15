@@ -1,8 +1,6 @@
 import Order from "../../models/order.model.js";
 import User from "../../models/user.model.js";
 import Product from "../../models/product.model.js";
-import Category from "../../models/category.model.js";
-import Brand from "../../models/brand.model.js";
 
 class DashboardService {
     async getDashboardData() {

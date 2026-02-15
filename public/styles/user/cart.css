@@ -318,81 +318,14 @@ h1 {
 }
 
 /* ===============================
-   TOASTIFY – CHRONO LUX THEME
+   TOASTIFY OVERRIDES FOR CART
+   (Base styles are in header.css)
    =============================== */
 
-.chrono-toast {
-  background: linear-gradient(135deg, #0f172a, #020617);
-  /* deep luxury black */
-  color: #f9fafb;
-  /* soft white text */
-  font-family: "Inter", sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-
-  padding: 14px 18px;
-  border-radius: 8px;
-
-  border-left: 4px solid #d4af37;
-  /* luxury gold accent */
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
-
-  letter-spacing: 0.3px;
-}
-
-/* Hover subtle lift */
-.chrono-toast:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45);
-}
-
-/* SUCCESS */
-.chrono-toast.success {
-  border-left-color: #22c55e;
-  /* emerald */
-}
-
-/* WARNING / STOCK LIMIT */
-.chrono-toast.warning {
-  border-left-color: #eab308;
-  /* amber */
-}
-
-/* ERROR */
-.chrono-toast.error {
-  border-left-color: #ef4444;
-  /* red */
-}
-
-/* Toast close button */
-.toastify .toast-close {
-  color: #9ca3af;
-  font-size: 14px;
-}
-
-.toastify .toast-close:hover {
-  color: #ffffff;
-}
-
-/* Custom Toastify Theme to match Dark Luxury Aesthetic */
-.toastify-custom {
-  background: #111 !important;
-  /* Dark background */
-  color: #fff !important;
-  /* White text */
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  font-family: inherit;
-  /* Inherit font from body */
-  border-radius: 8px;
-  /* Slightly rounded */
-  padding-left: 20px;
-}
-
-.toast-close {
-  opacity: 0.7;
-}
-
-.toast-close:hover {
-  opacity: 1;
+/* Force perfect rectangle and remove borders on Cart page */
+.toastify-glass {
+  border-radius: 0 !important;
+  /* Uncomment the lines below if you also want to remove the white border */
+  /* border: none !important; */
+  /* border-left: none !important; */
 }
