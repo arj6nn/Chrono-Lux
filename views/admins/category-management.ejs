@@ -58,33 +58,49 @@
                         </td>
 
                         <td>
-                            <%= category.categoryOffer %> %
+                            <% if (category.categoryOffer> 0) { %>
+                                <div style="display: flex; flex-direction: column;">
+                                    <span style="font-weight: 600; color: #556b2f;">
+                                        <%= category.categoryOffer %>%
+                                    </span>
+                                    <small style="color: #888; font-size: 11px;">
+                                        <%= category.offerName %>
+                                    </small>
+                                </div>
+                                <% } else { %>
+                                    0%
+                                    <% } %>
                         </td>
 
-                        <!-- STATUS TOGGLE -->
+                        <!-- STATUS -->
                         <td>
-                            <label class="toggle-switch <%= category.isListed ? '' : 'blocked' %>">
-                                <input type="checkbox" <%=category.isListed ? "checked" : "" %>
-                                onchange="toggleCategoryStatus('<%= category._id %>')">
-                                    <span class="toggle-slider"></span>
-                            </label>
-
-                            <span>
-                                <%= category.isListed ? "Active" : "Inactive" %>
-                            </span>
+                            <% if (category.isListed) { %>
+                                <span class="status active">Active</span>
+                                <% } else { %>
+                                    <span class="status blocked">Inactive</span>
+                                    <% } %>
                         </td>
 
 
-                        <!-- EDIT ONLY -->
+                        <!-- ACTIONS -->
                         <td class="actions">
 
                             <i class="ri-edit-2-line edit" onclick='openEditCategoryModal(
                             "<%= category._id %>",
                             "<%= category.name %>",
-                            "<%= category.description %>",
-                            "<%= category.categoryOffer %>"
+                            "<%= category.description %>"
                         )'>
                             </i>
+
+                            <% if (category.isListed) { %>
+                                <i class="ri-forbid-line delete" title="Unlist Category"
+                                    onclick="handleStatusToggle('<%= category._id %>', '<%= category.name %>', false)">
+                                </i>
+                                <% } else { %>
+                                    <i class="ri-checkbox-circle-line edit" title="List Category"
+                                        onclick="handleStatusToggle('<%= category._id %>', '<%= category.name %>', true)">
+                                    </i>
+                                    <% } %>
 
                         </td>
 
@@ -136,13 +152,11 @@
             <form id="addCategoryForm" enctype="multipart/form-data">
 
                 <label>Category Name</label>
-                <input type="text" name="name" required>
+                <input type="text" name="name" id="addCatName" required>
+                <span id="addNameError" class="error-message"></span>
 
                 <label>Description</label>
                 <input type="text" name="description" required>
-
-                <label>Offer (%)</label>
-                <input type="number" name="categoryOffer" min="0" max="100" value="0">
 
                 <label>Category Image</label>
                 <div class="file-upload-wrapper">
@@ -175,12 +189,10 @@
 
                 <label>Category Name</label>
                 <input type="text" id="editCatName" name="name" required>
+                <span id="editNameError" class="error-message"></span>
 
                 <label>Description</label>
                 <input type="text" id="editCatDesc" name="description" required>
-
-                <label>Offer (%)</label>
-                <input type="number" id="editCatOffer" name="categoryOffer" min="0" max="100">
 
                 <label>Category Image (optional)</label>
 
@@ -209,36 +221,77 @@
 
         /*ADD CATEGORY MODAL*/
         function openAddCategoryModal() {
+            clearValidationErrors();
             document.getElementById("addCategoryModal").style.display = "flex";
         }
 
         function closeAddCategoryModal() {
             document.getElementById("addCategoryModal").style.display = "none";
+            document.getElementById("addCategoryForm").reset();
+            clearValidationErrors();
         }
 
 
         /*EDIT CATEGORY MODAL*/
-        function openEditCategoryModal(id, name, desc, offer) {
+        function openEditCategoryModal(id, name, desc) {
+            clearValidationErrors();
             document.getElementById("editCategoryModal").style.display = "flex";
 
             document.getElementById("editCatName").value = name;
             document.getElementById("editCatDesc").value = desc;
-            document.getElementById("editCatOffer").value = offer;
 
             document.getElementById("editCategoryForm").action = `/admin/categories/edit/${id}`;
         }
 
         function closeEditCategoryModal() {
             document.getElementById("editCategoryModal").style.display = "none";
+            document.getElementById("editCategoryForm").reset();
+            clearValidationErrors();
+        }
+
+        function clearValidationErrors() {
+            const errors = document.querySelectorAll(".error-message");
+            const inputs = document.querySelectorAll("input.error");
+            errors.forEach(el => el.style.display = "none");
+            inputs.forEach(el => el.classList.remove("error"));
         }
 
 
-        /*TOGGLE ACTIVE / INACTIVE*/
-        function toggleCategoryStatus(id) {
-            fetch(`/admin/categories/toggle/${id}`, {
-                method: "PATCH"
-            })
-                .then(() => window.location.reload());
+        /* TOGGLE LIST/UNLIST WITH SWEETALERT */
+        function handleStatusToggle(id, name, isListing) {
+            const action = isListing ? "list" : "unlist";
+            const confirmButtonText = isListing ? "Yes, list it" : "Yes, unlist it";
+            const title = isListing ? `List ${name}?` : `Unlist ${name}?`;
+            const text = isListing ? "This category will be visible to users." : "Products under this category will be hidden from users.";
+            const icon = isListing ? "question" : "warning";
+
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: icon,
+                showCancelButton: true,
+                confirmButtonColor: isListing ? "#556b2f" : "#d9534f",
+                cancelButtonColor: "#aaa",
+                confirmButtonText: confirmButtonText
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/admin/categories/toggle/${id}`, {
+                        method: "PATCH"
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                window.location.reload();
+                            } else {
+                                Swal.fire("Error", data.message || "Something went wrong", "error");
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            window.location.reload(); // Fallback to reload if JSON parsing fails but action might have succeeded
+                        });
+                }
+            });
         }
 
 
@@ -257,54 +310,100 @@
 
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
 
-  const addCategoryForm = document.getElementById("addCategoryForm");
+            /* --- ADD CATEGORY AJAX --- */
+            const addCategoryForm = document.getElementById("addCategoryForm");
 
-  addCategoryForm.addEventListener("submit", async function (e) {
-    e.preventDefault(); // ⛔ stop normal form submit
+            addCategoryForm.addEventListener("submit", async function (e) {
+                e.preventDefault();
+                clearValidationErrors();
 
-    const formData = new FormData(this);
+                const formData = new FormData(this);
 
-    try {
-      const response = await fetch("/admin/categories/add", {
-        method: "POST",
-        body: formData
-      });
+                try {
+                    const response = await fetch("/admin/categories/add", {
+                        method: "POST",
+                        body: formData
+                    });
 
-      const data = await response.json();
+                    const data = await response.json();
 
-      if (!data.success) {
-        // ❌ ERROR ALERT
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: data.message
+                    if (!data.success) {
+                        const nameInput = document.getElementById("addCatName");
+                        const errorSpan = document.getElementById("addNameError");
+
+                        nameInput.classList.add("error");
+                        errorSpan.innerText = data.message;
+                        errorSpan.style.display = "block";
+                        return;
+                    }
+
+                    // ✅ SUCCESS ALERT (ONLY FOR ADD)
+                    Swal.fire({
+                        icon: "success",
+                        title: "Success",
+                        text: data.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        closeAddCategoryModal();
+                        window.location.reload();
+                    });
+
+                } catch (error) {
+                    console.error(error);
+                }
+            });
+
+            /* --- EDIT CATEGORY AJAX --- */
+            const editCategoryForm = document.getElementById("editCategoryForm");
+
+            editCategoryForm.addEventListener("submit", async function (e) {
+                e.preventDefault();
+                clearValidationErrors();
+
+                const formData = new FormData(this);
+                const actionUrl = this.getAttribute("action");
+
+                try {
+                    const response = await fetch(actionUrl, {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        const nameInput = document.getElementById("editCatName");
+                        const errorSpan = document.getElementById("editNameError");
+
+                        nameInput.classList.add("error");
+                        errorSpan.innerText = data.message;
+                        errorSpan.style.display = "block";
+                        return;
+                    }
+
+                    // NO SWEETALERT FOR EDIT SUCCESS (AS PER REQUEST TO ONLY HAVE IT FOR ADDING)
+                    closeEditCategoryModal();
+                    window.location.reload();
+
+                } catch (error) {
+                    console.error(error);
+                }
+            });
+
+            // Real-time error clearing
+            document.querySelectorAll("input").forEach(input => {
+                input.addEventListener("input", function () {
+                    this.classList.remove("error");
+                    const errorSpan = this.nextElementSibling;
+                    if (errorSpan && errorSpan.classList.contains("error-message")) {
+                        errorSpan.style.display = "none";
+                    }
+                });
+            });
+
         });
-        return;
-      }
-
-      // ✅ SUCCESS ALERT
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: data.message,
-        timer: 1500,
-        showConfirmButton: false
-      }).then(() => {
-        closeAddCategoryModal();
-        window.location.reload();
-      });
-
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Server Error",
-        text: "Something went wrong. Try again later."
-      });
-    }
-  });
-
-});
-</script>
+    </script>

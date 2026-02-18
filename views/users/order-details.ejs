@@ -52,11 +52,7 @@
               </span>
             </div>
 
-            <span class="
-        <% if (order.orderStatus === 'Cancelled') { %>status-pill-canceled
-        <% } else if (order.orderStatus === 'Delivered') { %>status-pill-delivered
-        <% } else { %>status-pill-processing<% } %>
-      ">
+            <span class="status-badge status-<%= order.orderStatus.toLowerCase().replace(/\s+/g, '-') %>">
               <%= order.orderStatus %>
             </span>
           </div>

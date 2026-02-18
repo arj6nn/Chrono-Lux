@@ -1,4 +1,5 @@
 import Category from "../../models/category.model.js";
+import Offer from "../../models/offer.model.js";
 import cloudinary from "../../config/cloudinary.js";
 import streamifier from "streamifier";
 
@@ -27,15 +28,33 @@ const getCategories = async ({ page, limit, search }) => {
   search = search.trim();
 
   if (search.length > 0) {
-    query.name = { $regex: new RegExp(`^${search}$`, "i") };
+    query.name = { $regex: new RegExp(`${search}`, "i") }; // Modified to search anywhere in name, not just start
   }
 
-  const totalCategories = await Category.countDocuments(query);
+  const [totalCategories, categoriesRaw, activeOffers] = await Promise.all([
+    Category.countDocuments(query),
+    Category.find(query)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean(),
+    Offer.find({
+      type: "CATEGORY",
+      isActive: true,
+      startDate: { $lte: new Date() },
+      endDate: { $gte: new Date() }
+    }).lean()
+  ]);
 
-  const categories = await Category.find(query)
-    .sort({ createdAt: -1 })
-    .skip((page - 1) * limit)
-    .limit(limit);
+  // Attach active offer to each category
+  const categories = categoriesRaw.map(cat => {
+    const offer = activeOffers.find(o => o.applicableCategory?.toString() === cat._id.toString());
+    return {
+      ...cat,
+      categoryOffer: offer ? offer.discountValue : 0,
+      offerName: offer ? offer.name : null
+    };
+  });
 
   return {
     categories,
@@ -43,7 +62,7 @@ const getCategories = async ({ page, limit, search }) => {
   };
 };
 
-const createCategory = async ({ name, description, categoryOffer, file }) => {
+const createCategory = async ({ name, description, file }) => {
   name = name.trim();
 
   const exists = await Category.findOne({
@@ -63,16 +82,25 @@ const createCategory = async ({ name, description, categoryOffer, file }) => {
   return await Category.create({
     name,
     description: description?.trim(),
-    categoryOffer: categoryOffer || 0,
     categoryImage: imageUrl
   });
 };
 
-const updateCategory = async ({ id, name, description, categoryOffer, file }) => {
+const updateCategory = async ({ id, name, description, file }) => {
+  name = name.trim();
+
+  const exists = await Category.findOne({
+    name: { $regex: `^${name}$`, $options: "i" },
+    _id: { $ne: id }
+  });
+
+  if (exists) {
+    throw new Error("CATEGORY_EXISTS");
+  }
+
   const updateData = {
-    name: name.trim(),
-    description: description.trim(),
-    categoryOffer
+    name,
+    description: description.trim()
   };
 
   if (file) {

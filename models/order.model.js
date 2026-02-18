@@ -137,6 +137,7 @@ const orderSchema = new Schema(
         "Processing",
         "Shipped",
         "Delivered",
+        "Partially Refunded",
         "Partially Delivered",
         "Return Requested",
         "Cancellation Requested",

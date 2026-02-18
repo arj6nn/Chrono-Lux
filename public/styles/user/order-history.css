@@ -376,6 +376,34 @@ body {
   border-color: rgba(179, 136, 255, 0.35);
 }
 
+/* Partially Delivered */
+.status-partially-delivered {
+  color: #2dd4bf;
+  background: rgba(45, 212, 191, 0.15);
+  border-color: rgba(45, 212, 191, 0.35);
+}
+
+/* Partially Refunded */
+.status-partially-refunded {
+  color: #fb923c;
+  background: rgba(251, 146, 60, 0.15);
+  border-color: rgba(251, 146, 60, 0.35);
+}
+
+/* Return Requested */
+.status-return-requested {
+  color: #a855f7;
+  background: rgba(168, 85, 247, 0.15);
+  border-color: rgba(168, 85, 247, 0.35);
+}
+
+/* Cancellation Requested */
+.status-cancellation-requested {
+  color: #f43f5e;
+  background: rgba(244, 63, 94, 0.15);
+  border-color: rgba(244, 63, 94, 0.35);
+}
+
 .return-btn {
   margin-top: 6px;
   padding: 6px 14px;

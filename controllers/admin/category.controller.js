@@ -34,7 +34,6 @@ const addCategory = async (req, res) => {
     await categoryService.createCategory({
       name: req.body.name,
       description: req.body.description,
-      categoryOffer: req.body.categoryOffer,
       file: req.file
     });
 
@@ -65,15 +64,19 @@ const editCategory = async (req, res) => {
       id: req.params.id,
       name: req.body.name,
       description: req.body.description,
-      categoryOffer: req.body.categoryOffer,
       file: req.file
     });
 
-    res.redirect("/admin/categories");
+    res.json({ success: true, message: "Category updated successfully" });
 
   } catch (err) {
     console.error(err);
-    res.redirect("/admin/pageerror");
+
+    if (err.message === "CATEGORY_EXISTS") {
+      return res.json({ success: false, message: "Category name already exists" });
+    }
+
+    res.json({ success: false, message: "Something went wrong" });
   }
 };
 

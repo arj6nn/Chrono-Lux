@@ -21,71 +21,90 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 18px;
+    margin-bottom: 20px;
 }
 
-/* Search Fix */
+/* Search */
 .search-form {
     display: flex;
     align-items: center;
     gap: 10px;
-    position: relative;
-    z-index: 2000;
 }
 
 .search-box {
-    width: 360px;
-    padding: 11px 15px;
-    border-radius: 6px;
-    border: 1px solid #e6e6e6;
+    width: 320px;
+    height: 40px;
+    padding: 0 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
     font-size: 14px;
+    outline: none;
 }
 
 .search-btn {
-    padding: 10px 20px;
-    background: #556b2f;
-    color: white;
+    height: 40px;
+    padding: 0 18px;
+    border-radius: 8px;
     border: none;
-    border-radius: 6px;
-    cursor: pointer;
+    background-color: #556b2f;
+    color: #fff;
     font-size: 14px;
-    transition: 0.2s ease;
+    cursor: pointer;
 }
 
 .search-btn:hover {
-    background: #4b5f2a;
+    background-color: #4b5f2a;
 }
 
+.cancel-btn {
+    height: 40px;
+    padding: 0 14px;
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #f5f5f5;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.cancel-btn:hover {
+    background: #eaeaea;
+}
+
+/* Add Category Button */
 .add-category-btn {
-    background: #556b2f;
-    color: white;
-    padding: 10px 16px;
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 8px;
+    background-color: #556b2f;
+    color: #fff;
     border: none;
-    border-radius: 6px;
     font-size: 14px;
     cursor: pointer;
     display: flex;
     align-items: center;
+    gap: 6px;
 }
 
 .add-category-btn i {
     margin-right: 6px;
 }
 
-/* CATEGORY TABLE */
+/* TABLE */
 .category-table {
     width: 100%;
     background: white;
     border-collapse: collapse;
     border-radius: 10px;
     overflow: hidden;
-
-    /* 🔥 fixed height */
-    min-height: 350px !important;
+    margin-bottom: 20px;
 }
 
 .category-table th,
 .category-table td {
+    padding: 16px 20px;
     font-size: 14px;
     border-bottom: 1px solid #efefef;
     text-align: left;
@@ -97,83 +116,32 @@
     color: #555;
 }
 
-/* OFFER BADGE */
-.offer-badge {
-    background: #e4edc8;
-    padding: 5px 12px;
+/* Images & Name */
+.category-table td.cell-name {
+    display: flex;
+    align-items: center;
+}
+
+.category-table td img {
+    width: 55px !important;
+    height: 55px !important;
     border-radius: 6px;
-    font-size: 12px;
-    color: #697821;
-    font-weight: 500;
+    object-fit: cover;
+    margin-right: 15px !important;
 }
 
-.offer-link {
-    color: #697821;
-    font-weight: 500;
-    cursor: pointer;
+.cell-desc {
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* Toggle */
-.toggle-switch {
-    position: relative;
-    display: inline-block;
-    width: 48px;
-    height: 24px;
-    vertical-align: middle;
-    cursor: pointer;
-}
-
-.toggle-switch input {
-    display: none;
-}
-
-.toggle-slider {
-    position: absolute;
-    inset: 0;
-    background: #c9c9c9;
-    border-radius: 30px;
-    transition: 0.25s ease;
-}
-
-.toggle-slider::before {
-    content: "";
-    position: absolute;
-    height: 20px;
-    width: 20px;
-    left: 2px;
-    top: 2px;
-    border-radius: 50%;
-    background: #ffffff;
-    transition: 0.25s ease;
-}
-
-.toggle-switch:not(.blocked) input:checked + .toggle-slider {
-    background: #71851B;
-}
-
-.toggle-switch:not(.blocked) input:checked + .toggle-slider::before {
-    transform: translateX(24px);
-}
-
-.toggle-switch.blocked input:checked + .toggle-slider {
-    background: #d9534f;
-}
-
-.toggle-switch.blocked input:checked + .toggle-slider::before {
-    transform: translateX(24px);
-}
-
-td span {
-    margin-left: 6px;
-    font-size: 14px;
-    color: #555;
-}
-
-/* ACTION ICONS */
+/* Actions */
 .actions i {
-    font-size: 16px !important;
+    font-size: 18px !important;
     cursor: pointer;
-    margin-right: 6px !important;
+    margin-right: 12px !important;
 }
 
 .edit {
@@ -184,125 +152,112 @@ td span {
     color: #d9534f;
 }
 
+.status.active {
+    color: green;
+    font-weight: 600;
+}
+
+.status.blocked {
+    color: red;
+    font-weight: 600;
+}
+
+/* PAGINATION (Matching Brand Look) */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 30px;
+    align-items: center;
+}
+
+.page-numbers {
+    display: flex;
+    gap: 10px;
+}
+
+/* Base styles for pagination items */
+.page-btn,
+.page-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 999px;
+    /* Pill/Circle shape */
+    text-decoration: none;
+    font-size: 14px;
+    color: #333;
+    border: 1px solid #e0e0e0;
+    background: #fff;
+    transition: all 0.2s ease;
+}
+
+.page-btn:not(.disabled):hover,
+.page-number:hover {
+    background: #f3f3f3;
+}
+
+.page-btn.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+.page-number.active {
+    background: #556b2f;
+    color: #fff;
+    border-color: #556b2f;
+    font-weight: 600;
+}
+
+
 /* MODALS */
 .modal-overlay {
     display: none;
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
     justify-content: center;
     align-items: center;
     z-index: 9999;
 }
 
+/* Ensure SweetAlert is always on top of modals */
+.swal2-container {
+    z-index: 100000 !important;
+}
+
 .modal-box {
-    background: #fff;
+    background: #ffffff;
     width: 600px;
-    padding: 25px;
-    border-radius: 10px;
-}
-
-/* Pagination */
-.pagination {
-    margin-top: 25px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-}
-
-.page-btn {
-    padding: 8px 18px;
-    background: #fff;
-    border-radius: 50px;
-    border: 1px solid #dcdcdc;
-    color: #444;
-    font-size: 14px;
-    cursor: pointer;
-}
-
-.page-number {
-    padding: 8px 14px;
-    border-radius: 50px;
-    background: #fff;
-    border: 1px solid #e4e4e4;
-    color: #333;
-    font-size: 14px;
-    text-decoration: none;
-}
-
-.page-number.active {
-    background: #7a8f33;
-    color: white;
-    border-color: #7a8f33;
-}
-
-.category-table tbody tr {
-    height: 40px !important;
-}
-
-.category-table td {
-    padding: 6px 10px !important;
-}
-
-.category-table td img {
-    width: 26px !important;
-    height: 26px !important;
-    object-fit: cover !important;
-    border-radius: 6px !important;
-}
-
-.category-table td.cell-desc {
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    max-width: 450px !important;
-}
-
-/* remove flex-grow from wrapper */
-.category-page-wrapper {
-    min-height: 80vh;
-}
-
-/* MODAL OVERLAY */
-.modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.55);
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-}
-
-/* MODAL BOX */
-.modal-box {
-    background: #fff;
-    width: 600px;
-    padding: 25px 28px;
     border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.20);
-    animation: scaleIn .20s ease;
+    padding: 25px;
+    box-shadow: 0px 5px 25px rgba(0, 0, 0, 0.2);
+    animation: scaleIn 0.2s ease;
 }
 
 @keyframes scaleIn {
     from {
-        transform: scale(.8);
+        transform: scale(0.8);
         opacity: 0;
     }
+
     to {
         transform: scale(1);
         opacity: 1;
     }
 }
 
-/* HEADER */
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #ececec;
     margin-bottom: 20px;
 }
 
@@ -315,107 +270,114 @@ td span {
     font-size: 26px;
     cursor: pointer;
     color: #555;
-    transition: .2s ease;
 }
 
-.modal-close:hover {
-    color: #333;
-}
-
-/* FORM LABELS */
 .modal-box label {
     font-size: 14px;
-    font-weight: 500;
-    /* color: #444; */
+    margin-bottom: 6px;
     display: block;
-    margin-bottom: 5px;
+    font-weight: normal;
 }
 
-/* INPUT + TEXTAREA */
-.modal-box input,
-.modal-box textarea {
+.modal-box input {
     width: 100%;
-    padding: 12px 14px;
+    padding: 14px;
     border-radius: 8px;
-    background: #fafafa;
-    border: 1px solid #ddd;
-    margin-bottom: 14px;
-    font-size: 14px;
-    transition: .2s ease;
-}
-
-.modal-box input:focus,
-.modal-box textarea:focus {
-    border-color: #71851B;
+    border: 1px solid #dcdcdc;
+    margin-bottom: 18px;
     background: #fff;
 }
 
-/* FILE UPLOAD */
 .file-upload-wrapper {
-    display: flex;
-    align-items: center;
-    margin-bottom: 14px;
-}
-
-.file-upload-wrapper input[type="file"] {
-    display: none;
+    margin-bottom: 18px;
 }
 
 .custom-file-upload {
-    display: inline-flex;
-    align-items: center;
-    padding: 8px 16px;
-    background: #8D9A62;
-    color: #fff;
-    border-radius: 6px;
+    padding: 12px;
+    border: 1px solid #dcdcdc;
+    border-radius: 8px;
+    background: #f7f7f7;
     cursor: pointer;
+    display: block;
     font-size: 14px;
-    transition: .2s ease;
-}
-
-.custom-file-upload i {
-    margin-right: 6px;
+    color: #555;
+    text-align: center;
+    width: fit-content;
 }
 
 .custom-file-upload:hover {
-    background: #6b802c;
+    background: #eef;
+}
+
+.custom-file-upload i {
+    margin-right: 5px;
 }
 
 .file-name {
-    margin-left: 12px;
-    font-size: 14px;
+    margin-left: 10px;
+    font-size: 13px;
     color: #666;
 }
 
-/* ACTION BUTTONS */
+/* Validation Errors */
+.error-message {
+    color: #d9534f;
+    font-size: 11px;
+    margin-top: -14px;
+    margin-bottom: 14px;
+    display: none;
+    font-weight: 500;
+}
+
+input.error {
+    border-color: #d9534f !important;
+    background-color: #fff8f8 !important;
+}
+
 .modal-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 12px;
+    gap: 15px;
     margin-top: 10px;
 }
 
 .cancel-btn {
-    padding: 10px 26px;
+    padding: 12px 32px;
     border-radius: 8px;
     border: 1px solid #ccc;
-    background: #f0f0f0;
+    background: #f5f5f5;
     cursor: pointer;
+    /* Reset from previous cancel-btn definition if needed, but the previous one was for search clear */
+    height: auto;
+    display: inline-block;
 }
 
-.cancel-btn:hover {
-    background: #e5e5e5;
+/* Specific override for modal action buttons vs search clear button which shares class 'cancel-btn' 
+   In category.ejs: 
+   Search clear: <a href="..." class="cancel-btn">Clear</a>
+   Modal cancel: <button class="cancel-btn" ...>Cancel</button>
+   
+   I should probably distinguish them. The Brand CSS uses .reset-btn for search reset.
+   Category uses .cancel-btn for both.
+   I need to make sure the modal cancel button looks like a button.
+*/
+
+button.cancel-btn {
+    padding: 12px 32px;
+    height: auto;
+    background: #f5f5f5;
+    color: #333;
+    border: 1px solid #ccc;
 }
+
+
 
 .submit-btn {
-    padding: 10px 26px;
+    padding: 12px 32px;
     border-radius: 8px;
     background: #71851B;
-    border: none;
     color: white;
+    border: none;
     cursor: pointer;
-}
-
-.submit-btn:hover {
-    background: #5e6d17;
+    font-size: 14px;
 }

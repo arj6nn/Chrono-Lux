@@ -9,13 +9,20 @@ export default function (items) {
     return "Refunded"; // Or specific status
   }
 
+  if(
+    statuses.includes("Refunded") &&
+    statuses.some(s => s === "Delivered")
+  ){
+    return "Partially Refunded"
+  }
+
   if (statuses.every(s => s === "Delivered")) {
     return "Delivered";
   }
 
   if (
     statuses.includes("Delivered") &&
-    statuses.some(s => s === "Cancelled" || s === "Refunded")
+    statuses.some(s => s === "Shipped" || s === "Processing")
   ) {
     return "Partially Delivered";
   }
