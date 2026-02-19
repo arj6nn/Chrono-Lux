@@ -88,7 +88,7 @@ app.use((req, res) => {
 });
 
 const PORT = process.env.PORT || 7777;
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
     console.log(`http://localhost:${PORT}`);
 });
 
