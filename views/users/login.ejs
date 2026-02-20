@@ -19,7 +19,8 @@
     <section class="hero-video-section">
         <div class="video-frame">
             <video autoplay muted loop playsinline>
-                <source src="/videos/watch2.mp4" type="video/mp4">
+                <source src="https://res.cloudinary.com/dkrantic4/video/upload/v1771580159/chrono-lux/videos/watch2.mp4"
+                    type="video/mp4">
             </video>
         </div>
 
@@ -49,12 +50,12 @@
                 </div>
 
                 <% if (message) { %>
-                <div class="alert alert-danger text-center">
-                    <%= message %>
-                </div>
-                <% } %>
+                    <div class="alert alert-danger text-center">
+                        <%= message %>
+                    </div>
+                    <% } %>
 
-                <button type="submit" class="btn-login">Login</button>
+                        <button type="submit" class="btn-login">Login</button>
             </form>
 
             <div class="divider">Or</div>
@@ -71,36 +72,36 @@
     </section>
 
     <% if (blocked) { %>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        Swal.fire({
-            icon: 'error',
-            title: 'Account Blocked',
-            text: 'Your account has been blocked by the admin.',
-            confirmButtonText: 'OK',
-            customClass: {
-                popup: 'glass-popup'
-            }
-        });
-    </script>
-    <% } %>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Account Blocked',
+                text: 'Your account has been blocked by the admin.',
+                confirmButtonText: 'OK',
+                customClass: {
+                    popup: 'glass-popup'
+                }
+            });
+        </script>
+        <% } %>
 
-    <script>
-        function togglePassword() {
-            const passwordField = document.getElementById("password");
-            const eyeIcon = document.getElementById("eyeIcon");
+            <script>
+                function togglePassword() {
+                    const passwordField = document.getElementById("password");
+                    const eyeIcon = document.getElementById("eyeIcon");
 
-            if (passwordField.type === "password") {
-                passwordField.type = "text";
-                eyeIcon.classList.remove("fa-eye");
-                eyeIcon.classList.add("fa-eye-slash");
-            } else {
-                passwordField.type = "password";
-                eyeIcon.classList.remove("fa-eye-slash");
-                eyeIcon.classList.add("fa-eye");
-            }
-        }
-    </script>
+                    if (passwordField.type === "password") {
+                        passwordField.type = "text";
+                        eyeIcon.classList.remove("fa-eye");
+                        eyeIcon.classList.add("fa-eye-slash");
+                    } else {
+                        passwordField.type = "password";
+                        eyeIcon.classList.remove("fa-eye-slash");
+                        eyeIcon.classList.add("fa-eye");
+                    }
+                }
+            </script>
 
 
 </body>
