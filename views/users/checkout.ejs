@@ -388,6 +388,8 @@
               e.preventDefault();
               modal.classList.add("show");
               document.body.style.overflow = "hidden";
+              // Clear previous errors
+              document.querySelectorAll(".error-message").forEach(el => el.textContent = "");
             };
           }
 
@@ -410,6 +412,10 @@
           if (form) {
             form.addEventListener("submit", async (e) => {
               e.preventDefault();
+
+              if (!validateAddressForm()) {
+                return;
+              }
 
               const formData = new FormData(form);
               const data = Object.fromEntries(formData);
