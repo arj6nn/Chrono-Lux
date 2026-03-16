@@ -71,10 +71,32 @@ const loadLogin = async (req, res) => {
   }
 };
 
+// ABOUT PAGE
+const loadAboutPage = async (req, res) => {
+  try {
+    return res.render("users/about");
+  } catch (error) {
+    console.error("About page error:", error.message);
+    res.redirect("/pageNotFound");
+  }
+};
+
+// CONTACT PAGE
+const loadContactPage = async (req, res) => {
+  try {
+    return res.render("users/contact");
+  } catch (error) {
+    console.error("Contact page error:", error.message);
+    res.redirect("/pageNotFound");
+  }
+};
+
 export {
   pageNotFound,
   loadLandingPage,
   loadHomePage,
   loadSignup,
-  loadLogin
+  loadLogin,
+  loadAboutPage,
+  loadContactPage
 };

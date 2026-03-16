@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us - Chrono Luxe</title>
+  <link rel="stylesheet" href="/styles/user/header.css">
+  <link rel="stylesheet" href="/styles/user/about.css">
+</head>
+<body>
+
+  <%- include("../partials/user/header") %>
+
+  <section class="about-hero">
+    <h1>Our Heritage</h1>
+    <p>The Art of Precision Since 1994</p>
+  </section>
+
+  <div class="container about-content">
+    <div class="about-grid">
+      <div class="about-text">
+        <h2>Unveiling Time, One Masterpiece at a Time.</h2>
+        <p>Welcome to Chrono Luxe, where horological excellence meets ultimate luxury. Founded on the principles of precision, authenticity, and unparalleled craftsmanship, we have dedicated ourselves to curating the world's most prestigious timepieces.</p>
+        <p>Our journey began with a simple passion for the intricate mechanics of Swiss watchmaking. Today, Chrono Luxe stands as a beacon for collectors and enthusiasts who demand nothing less than perfection.</p>
+        <p>Every watch in our collection is more than just a tool for telling time; it is a legacy, a work of art, and a testament to the human pursuit of excellence.</p>
+      </div>
+      <div class="about-image">
+        <img src="https://images.unsplash.com/photo-1547996160-81dfa63595aa?auto=format&fit=crop&w=1000&q=80" alt="Luxury Watchmaster">
+      </div>
+    </div>
+  </div>
+
+  <section class="stats-section">
+    <div class="container stats-grid">
+      <div class="stat-item">
+        <h3>25+</h3>
+        <p>Years of Expertise</p>
+      </div>
+      <div class="stat-item">
+        <h3>15k+</h3>
+        <p>Masterpieces Sold</p>
+      </div>
+      <div class="stat-item">
+        <h3>40+</h3>
+        <p>Premium Brands</p>
+      </div>
+      <div class="stat-item">
+        <h3>100%</h3>
+        <p>Authenticity Rate</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="mission-section">
+    <div class="container">
+      <div class="mission-card">
+        <h2>Our Mission</h2>
+        <p>"To bridge the gap between timeless tradition and modern luxury, providing our clients with not just watches, but stories that last for generations."</p>
+      </div>
+    </div>
+  </section>
+
+  <%- include("../partials/user/footer") %>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const nav = document.querySelector('nav');
+      if (nav) nav.classList.add('glass-nav');
+    });
+  </script>
+
+</body>
+</html>

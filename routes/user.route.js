@@ -32,6 +32,8 @@ router.get('/', authRedirect, page.loadLandingPage);
 router.get('/home', page.loadHomePage);
 router.get('/signup', preventUserAuth, page.loadSignup);
 router.get('/login', preventUserAuth, page.loadLogin);
+router.get('/about', page.loadAboutPage);
+router.get('/contact', page.loadContactPage);
 
 // Signup
 router.post('/signup', auth.signup);
